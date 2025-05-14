@@ -65,11 +65,12 @@
       position: relative;
     }
     .options-container {
-      display: none;
-      flex-direction: row; /* ترتيب الأزرار بشكل أفقي */
+      flex-direction: row;
       gap: 15px;
       margin-top: 20px;
-      justify-content: center; /* جعل الأزرار في منتصف الجزء السفلي */
+      justify-content: center;
+      display: flex;
+      flex-wrap: wrap;
     }
     .options-button {
       background-color: #388e3c;
@@ -86,41 +87,25 @@
       background-color: #2e7d32;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://unpkg.com/jspdf@2.5.1/dist/polyfills.umd.js"></script>
-  <script src="https://unpkg.com/jspdf@2.5.1/dist/fonts/arabic-normal.js"></script>
 </head>
 <body>
 <div class="container">
   <h2>أداة إنشاء بطاقة فهرسة</h2>
-  <label>المؤلف:</label>
-  <input type="text" id="author">
-  <label>العنوان:</label>
-  <input type="text" id="title">
-  <label>مكان النشر:</label>
-  <input type="text" id="pubPlace">
-  <label>الناشر:</label>
-  <input type="text" id="publisher">
-  <label>تاريخ النشر:</label>
-  <input type="text" id="pubDate">
-  <label>الطبعة:</label>
-  <input type="text" id="edition">
-  <label>عدد الصفحات:</label>
-  <input type="text" id="pages">
-  <label>الموضوعات:</label>
-  <input type="text" id="subjects">
-  <label>رقم التصنيف:</label>
-  <input type="text" id="classification">
-  <label>رقم المؤلف:</label>
-  <input type="text" id="authorNumber">
-  <label>رقم الإيداع:</label>
-  <input type="text" id="legalDeposit">
-  <label>ردمك (ISBN):</label>
-  <input type="text" id="isbn">
-  <label>السلسلة:</label>
-  <input type="text" id="series">
-  <label>ملاحظات:</label>
-  <textarea id="notes"></textarea>
+  <label>المؤلف:</label><input type="text" id="author">
+  <label>العنوان:</label><input type="text" id="title">
+  <label>مكان النشر:</label><input type="text" id="pubPlace">
+  <label>الناشر:</label><input type="text" id="publisher">
+  <label>تاريخ النشر:</label><input type="text" id="pubDate">
+  <label>الطبعة:</label><input type="text" id="edition">
+  <label>عدد الصفحات:</label><input type="text" id="pages">
+  <label>الموضوعات:</label><input type="text" id="subjects">
+  <label>رقم التصنيف:</label><input type="text" id="classification">
+  <label>رقم المؤلف:</label><input type="text" id="authorNumber">
+  <label>رقم الإيداع:</label><input type="text" id="legalDeposit">
+  <label>ردمك (ISBN):</label><input type="text" id="isbn">
+  <label>السلسلة:</label><input type="text" id="series">
+  <label>ملاحظات:</label><textarea id="notes"></textarea>
+
   <div class="buttons">
     <label>اختيار نوع البطاقة:</label>
     <select id="cardType">
@@ -131,23 +116,26 @@
     </select>
     <button onclick="handleGenerate()">توليد البطاقة</button>
   </div>
+
   <div class="output" id="output" style="display: none;">
     <div id="outputText"></div>
-    <!-- أزرار الخيارات الإضافية تظهر هنا بعد توليد البطاقة -->
     <div class="options-container" id="optionsContainer">
       <button class="options-button" onclick="handleOption('reset')">إعادة الإدخال</button>
-      <button class="options-button" onclick="handleOption('mark')">تحويل إلى MARC 21</button>
+      <button class="options-button" onclick="handleOption('marc')">تصدير Marc</button>
+      <button class="options-button" onclick="handleOption('rda')">تصدير RDA</button>
+      <button class="options-button" onclick="handleOption('csv')">تصدير CSV</button>
       <button class="options-button" onclick="handleOption('copy')">نسخ البطاقة</button>
-      <button class="options-button" onclick="handleOption('print')">حفظ كـ PDF / طباعة</button>
     </div>
   </div>
 </div>
+
 <script>
   function getField(id) {
     return document.getElementById(id).value.trim();
   }
+
   function handleGenerate() {
-    const type = document.getElementById("cardType").value;
+    const type = getField("cardType");
     const author = getField('author');
     const title = getField('title');
     if (!type) {
@@ -160,6 +148,7 @@
     }
     generateCard(type);
   }
+
   function generateCard(type) {
     const author = getField('author');
     const title = getField('title');
@@ -176,54 +165,47 @@
     const series = getField('series');
     const notes = getField('notes');
     const callNumber = `${classification} ${authorNumber}`;
-    let mainEntry = '';
-    if (type === 'author') {
-      mainEntry = author;
-    } else if (type === 'title') {
-      mainEntry = title;
-    } else if (type === 'subject') {
-      mainEntry = subjects.split(',')[0] || subjects;
-    }
-    let description = `${title} / ${author}. - ${pubPlace} : ${publisher}، ${pubDate}.
-`;
-    if (edition) description += `ط. ${edition}. `;
-    if (pages) description += `${pages} ص.
-`;
-    if (series) description += `- (${series})
-`;
-    let extraInfo = '';
-    if (notes) extraInfo += `ملاحظات: ${notes}
-`;
-    if (legalDeposit) extraInfo += `رقم الإيداع: ${legalDeposit}
-`;
-    if (isbn) extraInfo += `ردمك: ${isbn}
-`;
-    const fullText = `${callNumber}
-${mainEntry}
 
-${description}${extraInfo}
-${callNumber}`;
+    let mainEntry = '';
+    if (type === 'author') mainEntry = author;
+    else if (type === 'title') mainEntry = title;
+    else if (type === 'subject') mainEntry = subjects.split(',')[0] || subjects;
+
+    let description = `${title} / ${author}. - ${pubPlace} : ${publisher}، ${pubDate}.\n`;
+    if (edition) description += `ط. ${edition}. `;
+    if (pages) description += `${pages} ص.\n`;
+    if (series) description += `- (${series})\n`;
+
+    let extraInfo = '';
+    if (notes) extraInfo += `ملاحظات: ${notes}\n`;
+    if (legalDeposit) extraInfo += `رقم الإيداع: ${legalDeposit}\n`;
+    if (isbn) extraInfo += `ردمك: ${isbn}\n`;
+
+    const fullText = `${callNumber}\n${mainEntry}\n\n${description}${extraInfo}\n${callNumber}`;
     document.getElementById('output').style.display = 'block';
     document.getElementById('outputText').textContent = fullText;
-    document.getElementById('optionsContainer').style.display = 'flex'; // عرض الأزرار بعد التوليد
+    document.getElementById('optionsContainer').style.display = 'flex';
   }
+
   function handleOption(option) {
     if (option === "reset") {
       document.querySelectorAll("input, textarea").forEach(e => e.value = '');
       document.getElementById("output").style.display = "none";
       document.getElementById("cardType").value = "";
-      document.getElementById('optionsContainer').style.display = 'none'; // إخفاء الأزرار بعد إعادة الإدخال
+      document.getElementById('optionsContainer').style.display = 'none';
     } else if (option === "copy") {
       const text = document.getElementById("outputText").textContent;
       navigator.clipboard.writeText(text);
       alert("تم نسخ البطاقة إلى الحافظة.");
-    } else if (option === "mark") {
-      const mark = generateMARC();
-      document.getElementById("outputText").textContent = mark;
-    } else if (option === "print") {
-      exportPDF();
+    } else if (option === "marc") {
+      document.getElementById("outputText").textContent = generateMARC();
+    } else if (option === "rda") {
+      document.getElementById("outputText").textContent = generateRDA();
+    } else if (option === "csv") {
+      exportCSV();
     }
   }
+
   function generateMARC() {
     return (
 `100    ${getField('author')}
@@ -237,19 +219,58 @@ ${callNumber}`;
 653    ${getField('subjects')}`
     );
   }
-  async function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    doc.setFont("arabic");
-    doc.setFontSize(14);
-    const text = document.getElementById("outputText").textContent;
-    const lines = doc.splitTextToSize(text, 180);
-    doc.text(lines, 190, 20, { align: "right" });
-    doc.save("بطاقة_فهرسة.pdf");
+
+  function generateRDA() {
+    return (
+`البيانات الأساسية:
+- المؤلف: ${getField('author')}
+- العنوان: ${getField('title')}
+- الطبعة: ${getField('edition')}
+- مكان النشر: ${getField('pubPlace')}
+- الناشر: ${getField('publisher')}
+- تاريخ النشر: ${getField('pubDate')}
+
+البيانات المادية:
+- عدد الصفحات: ${getField('pages')}
+- السلسلة: ${getField('series')}
+
+البيانات الفرعية:
+- الموضوعات: ${getField('subjects')}
+- رقم التصنيف: ${getField('classification')}
+- رقم المؤلف: ${getField('authorNumber')}
+- رقم الإيداع: ${getField('legalDeposit')}
+- ردمك: ${getField('isbn')}
+- ملاحظات: ${getField('notes')}`
+    );
+  }
+
+  function exportCSV() {
+    const headers = [
+      "المؤلف", "العنوان", "مكان النشر", "الناشر", "تاريخ النشر",
+      "الطبعة", "عدد الصفحات", "الموضوعات", "رقم التصنيف", "رقم المؤلف",
+      "رقم الإيداع", "ردمك", "السلسلة", "ملاحظات"
+    ];
+    const values = [
+      getField('author'), getField('title'), getField('pubPlace'), getField('publisher'),
+      getField('pubDate'), getField('edition'), getField('pages'), getField('subjects'),
+      getField('classification'), getField('authorNumber'), getField('legalDeposit'),
+      getField('isbn'), getField('series'), getField('notes')
+    ];
+    const csvContent = `${headers.join(",")}\n${values.map(v => `"${v}"`).join(",")}`;
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "بطاقة_فهرسة.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 </script>
+
 <footer style="text-align: center; margin-top: 40px; font-size: 14px; color: #666;">
-  الدكتور طلال ناظم الزهيري@2025
+  الدكتور طلال ناظم الزهيري @2025
 </footer>
 </body>
 </html>
