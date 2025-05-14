@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>بطاقة فهرسة</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      direction: rtl;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+    .container {
+      background-color: #fff;
+      border-radius: 15px;
+      padding: 25px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2e7d32;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    button {
+      background-color: #388e3c;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #2e7d32;
+    }
+    .output {
+      background-color: #f1f8e9;
+      border: 1px solid #c5e1a5;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+      white-space: pre-wrap;
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      position: relative;
+    }
+    .options-container {
+      display: none;
+      flex-direction: row; /* ترتيب الأزرار بشكل أفقي */
+      gap: 15px;
+      margin-top: 20px;
+      justify-content: center; /* جعل الأزرار في منتصف الجزء السفلي */
+    }
+    .options-button {
+      background-color: #388e3c;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      width: auto;
+      text-align: center;
+    }
+    .options-button:hover {
+      background-color: #2e7d32;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/polyfills.umd.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/fonts/arabic-normal.js"></script>
+</head>
+<body>
+<div class="container">
+  <h2>أداة إنشاء بطاقة فهرسة</h2>
+  <label>المؤلف:</label>
+  <input type="text" id="author">
+  <label>العنوان:</label>
+  <input type="text" id="title">
+  <label>مكان النشر:</label>
+  <input type="text" id="pubPlace">
+  <label>الناشر:</label>
+  <input type="text" id="publisher">
+  <label>تاريخ النشر:</label>
+  <input type="text" id="pubDate">
+  <label>الطبعة:</label>
+  <input type="text" id="edition">
+  <label>عدد الصفحات:</label>
+  <input type="text" id="pages">
+  <label>الموضوعات:</label>
+  <input type="text" id="subjects">
+  <label>رقم التصنيف:</label>
+  <input type="text" id="classification">
+  <label>رقم المؤلف:</label>
+  <input type="text" id="authorNumber">
+  <label>رقم الإيداع:</label>
+  <input type="text" id="legalDeposit">
+  <label>ردمك (ISBN):</label>
+  <input type="text" id="isbn">
+  <label>السلسلة:</label>
+  <input type="text" id="series">
+  <label>ملاحظات:</label>
+  <textarea id="notes"></textarea>
+  <div class="buttons">
+    <label>اختيار نوع البطاقة:</label>
+    <select id="cardType">
+      <option value="">-- اختر نوع البطاقة --</option>
+      <option value="author">بطاقة المؤلف</option>
+      <option value="title">بطاقة العنوان</option>
+      <option value="subject">بطاقة الموضوع</option>
+    </select>
+    <button onclick="handleGenerate()">توليد البطاقة</button>
+  </div>
+  <div class="output" id="output" style="display: none;">
+    <div id="outputText"></div>
+    <!-- أزرار الخيارات الإضافية تظهر هنا بعد توليد البطاقة -->
+    <div class="options-container" id="optionsContainer">
+      <button class="options-button" onclick="handleOption('reset')">إعادة الإدخال</button>
+      <button class="options-button" onclick="handleOption('mark')">تحويل إلى MARC 21</button>
+      <button class="options-button" onclick="handleOption('copy')">نسخ البطاقة</button>
+      <button class="options-button" onclick="handleOption('print')">حفظ كـ PDF / طباعة</button>
+    </div>
+  </div>
+</div>
+<script>
+  function getField(id) {
+    return document.getElementById(id).value.trim();
+  }
+  function handleGenerate() {
+    const type = document.getElementById("cardType").value;
+    const author = getField('author');
+    const title = getField('title');
+    if (!type) {
+      alert("يرجى اختيار نوع البطاقة أولاً.");
+      return;
+    }
+    if (!author && !title) {
+      alert("يرجى إدخال المؤلف أو العنوان على الأقل.");
+      return;
+    }
+    generateCard(type);
+  }
+  function generateCard(type) {
+    const author = getField('author');
+    const title = getField('title');
+    const pubPlace = getField('pubPlace');
+    const publisher = getField('publisher');
+    const pubDate = getField('pubDate');
+    const edition = getField('edition');
+    const pages = getField('pages');
+    const subjects = getField('subjects');
+    const classification = getField('classification');
+    const authorNumber = getField('authorNumber');
+    const legalDeposit = getField('legalDeposit');
+    const isbn = getField('isbn');
+    const series = getField('series');
+    const notes = getField('notes');
+    const callNumber = `${classification} ${authorNumber}`;
+    let mainEntry = '';
+    if (type === 'author') {
+      mainEntry = author;
+    } else if (type === 'title') {
+      mainEntry = title;
+    } else if (type === 'subject') {
+      mainEntry = subjects.split(',')[0] || subjects;
+    }
+    let description = `${title} / ${author}. - ${pubPlace} : ${publisher}، ${pubDate}.
+`;
+    if (edition) description += `ط. ${edition}. `;
+    if (pages) description += `${pages} ص.
+`;
+    if (series) description += `- (${series})
+`;
+    let extraInfo = '';
+    if (notes) extraInfo += `ملاحظات: ${notes}
+`;
+    if (legalDeposit) extraInfo += `رقم الإيداع: ${legalDeposit}
+`;
+    if (isbn) extraInfo += `ردمك: ${isbn}
+`;
+    const fullText = `${callNumber}
+${mainEntry}
+
+${description}${extraInfo}
+${callNumber}`;
+    document.getElementById('output').style.display = 'block';
+    document.getElementById('outputText').textContent = fullText;
+    document.getElementById('optionsContainer').style.display = 'flex'; // عرض الأزرار بعد التوليد
+  }
+  function handleOption(option) {
+    if (option === "reset") {
+      document.querySelectorAll("input, textarea").forEach(e => e.value = '');
+      document.getElementById("output").style.display = "none";
+      document.getElementById("cardType").value = "";
+      document.getElementById('optionsContainer').style.display = 'none'; // إخفاء الأزرار بعد إعادة الإدخال
+    } else if (option === "copy") {
+      const text = document.getElementById("outputText").textContent;
+      navigator.clipboard.writeText(text);
+      alert("تم نسخ البطاقة إلى الحافظة.");
+    } else if (option === "mark") {
+      const mark = generateMARC();
+      document.getElementById("outputText").textContent = mark;
+    } else if (option === "print") {
+      exportPDF();
+    }
+  }
+  function generateMARC() {
+    return (
+`100    ${getField('author')}
+245    ${getField('title')}
+260    ${getField('pubPlace')} : ${getField('publisher')}, ${getField('pubDate')}
+250    ${getField('edition')}
+300    ${getField('pages')} ص.
+490    ${getField('series')}
+500    ${getField('notes')}
+020    ${getField('isbn')}
+653    ${getField('subjects')}`
+    );
+  }
+  async function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    doc.setFont("arabic");
+    doc.setFontSize(14);
+    const text = document.getElementById("outputText").textContent;
+    const lines = doc.splitTextToSize(text, 180);
+    doc.text(lines, 190, 20, { align: "right" });
+    doc.save("بطاقة_فهرسة.pdf");
+  }
+</script>
+<footer style="text-align: center; margin-top: 40px; font-size: 14px; color: #666;">
+  الدكتور طلال ناظم الزهيري@2025
+</footer>
+</body>
+</html>

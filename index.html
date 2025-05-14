@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>أدوات أمين المكتبة</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #222;
+    }
+
+    h1 {
+      background-color: #222;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      font-size: 28px;
+    }
+
+    .container {
+      margin: 30px auto;
+      max-width: 500px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border: 3px solid #007bff; /* ✅ إطار أزرق */
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    footer {
+      margin-top: 50px;
+      padding: 20px;
+      font-size: 14px;
+      background: #eee;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>أدوات أمين المكتبة</h1>
+
+  <div class="container">
+    <!-- زر "إنشاء بطاقة الفهرسة" يرتبط بصفحة webcat.html -->
+    <button onclick="window.location.href='webcat.html'">إنشاء بطاقة الفهرسة</button>
+
+    <!-- زر "إنشاء رمز استجابة سريعة" يرتبط بصفحة QR3.html -->
+    <button onclick="window.location.href='QRT.html'">إنشاء رمز استجابة سريعة</button>
+  </div>
+
+  <footer>
+    <p>حقوق النشر © د.طلال الزهيري 2025 | أدوات أمين المكتبة</p>
+  </footer>
+
+</body>
+</html>
