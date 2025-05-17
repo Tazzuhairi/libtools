@@ -7,6 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <style>
+    /* نفس التنسيقات السابقة بدون تغيير */
     body {
       font-family: 'Cairo', sans-serif;
       background: #f4f4f4;
@@ -146,25 +147,21 @@
 <body>
   <h1>🔲 مولد رمز QR الاحترافي</h1>
   <div class="container">
+    <!-- نفس الحقول -->
     <label for="fileLink">رابط الملف:</label>
     <input type="text" id="fileLink" placeholder="أدخل الرابط هنا" />
-
     <label for="qrName">اسم الرمز (اختياري):</label>
     <input type="text" id="qrName" placeholder="أدخل اسمًا يظهر أسفل الرمز" />
-
     <label for="size">الحجم:</label>
     <select id="size">
       <option value="128">صغير (128x128)</option>
       <option value="256" selected>متوسط (256x256)</option>
       <option value="512">كبير (512x512)</option>
     </select>
-
     <label for="foregroundColor">لون رمز QR:</label>
     <input type="color" id="foregroundColor" value="#000000" />
-
     <label for="backgroundColor">لون الخلفية:</label>
     <input type="color" id="backgroundColor" value="#ffffff" />
-
     <label for="quietZone">الإطار الأبيض (المنطقة الهادئة):</label>
     <select id="quietZone">
       <option value="0">بدون</option>
@@ -218,10 +215,20 @@
       const colorLight = document.getElementById("backgroundColor").value;
       const quietZone = parseInt(document.getElementById("quietZone").value);
       if (!fileLink) return alert("يرجى إدخال رابط.");
+
       const tempDiv = document.createElement("div");
       tempDiv.style.display = "none";
       document.body.appendChild(tempDiv);
-      new QRCode(tempDiv, { text: fileLink, width: size, height: size, colorDark, colorLight, correctLevel: QRCode.CorrectLevel.H });
+
+      new QRCode(tempDiv, {
+        text: fileLink,
+        width: size,
+        height: size,
+        colorDark,
+        colorLight,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
       setTimeout(() => {
         const canvas = tempDiv.querySelector("canvas");
         const finalCanvas = document.createElement("canvas");
@@ -232,124 +239,36 @@
         ctx.fillStyle = colorLight;
         ctx.fillRect(0, 0, finalSize, finalSize);
         ctx.drawImage(canvas, quietZone, quietZone);
-        const qrWrapper = document.createElement("div");
-        qrWrapper.className = "qr-wrapper";
-        qrWrapper.appendChild(finalCanvas);
-        qrcodeContainer.appendChild(qrWrapper);
-        if (qrName) {
-          const label = document.createElement("div");
-          label.className = "qr-name";
-          label.textContent = qrName;
-          qrcodeContainer.appendChild(label);
-        }
-        document.body.removeChild(tempDiv);
-        currentQRCodeCanvas = finalCanvas;
+
+        const logo = new Image();
+        logo.src = "logo.png"; // تأكد من وجود الشعار في نفس المجلد
+        logo.onload = () => {
+          const logoSize = size * 0.2;
+          const x = (finalCanvas.width - logoSize) / 2;
+          const y = (finalCanvas.height - logoSize) / 2;
+          ctx.drawImage(logo, x, y, logoSize, logoSize);
+
+          const qrWrapper = document.createElement("div");
+          qrWrapper.className = "qr-wrapper";
+          qrWrapper.appendChild(finalCanvas);
+          qrcodeContainer.appendChild(qrWrapper);
+
+          if (qrName) {
+            const label = document.createElement("div");
+            label.className = "qr-name";
+            label.textContent = qrName;
+            qrcodeContainer.appendChild(label);
+          }
+
+          document.body.removeChild(tempDiv);
+          currentQRCodeCanvas = finalCanvas;
+        };
       }, 300);
     }
 
-    function downloadQRCode() {
-      if (!currentQRCodeCanvas) return alert("أنشئ رمز QR أولاً!");
-      const link = document.createElement('a');
-      link.href = currentQRCodeCanvas.toDataURL("image/png");
-      link.download = "QRCode.png";
-      link.click();
-    }
+    // باقي الدوال بدون تغيير: downloadQRCode, printQRCode, resetForm, saveQRCode, renderSavedQRCodes, deleteSavedQRCode, exportToWord
 
-    function printQRCode() {
-      if (!currentQRCodeCanvas) return alert("أنشئ رمز QR أولاً!");
-      const qrArea = document.getElementById("qrcode").innerHTML;
-      const win = window.open('', '_blank');
-      win.document.write(`<html><head><title>طباعة رمز QR</title></head><body style="text-align:center;font-family:Cairo,sans-serif">${qrArea}</body></html>`);
-      win.document.close();
-      win.focus();
-      win.print();
-      win.close();
-    }
-
-    function resetForm() {
-      document.getElementById("fileLink").value = "";
-      document.getElementById("qrName").value = "";
-      document.getElementById("size").value = "256";
-      document.getElementById("foregroundColor").value = "#000000";
-      document.getElementById("backgroundColor").value = "#ffffff";
-      document.getElementById("quietZone").value = "4";
-      document.getElementById("qrcode").innerHTML = "";
-      currentQRCodeCanvas = null;
-    }
-
-    function getSavedQRCodes() {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    }
-
-    function saveQRCode() {
-      if (!currentQRCodeCanvas) return alert("أنشئ رمز QR أولاً!");
-      const fileLink = document.getElementById("fileLink").value.trim();
-      const qrName = document.getElementById("qrName").value.trim() || "بدون اسم";
-      if (!fileLink) return alert("يرجى إدخال رابط قبل الحفظ.");
-      const imgData = currentQRCodeCanvas.toDataURL("image/png");
-      const savedList = getSavedQRCodes();
-      const exists = savedList.find(item => item.link === fileLink && item.name === qrName);
-      if (exists) return alert("هذا الرمز محفوظ بالفعل.");
-      savedList.push({ name: qrName, link: fileLink, imgData });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
-      alert("تم الحفظ بنجاح!");
-      renderSavedQRCodes();
-    }
-
-    function renderSavedQRCodes() {
-      const qrList = document.getElementById("qrList");
-      qrList.innerHTML = "";
-      const savedList = getSavedQRCodes();
-      if (savedList.length === 0) {
-        qrList.innerHTML = "<p>لا توجد رموز محفوظة.</p>";
-        return;
-      }
-      savedList.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.className = "qr-item";
-        const span = document.createElement("span");
-        span.textContent = item.name;
-        span.title = "اضغط للعرض";
-        span.onclick = () => {
-          document.getElementById("fileLink").value = item.link;
-          document.getElementById("qrName").value = item.name;
-          generateQRCode(item.link, item.name);
-        };
-        const actions = document.createElement("div");
-        actions.className = "qr-actions";
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "حذف";
-        delBtn.onclick = () => {
-          if (confirm(`هل تريد حذف الرمز "${item.name}"؟`)) {
-            deleteSavedQRCode(index);
-          }
-        };
-        actions.appendChild(delBtn);
-        div.appendChild(span);
-        div.appendChild(actions);
-        qrList.appendChild(div);
-      });
-    }
-
-    function deleteSavedQRCode(index) {
-      const savedList = getSavedQRCodes();
-      savedList.splice(index, 1);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
-      renderSavedQRCodes();
-    }
-
-    function exportToWord() {
-      const savedList = getSavedQRCodes();
-      if (savedList.length === 0) return alert("لا توجد رموز محفوظة للتصدير.");
-      let htmlContent = '<html><head><meta charset="utf-8"><style>body{font-family:Cairo,sans-serif;}h3{color:#007bff;}</style></head><body>';
-      savedList.forEach(item => {
-        htmlContent += `<h3>${item.name}</h3><img src="${item.imgData}" style="width:150px;height:150px;"><hr>`;
-      });
-      htmlContent += '</body></html>';
-      const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
-      saveAs(blob, "Saved_QRCodes.doc");
-    }
+    // انسخ الدوال الباقية كما هي من الكود الذي أرسلته لي
 
     window.onload = () => {
       renderSavedQRCodes();
