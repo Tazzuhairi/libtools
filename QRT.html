@@ -37,7 +37,7 @@
       margin-top: 10px;
       display: block;
     }
-    input[type="text"], select, input[type="color"] {
+    input[type="text"], select, input[type="color"], input[type="file"] {
       width: 100%;
       padding: 12px;
       margin-top: 5px;
@@ -173,6 +173,9 @@
       <option value="16">16 بيكسل</option>
     </select>
 
+    <label for="logoUpload">شعار داخل الرمز (اختياري):</label>
+    <input type="file" id="logoUpload" accept="image/*" />
+
     <div class="button-group">
       <button onclick="generateQRCode()">توليد</button>
       <button onclick="downloadQRCode()">تحميل</button>
@@ -190,6 +193,7 @@
         <li>أدخل رابط الملف ثم اسمًا للرمز.</li>
         <li>يمكنك تغيير الألوان والحجم والإطار الأبيض.</li>
         <li>استخدم الأزرار لإدارة الرمز (توليد - تحميل - طباعة - حفظ).</li>
+        <li>يمكنك إدراج شعار داخل الرمز.</li>
         <li>يمكنك تصدير الرموز المحفوظة كملف Word.</li>
       </ul>
     </div>
@@ -211,40 +215,80 @@
     function generateQRCode(link = null, name = null) {
       const qrcodeContainer = document.getElementById("qrcode");
       qrcodeContainer.innerHTML = "";
+
       const fileLink = link || document.getElementById("fileLink").value.trim();
       const qrName = name || document.getElementById("qrName").value.trim();
       const size = parseInt(document.getElementById("size").value);
       const colorDark = document.getElementById("foregroundColor").value;
       const colorLight = document.getElementById("backgroundColor").value;
       const quietZone = parseInt(document.getElementById("quietZone").value);
+
       if (!fileLink) return alert("يرجى إدخال رابط.");
+
       const tempDiv = document.createElement("div");
       tempDiv.style.display = "none";
       document.body.appendChild(tempDiv);
-      new QRCode(tempDiv, { text: fileLink, width: size, height: size, colorDark, colorLight, correctLevel: QRCode.CorrectLevel.H });
+
+      new QRCode(tempDiv, {
+        text: fileLink,
+        width: size,
+        height: size,
+        colorDark,
+        colorLight,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
       setTimeout(() => {
         const canvas = tempDiv.querySelector("canvas");
         const finalCanvas = document.createElement("canvas");
         const ctx = finalCanvas.getContext("2d");
+
         const finalSize = size + quietZone * 2;
         finalCanvas.width = finalSize;
         finalCanvas.height = finalSize;
+
         ctx.fillStyle = colorLight;
         ctx.fillRect(0, 0, finalSize, finalSize);
         ctx.drawImage(canvas, quietZone, quietZone);
-        const qrWrapper = document.createElement("div");
-        qrWrapper.className = "qr-wrapper";
-        qrWrapper.appendChild(finalCanvas);
-        qrcodeContainer.appendChild(qrWrapper);
-        if (qrName) {
-          const label = document.createElement("div");
-          label.className = "qr-name";
-          label.textContent = qrName;
-          qrcodeContainer.appendChild(label);
+
+        const logoInput = document.getElementById("logoUpload");
+        const logoFile = logoInput.files[0];
+
+        if (logoFile) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const logoImg = new Image();
+            logoImg.onload = function () {
+              const logoSize = size * 0.25;
+              const x = (finalCanvas.width - logoSize) / 2;
+              const y = (finalCanvas.height - logoSize) / 2;
+              ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+              showFinalQRCode(finalCanvas, qrName);
+            };
+            logoImg.src = e.target.result;
+          };
+          reader.readAsDataURL(logoFile);
+        } else {
+          showFinalQRCode(finalCanvas, qrName);
         }
+
         document.body.removeChild(tempDiv);
-        currentQRCodeCanvas = finalCanvas;
       }, 300);
+    }
+
+    function showFinalQRCode(canvas, qrName) {
+      const qrcodeContainer = document.getElementById("qrcode");
+      const qrWrapper = document.createElement("div");
+      qrWrapper.className = "qr-wrapper";
+      qrWrapper.appendChild(canvas);
+      qrcodeContainer.appendChild(qrWrapper);
+      if (qrName) {
+        const label = document.createElement("div");
+        label.className = "qr-name";
+        label.textContent = qrName;
+        qrcodeContainer.appendChild(label);
+      }
+      currentQRCodeCanvas = canvas;
     }
 
     function downloadQRCode() {
@@ -273,6 +317,7 @@
       document.getElementById("foregroundColor").value = "#000000";
       document.getElementById("backgroundColor").value = "#ffffff";
       document.getElementById("quietZone").value = "4";
+      document.getElementById("logoUpload").value = "";
       document.getElementById("qrcode").innerHTML = "";
       currentQRCodeCanvas = null;
     }
