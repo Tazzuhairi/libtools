@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>أداة تحليل الأسئلة - الوسط المرجح والانحراف المعياري</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      background-color: #e9f0f7;
+      padding: 25px;
+      max-width: 960px;
+      margin: auto;
+      color: #2c3e50;
+    }
+    h2, h3 {
+      text-align: center;
+      color: #1a5276;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      margin-top: 18px;
+      color: #154360;
+      font-size: 17px;
+      gap: 8px;
+    }
+    input, select {
+      padding: 10px 12px;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #2980b9;
+      border-radius: 6px;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #1f618d;
+      background-color: #d6eaf8;
+    }
+    button {
+      padding: 12px 25px;
+      background: linear-gradient(45deg, #2e86c1, #2874a6);
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      box-shadow: 0 4px 8px rgba(41, 128, 185, 0.3);
+      transition: background 0.3s ease;
+      min-width: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button:hover {
+      background: linear-gradient(45deg, #1b4f72, #154360);
+    }
+    .buttons-row {
+      display: flex;
+      justify-content: flex-start;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    .section {
+      background: #fefefe;
+      border-radius: 12px;
+      padding: 25px 30px;
+      margin-top: 30px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
+      border: 1.5px solid #2980b9;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+      background-color: white;
+      direction: rtl;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 6px 12px rgba(41, 128, 185, 0.2);
+      font-size: 15px;
+      user-select: none;
+    }
+    th, td {
+      border: 1px solid #aed6f1;
+      padding: 10px 12px;
+      text-align: center;
+      vertical-align: middle;
+      transition: background-color 0.25s ease;
+    }
+    th {
+      background-color: #2874a6;
+      color: #ecf0f1;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      user-select: none;
+    }
+    tr:nth-child(even) td {
+      background-color: #f9fbfe;
+    }
+    tr:hover td {
+      background-color: #d6eaf8;
+    }
+    footer {
+      margin-top: 45px;
+      text-align: center;
+      font-size: 14px;
+      color: #5d6d7e;
+      font-style: italic;
+      user-select: none;
+    }
+    /* أيقونات بسيطة باستخدام خطوط رموز Unicode */
+    .icon-sample-size::before { content: "📊"; }
+    .icon-scale-type::before { content: "⚖️"; }
+    .icon-question-number::before { content: "❓"; }
+    .icon-weight::before { content: "⚙️"; }
+    .icon-count::before { content: "🔢"; }
+    button svg, button .btn-icon {
+      font-size: 18px;
+    }
+    /* رسالة الخطأ */
+    #errorMessage {
+      color: #c0392b;
+      background-color: #f9e6e6;
+      border: 1px solid #e74c3c;
+      padding: 12px 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>أداة المعالجة الاحصائية</h2>
+
+  <div class="section">
+    <label for="sampleSize" class="icon-sample-size">حجم العينة:</label>
+    <input type="number" id="sampleSize" placeholder="مثال: 30" min="1" />
+
+    <label for="scaleType" class="icon-scale-type">نوع مقياس ليكرت:</label>
+    <select id="scaleType">
+      <option value="" selected>-- اختر --</option>
+      <option value="2">ثنائي</option>
+      <option value="3">ثلاثي</option>
+      <option value="5">خماسي</option>
+    </select>
+
+    <label for="questionNumber" class="icon-question-number">رقم السؤال:</label>
+    <input type="text" id="questionNumber" placeholder="مثال: 1 أو 2 أو ..." />
+
+    <div id="weightInputsContainer" class="section hidden"></div>
+    <div id="inputsContainer" class="section hidden"></div>
+
+    <button id="calculateQuestionBtn" title="إضافة السؤال">
+      <span class="btn-icon">➕</span> إضافة السؤال
+    </button>
+
+    <div id="errorMessage"></div>
+  </div>
+
+  <div class="section">
+    <h3>نتائج الأسئلة</h3>
+    <table id="resultsTable" dir="rtl">
+      <thead id="resultsTableHead"></thead>
+      <tbody></tbody>
+    </table>
+    <div class="buttons-row">
+      <button onclick="exportToWord()" title="تصدير الجدول إلى ملف Word">
+        <span class="btn-icon">📄</span> تصدير إلى Word
+      </button>
+      <button id="resetBtn" title="إعادة تعيين الأداة">
+        <span class="btn-icon">🔄</span> معالجة إحصائية جديدة
+      </button>
+    </div>
+  </div>
+
+  <footer>
+    حقوق النشر © 2025 - د. طلال ناظم الزهيري
+  </footer>
+
+  <script>
+    const scaleOptions = {
+      2: ["موافق", "لا أوافق"],
+      3: ["موافق", "محايد", "لا أوافق"],
+      5: ["موافق بشدة", "موافق", "محايد", "لا أوافق", "لا أوافق بشدة"]
+    };
+
+    let fixedWeights = null;
+    const inputsContainer = document.getElementById('inputsContainer');
+    const weightInputsContainer = document.getElementById('weightInputsContainer');
+    const scaleType = document.getElementById('scaleType');
+    const questionNumberInput = document.getElementById('questionNumber');
+    const sampleSizeInput = document.getElementById('sampleSize');
+    const resultsTable = document.getElementById('resultsTable');
+    const resultsBody = resultsTable.querySelector('tbody');
+    const resultsTableHead = document.getElementById('resultsTableHead');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // تحديث رؤوس الجدول حسب نوع المقياس وترتيب الأعمدة حسب طلبك
+    function updateTableHeaders() {
+      const scale = scaleOptions[scaleType.value];
+      resultsTableHead.innerHTML = '';
+
+      if (!scale) return;
+
+      const headerRow = document.createElement('tr');
+
+      ['حجم العينة', 'نوع المقياس', 'رقم السؤال'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+      });
+
+      scale.forEach(label => {
+        const th = document.createElement('th');
+        th.textContent = label;
+        headerRow.appendChild(th);
+      });
+
+      ['الوسط الحسابي المرجح', 'الانحراف المعياري'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+      });
+
+      resultsTableHead.appendChild(headerRow);
+    }
+
+    scaleType.addEventListener('change', () => {
+      fixedWeights = null;
+      weightInputsContainer.innerHTML = '';
+      inputsContainer.innerHTML = '';
+      questionNumberInput.value = '';
+      errorMessage.style.display = 'none'; // اخفاء رسالة الخطأ عند تغيير المقياس
+      updateTableHeaders();
+
+      const scale = scaleOptions[scaleType.value];
+      if (!scale) return;
+
+      // حقول الأوزان مع أيقونات
+      weightInputsContainer.innerHTML = '';
+      scale.forEach((label, idx) => {
+        const div = document.createElement('div');
+        div.style.marginTop = '12px';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = 'any';
+        input.placeholder = `الوزن لـ: ${label}`;
+        input.dataset.index = idx;
+        input.style.width = '100%';
+        div.appendChild(input);
+        weightInputsContainer.appendChild(div);
+      });
+      weightInputsContainer.classList.remove('hidden');
+
+      // حقول التكرارات مع أيقونات
+      inputsContainer.innerHTML = '';
+      scale.forEach(label => {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = 0;
+        input.placeholder = `عدد الإجابات: ${label}`;
+        inputsContainer.appendChild(input);
+      });
+      inputsContainer.classList.remove('hidden');
+    });
+
+    document.getElementById('calculateQuestionBtn').addEventListener('click', () => {
+      errorMessage.style.display = 'none'; // إخفاء رسالة الخطأ قبل الفحص
+      const questionNum = questionNumberInput.value.trim();
+      const sampleSize = parseInt(sampleSizeInput.value.trim());
+      const scaleVal = scaleType.value;
+
+      if (!questionNum) {
+        showError("يرجى إدخال رقم السؤال.");
+        return;
+      }
+      if (!sampleSize || sampleSize <= 0) {
+        showError("يرجى إدخال حجم عينة صحيح.");
+        return;
+      }
+      if (!scaleVal) {
+        showError("يرجى اختيار نوع المقياس.");
+        return;
+      }
+
+      const countInputs = inputsContainer.querySelectorAll('input');
+      const weightInputs = weightInputsContainer.querySelectorAll('input');
+
+      if (!fixedWeights) {
+        fixedWeights = Array.from(weightInputs).map(input => parseFloat(input.value || '0'));
+        if (fixedWeights.some(isNaN)) {
+          showError("يرجى إدخال الأوزان بشكل صحيح لكل فئة.");
+          return;
+        }
+        Array.from(weightInputs).forEach(input => input.disabled = true);
+        sampleSizeInput.disabled = true;
+        scaleType.disabled = true;
+      }
+
+      const counts = Array.from(countInputs).map(input => parseInt(input.value || '0'));
+      if (counts.reduce((a, b) => a + b, 0) === 0) {
+        showError("يرجى إدخال التكرارات.");
+        return;
+      }
+
+      const total = counts.reduce((a, b) => a + b, 0);
+
+      // التحقق من تساوي مجموع الأجوبة مع حجم العينة
+      if (total !== sampleSize) {
+        showError(`خطأ: مجموع الأجوبة (${total}) لا يساوي حجم العينة (${sampleSize}). يرجى تعديل القيم.`);
+        return; // يمنع إضافة السؤال أو الانتقال للسؤال التالي
+      }
+
+      const weightedSum = counts.reduce((sum, c, i) => sum + c * fixedWeights[i], 0);
+      const mean = weightedSum / total;
+
+      let variance = 0;
+      for (let i = 0; i < counts.length; i++) {
+        variance += counts[i] * Math.pow(fixedWeights[i] - mean, 2);
+      }
+      variance = variance / total;
+      const std = Math.sqrt(variance);
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${sampleSize}</td>
+        <td>${scaleVal}</td>
+        <td>${questionNum}</td>
+        ${counts.map(c => `<td>${c}</td>`).join('')}
+        <td>${mean.toFixed(2)}</td>
+        <td>${std.toFixed(2)}</td>
+      `;
+      resultsBody.appendChild(row);
+
+      questionNumberInput.value = parseInt(questionNum) + 1;
+
+      // إعادة تعيين حقول التكرارات فقط (للمقياس نفسه)
+      inputsContainer.innerHTML = '';
+      const scale = scaleOptions[scaleType.value];
+      scale.forEach(label => {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = 0;
+        input.placeholder = `عدد الإجابات: ${label}`;
+        inputsContainer.appendChild(input);
+      });
+      inputsContainer.classList.remove('hidden');
+    });
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+    }
+
+    // زر إعادة تعيين
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      fixedWeights = null;
+      sampleSizeInput.disabled = false;
+      scaleType.disabled = false;
+      weightInputsContainer.innerHTML = '';
+      inputsContainer.innerHTML = '';
+      questionNumberInput.value = '';
+      sampleSizeInput.value = '';
+      scaleType.value = '';
+      resultsBody.innerHTML = '';
+      resultsTableHead.innerHTML = '';
+      errorMessage.style.display = 'none';
+      weightInputsContainer.classList.add('hidden');
+      inputsContainer.classList.add('hidden');
+    });
+
+    // تصدير إلى ملف Word
+    function exportToWord() {
+      if (!resultsBody.hasChildNodes()) {
+        showError("لا توجد بيانات لتصديرها.");
+        return;
+      }
+      errorMessage.style.display = 'none';
+      let html = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+          xmlns:w='urn:schemas-microsoft-com:office:word' 
+          xmlns='http://www.w3.org/TR/REC-html40'>
+          <head><title>تصدير إلى Word</title></head><body>${resultsTable.outerHTML}</body></html>`;
+      const blob = new Blob(['\ufeff', html], {type: 'application/msword'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'نتائج_الأسئلة.doc';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 0);
+    }
+  </script>
+</body>
+</html>

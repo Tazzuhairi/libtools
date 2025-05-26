@@ -4,43 +4,53 @@
   <meta charset="UTF-8">
   <title>أدوات أمين المكتبة</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
     body {
       font-family: 'Cairo', sans-serif;
-      background: #f4f4f4;
+      background-color: #f4f4f4;
       margin: 0;
       padding: 0;
-      text-align: center;
       color: #222;
     }
 
     h1 {
-      background-color: #222;
-      color: #fff;
+      background-color: #007bff;
+      color: white;
       margin: 0;
-      padding: 20px;
-      font-size: 28px;
+      padding: 20px 0;
+      font-size: 32px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .container {
-      margin: 30px auto;
-      max-width: 500px;
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      border: 3px solid #007bff; /* ✅ إطار أزرق */
+      margin: 40px auto;
+      max-width: 600px;
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      border-right: 5px solid #007bff;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
     }
 
     button {
       background-color: #007bff;
       color: white;
-      padding: 12px 20px;
-      margin: 5px;
+      padding: 12px 24px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
-      transition: background 0.3s;
+      min-width: 200px;
+      transition: background-color 0.3s ease;
     }
 
     button:hover {
@@ -48,11 +58,19 @@
     }
 
     footer {
+      text-align: center;
       margin-top: 50px;
       padding: 20px;
       font-size: 14px;
-      background: #eee;
+      background-color: #eaeaea;
       color: #444;
+      border-top: 1px solid #ccc;
+    }
+
+    @media (max-width: 500px) {
+      button {
+        min-width: 100%;
+      }
     }
   </style>
 </head>
@@ -61,15 +79,15 @@
   <h1>أدوات أمين المكتبة</h1>
 
   <div class="container">
-    <!-- زر "إنشاء بطاقة الفهرسة" يرتبط بصفحة webcat.html -->
-    <button onclick="window.location.href='webcat.html'">إنشاء بطاقة الفهرسة</button>
-
-    <!-- زر "إنشاء رمز استجابة سريعة" يرتبط بصفحة QR3.html -->
-    <button onclick="window.location.href='QRT.html'">إنشاء رمز استجابة سريعة</button>
+    <div class="buttons">
+      <button onclick="window.location.href='webcat.html'">إنشاء بطاقة الفهرسة</button>
+      <button onclick="window.location.href='static.html'">المعالجة الإحصائية</button>
+      <button onclick="window.location.href='QRT.html'">إنشاء رمز استجابة سريعة</button>
+    </div>
   </div>
 
   <footer>
-    <p>حقوق النشر © د.طلال الزهيري 2025 | أدوات أمين المكتبة</p>
+    حقوق النشر © د. طلال الزهيري 2025 | أدوات أمين المكتبة
   </footer>
 
 </body>
