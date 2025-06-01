@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔲 مولد رمز QR الاحترافي</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #222;
+    }
+    h1 {
+      background-color: #222;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      font-size: 28px;
+    }
+    .container {
+      margin: 20px auto;
+      max-width: 600px;
+      background: #fff;
+      padding: 25px 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border: 3px solid #007bff;
+      text-align: right;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input[type="text"],
+    select,
+    input[type="color"],
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      flex: 1 1 120px;
+      min-width: 120px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #qrcode {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .qr-wrapper {
+      display: inline-block;
+      padding: 10px;
+      border: 3px solid #007bff;
+      border-radius: 12px;
+      background-color: #ffffff;
+      margin-top: 20px;
+    }
+    .qr-name {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #007bff;
+      font-size: 18px;
+    }
+    #savedQRCodes {
+      margin-top: 30px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 2px solid #007bff;
+      border-radius: 8px;
+      padding: 10px;
+      background: #e9f0ff;
+      text-align: right;
+    }
+    .qr-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      background: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,123,255,0.2);
+    }
+    .qr-item span {
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      flex: 1;
+      text-align: right;
+    }
+    .qr-actions button {
+      background: transparent;
+      border: none;
+      color: #007bff;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0 6px;
+      font-size: 14px;
+    }
+    footer {
+      margin-top: 50px;
+      padding: 20px;
+      font-size: 14px;
+      background: #eee;
+      color: #444;
+      text-align: center;
+    }
+    .instructions {
+      margin-top: 20px;
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
+      border-radius: 8px;
+      padding: 15px;
+      color: #0d47a1;
+      font-size: 14px;
+      line-height: 1.4;
+      text-align: right;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+  <h1>🔲 مولد رمز QR الاحترافي</h1>
+  <div class="container">
+    <label for="fileLink">رابط الملف:</label>
+    <input type="text" id="fileLink" placeholder="أدخل الرابط هنا" />
+    <label for="qrName">اسم الرمز (اختياري):</label>
+    <input type="text" id="qrName" placeholder="أدخل اسمًا يظهر أسفل الرمز" />
+    <label for="size">الحجم:</label>
+    <select id="size">
+      <option value="128">صغير (128x128)</option>
+      <option value="256" selected>متوسط (256x256)</option>
+      <option value="512">كبير (512x512)</option>
+    </select>
+    <label for="foregroundColor">لون رمز QR:</label>
+    <input type="color" id="foregroundColor" value="#000000" />
+    <label for="backgroundColor">لون الخلفية:</label>
+    <input type="color" id="backgroundColor" value="#ffffff" />
+    <label for="quietZone">الإطار الأبيض:</label>
+    <select id="quietZone">
+      <option value="0">بدون</option>
+      <option value="4" selected>4 بيكسل</option>
+      <option value="8">8 بيكسل</option>
+      <option value="16">16 بيكسل</option>
+    </select>
+    <label for="logoUpload">شعار داخل الرمز (اختياري):</label>
+    <input type="file" id="logoUpload" accept="image/*" />
+    <div class="button-group">
+      <button onclick="generateQRCode()">توليد</button>
+      <button onclick="downloadQRCode()">تحميل</button>
+      <button onclick="copyQRCode()">نسخ إلى الحافظة</button>
+      <button onclick="saveQRCode()">حفظ</button>
+      <button onclick="resetForm()">إعادة تعيين</button>
+      <button onclick="exportToWord()">تصدير إلى وورد</button>
+    </div>
+    <div id="qrcode"></div>
+    <div class="instructions">
+      <strong>تعليمات الاستخدام:</strong>
+      <ul>
+        <li>أدخل رابط الملف ثم اسمًا للرمز.</li>
+        <li>يمكنك تغيير الألوان والحجم والإطار الأبيض.</li>
+        <li>استخدم الأزرار لإدارة الرمز.</li>
+        <li>يمكنك إدراج شعار داخل الرمز.</li>
+        <li>يمكنك تصدير الرموز المحفوظة كملف Word.</li>
+      </ul>
+    </div>
+    <div id="savedQRCodes">
+      <h2>الرموز المحفوظة</h2>
+      <div id="qrList"></div>
+    </div>
+  </div>
+  <footer>
+    <p>حقوق النشر © د.طلال الزهيري 2025 | QR Pro Tool™</p>
+  </footer>
+
+  <script>
+    let currentQRCodeCanvas = null;
+    const STORAGE_KEY = "savedQRCodesList";
+
+    function generateQRCode(link = null, name = null) {
+      const qrcodeContainer = document.getElementById("qrcode");
+      qrcodeContainer.innerHTML = "";
+
+      const fileLink = link || document.getElementById("fileLink").value.trim();
+      const qrName = name || document.getElementById("qrName").value.trim();
+      const size = parseInt(document.getElementById("size").value);
+      const colorDark = document.getElementById("foregroundColor").value;
+      const colorLight = document.getElementById("backgroundColor").value;
+      const quietZone = parseInt(document.getElementById("quietZone").value);
+
+      if (!fileLink) return alert("يرجى إدخال رابط.");
+
+      const tempDiv = document.createElement("div");
+      tempDiv.style.display = "none";
+      document.body.appendChild(tempDiv);
+
+      new QRCode(tempDiv, {
+        text: fileLink,
+        width: size,
+        height: size,
+        colorDark,
+        colorLight,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const canvas = tempDiv.querySelector("canvas");
+        const finalCanvas = document.createElement("canvas");
+        const ctx = finalCanvas.getContext("2d");
+
+        const finalSize = size + quietZone * 2;
+        finalCanvas.width = finalSize;
+        finalCanvas.height = finalSize;
+
+        ctx.fillStyle = colorLight;
+        ctx.fillRect(0, 0, finalSize, finalSize);
+        ctx.drawImage(canvas, quietZone, quietZone);
+
+        const logoInput = document.getElementById("logoUpload");
+        const logoFile = logoInput.files[0];
+
+        if (logoFile) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const logoImg = new Image();
+            logoImg.onload = function () {
+              const logoSize = size * 0.25;
+              const x = (finalCanvas.width - logoSize) / 2;
+              const y = (finalCanvas.height - logoSize) / 2;
+
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, false);
+              ctx.closePath();
+              ctx.clip();
+              ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+              ctx.restore();
+
+              showFinalQRCode(finalCanvas, qrName);
+            };
+            logoImg.src = e.target.result;
+          };
+          reader.readAsDataURL(logoFile);
+        } else {
+          const defaultLogo = new Image();
+          defaultLogo.src = "logo.png";
+
+          defaultLogo.onload = function () {
+            const logoSize = size * 0.25;
+            const x = (finalCanvas.width - logoSize) / 2;
+            const y = (finalCanvas.height - logoSize) / 2;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.clip();
+            ctx.drawImage(defaultLogo, x, y, logoSize, logoSize);
+            ctx.restore();
+
+            showFinalQRCode(finalCanvas, qrName);
+          };
+
+          defaultLogo.onerror = function () {
+            console.warn("تعذر تحميل الشعار الافتراضي، سيتم توليد الرمز بدون شعار.");
+            showFinalQRCode(finalCanvas, qrName);
+          };
+        }
+
+        document.body.removeChild(tempDiv);
+      }, 300);
+    }
+
+    function showFinalQRCode(canvas, qrName) {
+      const qrcodeContainer = document.getElementById("qrcode");
+      const qrWrapper = document.createElement("div");
+      qrWrapper.className = "qr-wrapper";
+      qrWrapper.appendChild(canvas);
+      qrcodeContainer.appendChild(qrWrapper);
+      if (qrName) {
+        const label = document.createElement("div");
+        label.className = "qr-name";
+        label.textContent = qrName;
+        qrcodeContainer.appendChild(label);
+      }
+      currentQRCodeCanvas = canvas;
+    }
+
+    function downloadQRCode() {
+      if (!currentQRCodeCanvas) return alert("أنشئ رمز QR أولاً!");
+      const link = document.createElement('a');
+      link.href = currentQRCodeCanvas.toDataURL("image/png");
+      link.download = "QRCode.png";
+      link.click();
+    }
+
+    function copyQRCode() {
+      if (!currentQRCodeCanvas) return alert("أنشئ رمز QR أولاً!");
+      currentQRCodeCanvas.toBlob(async function (blob) {
+        try {
+          if (!window.ClipboardItem) {
+            alert("ميزة النسخ إلى الحافظة غير مدعومة في هذا المتصفح.");
+            return;
+          }
+          const item = new ClipboardItem({ "image/png": blob });
+          await navigator.clipboard.write([item]);
+          alert("✅ تم نسخ رمز QR إلى الحافظة!");
+        } catch (err) {
+          console.error("Clipboard copy failed:", err);
+          alert("❌ تعذر نسخ الرمز إلى الحافظة. تأكد من تشغيل الصفحة عبر HTTPS أو localhost.");
+        }
+      });
+    }
+
+    function resetForm() {
+      document.getElementById("fileLink").value = "";
+      document.getElementById("qrName").value = "";
+      document.getElementById("size").value = "256";
+      document.getElementById("foregroundColor").value = "#000000";
+      document.getElementById("backgroundColor").value = "#ffffff";
+      document.getElementById("quietZone").value = "4";
+      document.getElementById("logoUpload").value = "";
+      document.getElementById("qrcode").innerHTML = "";
+      currentQRCodeCanvas = null;
+    }
+
+    function saveQRCode() {
+      if (!currentQRCodeCanvas) return alert("أنشئ رمز QR أولاً!");
+      const qrName = document.getElementById("qrName").value.trim() || "رمز QR";
+      const dataURL = currentQRCodeCanvas.toDataURL();
+      let savedList = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      savedList.push({ name: qrName, dataURL });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
+      alert("✅ تم حفظ رمز QR بنجاح.");
+      loadSavedQRCodes();
+    }
+
+    function loadSavedQRCodes() {
+      const qrListDiv = document.getElementById("qrList");
+      qrListDiv.innerHTML = "";
+      let savedList = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      savedList.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "qr-item";
+        const span = document.createElement("span");
+        span.textContent = item.name;
+        span.onclick = () => {
+          document.getElementById("qrName").value = item.name;
+          generateQRCode(null, item.name);
+          setTimeout(() => {
+            // To display saved QR code image from dataURL instead of regenerating
+            document.getElementById("qrcode").innerHTML = `<div class="qr-wrapper"><img src="${item.dataURL}" alt="${item.name}" style="max-width: 100%; border-radius: 12px;"/></div><div class="qr-name">${item.name}</div>`;
+            const img = document.querySelector("#qrcode img");
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              ctx.drawImage(img, 0, 0);
+              currentQRCodeCanvas = canvas;
+            };
+          }, 100);
+        };
+        const actionsDiv = document.createElement("div");
+        actionsDiv.className = "qr-actions";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "حذف";
+        deleteBtn.onclick = () => {
+          if (confirm("هل تريد حذف هذا الرمز؟")) {
+            savedList.splice(index, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
+            loadSavedQRCodes();
+          }
+        };
+        actionsDiv.appendChild(deleteBtn);
+
+        div.appendChild(span);
+        div.appendChild(actionsDiv);
+        qrListDiv.appendChild(div);
+      });
+    }
+
+    function exportToWord() {
+      let savedList = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      if (savedList.length === 0) {
+        alert("لا يوجد رموز محفوظة لتصديرها.");
+        return;
+      }
+      let htmlContent = `
+        <html lang="ar" dir="rtl">
+          <head><meta charset="UTF-8"><title>تصدير رموز QR</title></head>
+          <body style="text-align:center; font-family: 'Cairo', sans-serif;">
+            <h1>الرموز المحفوظة</h1>
+            ${savedList.map(item => `
+              <div style="margin-bottom: 30px;">
+                <img src="${item.dataURL}" style="width: 200px; height: 200px; border: 3px solid #007bff; border-radius: 12px;" />
+                <div style="font-weight: bold; color: #007bff; margin-top: 8px;">${item.name}</div>
+              </div>
+            `).join("")}
+          </body>
+        </html>
+      `;
+      const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+      saveAs(blob, 'saved_QRCodes.doc');
+    }
+
+    window.onload = loadSavedQRCodes;
+  </script>
+</body>
+</html>
