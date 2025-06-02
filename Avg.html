@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>أداة حساب معدل الطالب</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/docx@7.7.0/build/index.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+      font-size: 18px;
+    }
+    h2 {
+      text-align: center;
+      color: #007BFF;
+      font-size: 28px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input,
+    select,
+    button {
+      padding: 12px;
+      margin: 5px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 18px;
+      font-family: 'Cairo', sans-serif;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    button i {
+      margin-left: 8px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background-color: #fff;
+      padding: 25px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      border: 2px solid #007BFF;
+    }
+    table {
+      width: 100%;
+      margin-top: 10px;
+      font-size: 18px;
+      border: 2px solid #007BFF;
+    }
+    table,
+    th,
+    td {
+      border: 1px solid #ccc;
+      border-collapse: collapse;
+    }
+    th,
+    td {
+      padding: 10px;
+      text-align: center;
+    }
+    .result {
+      font-size: 1.3em;
+      color: #28a745;
+      margin-top: 15px;
+      border: 2px dashed #28a745;
+      padding: 10px;
+      border-radius: 10px;
+      background-color: #eafaf1;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 16px;
+      color: #555;
+    }
+    .download-btn {
+      background-color: #28a745;
+      margin-top: 10px;
+    }
+    .download-btn:hover {
+      background-color: #218838;
+    }
+    .reset-btn {
+      background-color: #dc3545;
+      margin-top: 20px;
+    }
+    .reset-btn:hover {
+      background-color: #c82333;
+    }
+    .buttons-container {
+      display: flex;
+      gap: 10px;
+    }
+    .buttons-container button {
+      flex: 1;
+    }
+    .records-table {
+      margin-top: 30px;
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .records-table th, .records-table td {
+      font-size: 14px;
+      word-wrap: break-word;
+      padding: 10px;
+      text-align: right;
+    }
+    .records-table th {
+      background-color: #007BFF;
+      color: white;
+    }
+    .records-table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .records-table tr:hover {
+      background-color: #e6f2ff;
+    }
+    .records-container {
+      margin-top: 40px;
+      border-top: 2px solid #007BFF;
+      padding-top: 20px;
+      width: 100%;
+      overflow-x: auto;
+    }
+    .records-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .records-title {
+      font-size: 22px;
+      color: #007BFF;
+      font-weight: bold;
+    }
+    .action-btn {
+      padding: 5px 10px;
+      margin: 0 3px;
+      font-size: 14px;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+    }
+    .delete-all-btn {
+      background-color: #dc3545;
+      margin-left: 10px;
+    }
+    .delete-btn:hover, .delete-all-btn:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><i class="fas fa-calculator"></i> أداة حساب معدل الطالب</h2>
+
+    <label><i class="fas fa-building"></i> القسم العلمي:</label>
+    <select id="department">
+      <option value="">-- اختر القسم العلمي --</option>
+      <option value="قسم اللغة العربية">قسم اللغة العربية</option>
+      <option value="قسم اللغة الانكليزية">قسم اللغة الانكليزية</option>
+      <option value="قسم الجغرافية ونظم المعلومات الجغرافية">قسم الجغرافية ونظم المعلومات الجغرافية</option>
+      <option value="قسم المعلومات وتقنيات المعرفة">قسم المعلومات وتقنيات المعرفة</option>
+      <option value="قسم الفلسفة">قسم الفلسفة</option>
+      <option value="قسم الترجمة">قسم الترجمة</option>
+    </select>
+
+    <label><i class="fas fa-user"></i> الاسم الثلاثي:</label>
+    <input type="text" id="studentName" />
+
+    <label><i class="fas fa-graduation-cap"></i> المرحلة الدراسية:</label>
+    <select id="stage" onchange="resetCoursesAndResults()">
+      <option value="">-- اختر --</option>
+      <option value="phd">الدكتوراه</option>
+      <option value="master">الماجستير</option>
+      <option value="diploma">الدبلوم</option>
+    </select>
+
+    <!-- إدخال عدد مواد الكورس الأول -->
+    <div id="course1CountDiv" style="display:none;">
+      <label><i class="fas fa-list-ol"></i> عدد مواد الكورس الأول:</label>
+      <input type="number" id="course1Count" min="1" />
+      <button onclick="generateCourseTable(1)">
+        <i class="fas fa-plus-circle"></i> إدخال مواد الكورس الأول
+      </button>
+    </div>
+
+    <!-- جدول مواد الكورس الأول -->
+    <div id="course1TableDiv"></div>
+
+    <!-- زر لحساب معدل الكورس الأول فقط -->
+    <div id="calculateCourse1Div" style="display:none;">
+      <button onclick="calculateCourse1()"><i class="fas fa-calculator"></i> حساب معدل الكورس الأول</button>
+    </div>
+
+    <!-- عرض معدل الكورس الأول -->
+    <div id="course1AvgDiv" class="result" style="display:none;">
+      <p id="course1AvgText">معدل الكورس الأول: --</p>
+    </div>
+
+    <!-- سؤال الاستمرار للكورس الثاني -->
+    <div id="askContinueDiv" style="display:none; margin-bottom: 20px;">
+      <p>هل ترغب في إدخال مواد الكورس الثاني وحسابه؟</p>
+      <button onclick="showCourse2Input(true)">نعم</button>
+      <button onclick="showCourse2Input(false)">لا</button>
+    </div>
+
+    <!-- إدخال عدد مواد الكورس الثاني -->
+    <div id="course2CountDiv" style="display:none;">
+      <label><i class="fas fa-list-ol"></i> عدد مواد الكورس الثاني:</label>
+      <input type="number" id="course2Count" min="1" />
+      <button onclick="generateCourseTable(2)">
+        <i class="fas fa-plus-circle"></i> إدخال مواد الكورس الثاني
+      </button>
+    </div>
+
+    <!-- جدول مواد الكورس الثاني -->
+    <div id="course2TableDiv"></div>
+
+    <!-- زر لحساب معدل الكورس الثاني -->
+    <div id="calculateCourse2Div" style="display:none;">
+      <button onclick="calculateCourse2()"><i class="fas fa-calculator"></i> حساب معدل الكورس الثاني</button>
+    </div>
+
+    <!-- عرض معدل الكورس الثاني -->
+    <div id="course2AvgDiv" class="result" style="display:none;">
+      <p id="course2AvgText">معدل الكورس الثاني: --</p>
+    </div>
+
+    <!-- سؤال هل تم تقديم الرسالة -->
+    <div id="thesisCheckDiv" style="display:none; margin-bottom: 20px;">
+      <p>هل تم تقديم الرسالة / الأطروحة؟</p>
+      <button onclick="showThesisGradeInput(true)">نعم</button>
+      <button onclick="showThesisGradeInput(false)">لا</button>
+    </div>
+
+    <!-- إدخال درجة الرسالة -->
+    <div id="thesisGradeDiv" style="display:none;">
+      <label><i class="fas fa-file-alt"></i> درجة الرسالة (0-100):</label>
+      <input type="number" id="thesisGrade" min="0" max="100" />
+      <button onclick="calculateFinalAvg()"><i class="fas fa-calculator"></i> حساب المعدل النهائي</button>
+    </div>
+
+    <!-- عرض المعدل النهائي -->
+    <div id="finalAvgDiv" class="result" style="display:none;"></div>
+
+    <div class="buttons-container">
+      <button onclick="saveResult()" style="background-color: #17a2b8;">
+        <i class="fas fa-save"></i> حفظ النتيجة
+      </button>
+      <button onclick="downloadDOCX()" class="download-btn">
+        <i class="fas fa-file-word"></i> تحميل النتائج
+      </button>
+    </div>
+    
+    <button onclick="resetAll()" class="reset-btn">
+      <i class="fas fa-redo"></i> إعادة التعيين
+    </button>
+
+    <!-- قسم سجلات الطلاب -->
+    <div class="records-container">
+      <div class="records-header">
+        <div class="records-title"><i class="fas fa-history"></i> سجلات الطلاب المحفوظة</div>
+        <div>
+          <button onclick="downloadRecordsDOCX()" class="download-btn">
+            <i class="fas fa-file-word"></i> تصدير السجلات
+          </button>
+          <button onclick="confirmDeleteAll()" class="delete-all-btn">
+            <i class="fas fa-trash-alt"></i> مسح الكل
+          </button>
+        </div>
+      </div>
+      <table class="records-table" id="recordsTable">
+        <thead>
+          <tr>
+            <th>ت</th>
+            <th>القسم العلمي</th>
+            <th>الاسم الثلاثي</th>
+            <th>المرحلة</th>
+            <th>معدل الكورس الأول</th>
+            <th>معدل الكورس الثاني</th>
+            <th>المعدل النهائي</th>
+            <th>تاريخ الحفظ</th>
+          </tr>
+        </thead>
+        <tbody id="recordsBody">
+          <!-- سيتم ملؤه بواسطة JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      حقوق النشر © د. طلال ناظم الزهيري و د. علي عبد الصمد
+    </div>
+  </div>
+
+  <script>
+    let course1Data = [];
+    let course2Data = [];
+    let course1Avg = 0;
+    let course2Avg = 0;
+    let finalAvg = 0;
+
+    // عند تحميل الصفحة، عرض السجلات المحفوظة
+    document.addEventListener('DOMContentLoaded', loadSavedRecords);
+
+    document.getElementById('stage').addEventListener('change', () => {
+      const val = document.getElementById('stage').value;
+      if (val === 'phd' || val === 'master' || val === 'diploma') {
+        document.getElementById('course1CountDiv').style.display = 'block';
+        resetCoursesAndResults();
+      } else {
+        document.getElementById('course1CountDiv').style.display = 'none';
+      }
+    });
+
+    function resetCoursesAndResults() {
+      course1Data = [];
+      course2Data = [];
+      course1Avg = 0;
+      course2Avg = 0;
+      finalAvg = 0;
+
+      document.getElementById('course1TableDiv').innerHTML = '';
+      document.getElementById('calculateCourse1Div').style.display = 'none';
+      document.getElementById('course1AvgDiv').style.display = 'none';
+      document.getElementById('askContinueDiv').style.display = 'none';
+
+      document.getElementById('course2CountDiv').style.display = 'none';
+      document.getElementById('course2TableDiv').innerHTML = '';
+      document.getElementById('calculateCourse2Div').style.display = 'none';
+      document.getElementById('course2AvgDiv').style.display = 'none';
+
+      document.getElementById('thesisCheckDiv').style.display = 'none';
+      document.getElementById('thesisGradeDiv').style.display = 'none';
+
+      document.getElementById('finalAvgDiv').style.display = 'none';
+      document.getElementById('finalAvgDiv').innerHTML = '';
+    }
+
+    // حذف سجل محدد
+    function deleteRecord(index) {
+      if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+        let allRecords = JSON.parse(localStorage.getItem('studentRecords') || '[]');
+        allRecords.splice(index, 1);
+        localStorage.setItem('studentRecords', JSON.stringify(allRecords));
+        loadSavedRecords();
+        alert('تم حذف السجل بنجاح');
+      }
+    }
+
+    // تأكيد حذف جميع السجلات
+    function confirmDeleteAll() {
+      if (confirm('هل أنت متأكد من حذف جميع السجلات؟ لا يمكن التراجع عن هذه العملية.')) {
+        deleteAllRecords();
+      }
+    }
+
+    // حذف جميع السجلات
+    function deleteAllRecords() {
+      localStorage.removeItem('studentRecords');
+      loadSavedRecords();
+      alert('تم حذف جميع السجلات بنجاح');
+    }
+
+    // دالة إعادة التعيين الكاملة
+    function resetAll() {
+      // إعادة تعيين المتغيرات
+      course1Data = [];
+      course2Data = [];
+      course1Avg = 0;
+      course2Avg = 0;
+      finalAvg = 0;
+
+      // إعادة تعيين حقول الإدخال
+      document.getElementById('department').value = '';
+      document.getElementById('studentName').value = '';
+      document.getElementById('stage').value = '';
+      document.getElementById('course1Count').value = '';
+      document.getElementById('course2Count').value = '';
+      document.getElementById('thesisGrade').value = '';
+
+      // إعادة تعيين الجداول والعناصر
+      document.getElementById('course1TableDiv').innerHTML = '';
+      document.getElementById('course2TableDiv').innerHTML = '';
+      document.getElementById('finalAvgDiv').innerHTML = '';
+
+      // إخفاء جميع الأقسام
+      document.getElementById('course1CountDiv').style.display = 'none';
+      document.getElementById('course1TableDiv').style.display = 'none';
+      document.getElementById('calculateCourse1Div').style.display = 'none';
+      document.getElementById('course1AvgDiv').style.display = 'none';
+      document.getElementById('askContinueDiv').style.display = 'none';
+      
+      document.getElementById('course2CountDiv').style.display = 'none';
+      document.getElementById('course2TableDiv').style.display = 'none';
+      document.getElementById('calculateCourse2Div').style.display = 'none';
+      document.getElementById('course2AvgDiv').style.display = 'none';
+      
+      document.getElementById('thesisCheckDiv').style.display = 'none';
+      document.getElementById('thesisGradeDiv').style.display = 'none';
+      document.getElementById('finalAvgDiv').style.display = 'none';
+
+      alert('تم إعادة التعيين بنجاح، يمكنك البدء بإدخال بيانات جديدة.');
+    }
+
+    // توليد جدول إدخال المواد
+    function generateCourseTable(courseNumber) {
+      let countInput = courseNumber === 1 ? 'course1Count' : 'course2Count';
+      let count = parseInt(document.getElementById(countInput).value);
+      if (isNaN(count) || count < 1) {
+        alert('الرجاء إدخال عدد صحيح للمواد.');
+        return;
+      }
+
+      let container = courseNumber === 1 ? 'course1TableDiv' : 'course2TableDiv';
+      let html = `<table>
+        <thead>
+          <tr>
+            <th>اسم المادة</th>
+            <th>درجة المادة (0-100)</th>
+            <th>الوزن (الساعات المعتمدة)</th>
+          </tr>
+        </thead><tbody>`;
+
+      for (let i = 0; i < count; i++) {
+        html += `
+          <tr>
+            <td><input type="text" class="subject-name" data-course="${courseNumber}" data-index="${i}" /></td>
+            <td><input type="number" min="0" max="100" class="subject-grade" data-course="${courseNumber}" data-index="${i}" /></td>
+            <td><input type="number" min="1" class="subject-weight" data-course="${courseNumber}" data-index="${i}" /></td>
+          </tr>
+        `;
+      }
+      html += `</tbody></table>`;
+
+      document.getElementById(container).innerHTML = html;
+      document.getElementById(container).style.display = 'block';
+
+      // عرض زر الحساب
+      if (courseNumber === 1) {
+        document.getElementById('calculateCourse1Div').style.display = 'block';
+      } else {
+        document.getElementById('calculateCourse2Div').style.display = 'block';
+      }
+    }
+
+    // حساب معدل الكورس الأول فقط
+    function calculateCourse1() {
+      course1Data = [];
+      const names = document.querySelectorAll('.subject-name[data-course="1"]');
+      const grades = document.querySelectorAll('.subject-grade[data-course="1"]');
+      const weights = document.querySelectorAll('.subject-weight[data-course="1"]');
+
+      for (let i = 0; i < names.length; i++) {
+        let name = names[i].value.trim();
+        let grade = parseFloat(grades[i].value);
+        let weight = parseFloat(weights[i].value);
+
+        if (!name || isNaN(grade) || grade < 0 || grade > 100 || isNaN(weight) || weight <= 0) {
+          alert('الرجاء تعبئة جميع بيانات الكورس الأول بشكل صحيح.');
+          return;
+        }
+        course1Data.push({ name, grade, weight });
+      }
+
+      let totalWeight = course1Data.reduce((acc, cur) => acc + cur.weight, 0);
+      let weightedSum = course1Data.reduce((acc, cur) => acc + cur.grade * cur.weight, 0);
+      course1Avg = weightedSum / totalWeight;
+
+      document.getElementById('course1AvgText').textContent = `معدل الكورس الأول: ${course1Avg.toFixed(2)}`;
+      document.getElementById('course1AvgDiv').style.display = 'block';
+
+      // إظهار السؤال للاستمرار في الكورس الثاني
+      document.getElementById('askContinueDiv').style.display = 'block';
+
+      // إخفاء إدخال الكورس الأول وأزراره
+      document.getElementById('calculateCourse1Div').style.display = 'none';
+      document.getElementById('course1CountDiv').style.display = 'none';
+    }
+
+    // إظهار/إخفاء إدخال الكورس الثاني بناء على إجابة المستخدم
+    function showCourse2Input(continueFlag) {
+      document.getElementById('askContinueDiv').style.display = 'none';
+
+      if (continueFlag) {
+        document.getElementById('course2CountDiv').style.display = 'block';
+      } else {
+        // إذا لم يرغب المستخدم بحساب الكورس الثاني ننتقل مباشرة للسؤال عن الرسالة
+        document.getElementById('thesisCheckDiv').style.display = 'block';
+      }
+    }
+
+    // حساب معدل الكورس الثاني
+    function calculateCourse2() {
+      course2Data = [];
+      const names = document.querySelectorAll('.subject-name[data-course="2"]');
+      const grades = document.querySelectorAll('.subject-grade[data-course="2"]');
+      const weights = document.querySelectorAll('.subject-weight[data-course="2"]');
+
+      for (let i = 0; i < names.length; i++) {
+        let name = names[i].value.trim();
+        let grade = parseFloat(grades[i].value);
+        let weight = parseFloat(weights[i].value);
+
+        if (!name || isNaN(grade) || grade < 0 || grade > 100 || isNaN(weight) || weight <= 0) {
+          alert('الرجاء تعبئة جميع بيانات الكورس الثاني بشكل صحيح.');
+          return;
+        }
+        course2Data.push({ name, grade, weight });
+      }
+
+      let totalWeight = course2Data.reduce((acc, cur) => acc + cur.weight, 0);
+      let weightedSum = course2Data.reduce((acc, cur) => acc + cur.grade * cur.weight, 0);
+      course2Avg = weightedSum / totalWeight;
+
+      document.getElementById('course2AvgText').textContent = `معدل الكورس الثاني: ${course2Avg.toFixed(2)}`;
+      document.getElementById('course2AvgDiv').style.display = 'block';
+
+      document.getElementById('calculateCourse2Div').style.display = 'none';
+      document.getElementById('course2CountDiv').style.display = 'none';
+
+      // إظهار السؤال عن الرسالة
+      document.getElementById('thesisCheckDiv').style.display = 'block';
+    }
+
+    // إظهار إدخال درجة الرسالة إذا أجاب نعم
+    function showThesisGradeInput(yesFlag) {
+      if (yesFlag) {
+        document.getElementById('thesisGradeDiv').style.display = 'block';
+      } else {
+        // إذا لم يتم تقديم الرسالة نحسب المعدل النهائي بناءً على المعدلات السابقة فقط
+        document.getElementById('thesisGradeDiv').style.display = 'none';
+        calculateFinalAvg(false);
+      }
+      document.getElementById('thesisCheckDiv').style.display = 'none';
+    }
+
+    // حساب المعدل النهائي
+    // إذا thesisExists = false => لا نضيف الرسالة في الحساب
+    function calculateFinalAvg(thesisExists = true) {
+      let thesisGrade = 0;
+      let stage = document.getElementById('stage').value;
+
+      if (thesisExists) {
+        thesisGrade = parseFloat(document.getElementById('thesisGrade').value);
+        if (isNaN(thesisGrade) || thesisGrade < 0 || thesisGrade > 100) {
+          alert('الرجاء إدخال درجة الرسالة بشكل صحيح بين 0 و 100.');
+          return;
+        }
+      }
+
+      // حساب معدل الكورسات (متوسط معدل الكورس الأول والثاني إذا كانا موجودين)
+      let coursesAvg = 0;
+      if (course1Data.length > 0 && course2Data.length > 0) {
+        coursesAvg = (course1Avg + course2Avg) / 2;
+      } else if (course1Data.length > 0) {
+        coursesAvg = course1Avg;
+      } else if (course2Data.length > 0) {
+        coursesAvg = course2Avg;
+      }
+
+      // تطبيق المعادلات حسب المرحلة الدراسية
+      if (stage === 'phd') {
+        // الدكتوراه: (معدل الكورسات × 33.34) + (درجة الأطروحة × 66.66)
+        finalAvg = (coursesAvg * 0.3334) + (thesisExists ? (thesisGrade * 0.6666) : 0);
+      } else if (stage === 'master' || stage === 'diploma') {
+        // الماجستير والدبلوم: (معدل الكورسات × 66.66) + (درجة الرسالة × 33.34)
+        finalAvg = (coursesAvg * 0.6666) + (thesisExists ? (thesisGrade * 0.3334) : 0);
+      } else {
+        // إذا لم يتم تحديد مرحلة (لا ينبغي أن يحدث)
+        finalAvg = coursesAvg;
+      }
+
+      // عرض النتيجة
+      let resultHTML = `<p>المعدل النهائي للطالب: <strong>${finalAvg.toFixed(2)}</strong></p>`;
+      
+      if (thesisExists) {
+        resultHTML += `<p>حساب المعدل النهائي باستخدام: ${stage === 'phd' ? 'الأطروحة' : 'الرسالة'}</p>`;
+      } else {
+        resultHTML += `<p>حساب المعدل النهائي بدون ${stage === 'phd' ? 'الأطروحة' : 'الرسالة'}</p>`;
+      }
+
+      document.getElementById('finalAvgDiv').innerHTML = resultHTML;
+      document.getElementById('finalAvgDiv').style.display = 'block';
+
+      document.getElementById('thesisGradeDiv').style.display = 'none';
+    }
+
+    // تحميل السجلات المحفوظة من localStorage
+    function loadSavedRecords() {
+      let allRecords = JSON.parse(localStorage.getItem('studentRecords') || '[]');
+      let recordsBody = document.getElementById('recordsBody');
+      recordsBody.innerHTML = '';
+
+      if (allRecords.length === 0) {
+        recordsBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد سجلات محفوظة</td></tr>';
+        return;
+      }
+
+      allRecords.forEach((record, index) => {
+        let row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${record.department}</td>
+          <td>${record.studentName}</td>
+          <td>${getStageName(record.stage)}</td>
+          <td>${record.course1Avg.toFixed(2)}</td>
+          <td>${record.course2Data.length > 0 ? record.course2Avg.toFixed(2) : '--'}</td>
+          <td>${record.finalAvg.toFixed(2)}</td>
+          <td>${new Date(record.timestamp).toLocaleString()}</td>
+        `;
+        recordsBody.appendChild(row);
+      });
+    }
+
+    // الحصول على اسم المرحلة الدراسية
+    function getStageName(stage) {
+      switch(stage) {
+        case 'phd': return 'الدكتوراه';
+        case 'master': return 'الماجستير';
+        case 'diploma': return 'الدبلوم';
+        default: return stage;
+      }
+    }
+
+    // حفظ النتيجة في localStorage وعرضها في الجدول
+    function saveResult() {
+      const studentName = document.getElementById('studentName').value.trim();
+      const department = document.getElementById('department').value;
+      const stage = document.getElementById('stage').value;
+
+      if (!studentName || !department || !stage) {
+        alert('يرجى تعبئة الاسم والقسم والمرحلة.');
+        return;
+      }
+      if (finalAvg === 0) {
+        alert('يرجى حساب المعدل النهائي أولاً.');
+        return;
+      }
+
+      const record = {
+        studentName,
+        department,
+        stage,
+        course1Data,
+        course1Avg,
+        course2Data,
+        course2Avg,
+        finalAvg,
+        timestamp: new Date().toISOString()
+      };
+
+      let allRecords = JSON.parse(localStorage.getItem('studentRecords') || '[]');
+      allRecords.push(record);
+      localStorage.setItem('studentRecords', JSON.stringify(allRecords));
+
+      // تحديث الجدول
+      loadSavedRecords();
+
+      alert('تم حفظ النتيجة بنجاح.');
+    }
+
+    // تنزيل ملف Word يحتوي النتائج
+    async function downloadDOCX() {
+      const { Document, Packer, Paragraph, TextRun } = window.docx;
+
+      if (finalAvg === 0) {
+        alert('يرجى حساب المعدل النهائي أولاً.');
+        return;
+      }
+
+      const studentName = document.getElementById('studentName').value.trim();
+      const department = document.getElementById('department').value;
+      const stage = document.getElementById('stage').value;
+
+      let doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `اسم الطالب: ${studentName}`,
+                    bold: true,
+                    size: 32,
+                    font: "Arial",
+                  }),
+                ],
+                alignment: 'right'
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun(`القسم العلمي: ${department}`),
+                ],
+                alignment: 'right'
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun(`المرحلة الدراسية: ${stage}`),
+                ],
+                alignment: 'right'
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun(`معدل الكورس الأول: ${course1Avg.toFixed(2)}`),
+                ],
+                alignment: 'right'
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun(`معدل الكورس الثاني: ${course2Avg > 0 ? course2Avg.toFixed(2) : 'غير موجود'}`),
+                ],
+                alignment: 'right'
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun(`المعدل النهائي: ${finalAvg.toFixed(2)}`),
+                ],
+                alignment: 'right'
+              }),
+            ],
+          },
+        ],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const fileName = `${studentName}_results.docx`;
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        // IE/Edge
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+      } else {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+    }
+
+    // تنزيل ملف Word يحتوي جميع السجلات
+    async function downloadRecordsDOCX() {
+      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell } = window.docx;
+
+      let allRecords = JSON.parse(localStorage.getItem('studentRecords') || '[]');
+      if (allRecords.length === 0) {
+        alert('لا توجد سجلات محفوظة للتصدير.');
+        return;
+      }
+
+      let doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "سجلات الطلاب المحفوظة",
+                    bold: true,
+                    size: 36,
+                    font: "Arial",
+                  }),
+                ],
+                alignment: 'center'
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `تاريخ التصدير: ${new Date().toLocaleDateString()}`,
+                    size: 24,
+                  }),
+                ],
+                alignment: 'center'
+              }),
+              new Paragraph({ text: "" }), // مسافة فارغة
+
+              // إنشاء جدول السجلات
+              new Table({
+                rows: [
+                  // رأس الجدول
+                  new TableRow({
+                    children: [
+                      new TableCell({ children: [new Paragraph({ text: "#", alignment: 'center' })] }),
+                      new TableCell({ children: [new Paragraph({ text: "القسم العلمي", alignment: 'center' })] }),
+                      new TableCell({ children: [new Paragraph({ text: "الاسم الثلاثي", alignment: 'center' })] }),
+                      new TableCell({ children: [new Paragraph({ text: "المرحلة", alignment: 'center' })] }),
+                      new TableCell({ children: [new Paragraph({ text: "معدل الكورس الأول", alignment: 'center' })] }),
+                      new TableCell({ children: [new Paragraph({ text: "معدل الكورس الثاني", alignment: 'center' })] }),
+                      new TableCell({ children: [new Paragraph({ text: "المعدل النهائي", alignment: 'center' })] }),
+                      new TableCell({ children: [new Paragraph({ text: "تاريخ الحفظ", alignment: 'center' })] }),
+                    ],
+                  }),
+                  // بيانات السجلات
+                  ...allRecords.map((record, index) => 
+                    new TableRow({
+                      children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: 'center' })] }),
+                        new TableCell({ children: [new Paragraph({ text: record.department, alignment: 'center' })] }),
+                        new TableCell({ children: [new Paragraph({ text: record.studentName, alignment: 'center' })] }),
+                        new TableCell({ children: [new Paragraph({ text: getStageName(record.stage), alignment: 'center' })] }),
+                        new TableCell({ children: [new Paragraph({ text: record.course1Avg.toFixed(2), alignment: 'center' })] }),
+                        new TableCell({ children: [new Paragraph({ text: record.course2Data.length > 0 ? record.course2Avg.toFixed(2) : '--', alignment: 'center' })] }),
+                        new TableCell({ children: [new Paragraph({ text: record.finalAvg.toFixed(2), alignment: 'center' })] }),
+                        new TableCell({ children: [new Paragraph({ text: new Date(record.timestamp).toLocaleString(), alignment: 'center' })] }),
+                      ],
+                    })
+                  )
+                ],
+              }),
+            ],
+          },
+        ],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const fileName = `students_records_${new Date().toISOString().split('T')[0]}.docx`;
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+      } else {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+    }
+  </script>
+</body>
+</html>
