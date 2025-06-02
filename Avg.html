@@ -718,7 +718,12 @@
               }),
               new Paragraph({
                 children: [
-                  new TextRun(`المرحلة الدراسية: ${stage}`),
+                  new TextRun(`المرحلة الدراسية: ${
+               stage === 'phd' ? 'الدكتوراه' :
+               stage === 'master' ? 'الماجستير' :
+               stage === 'diploma' ? 'الدبلوم' : stage
+               }`), 
+
                 ],
                 alignment: 'right'
               }),
