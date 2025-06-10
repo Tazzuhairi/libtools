@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أداة حساب المعدل</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+      margin: 0;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .gpa-container {
+      background: #f0faff;
+      border: 2px solid #2196f3;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 800px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    h3 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    label {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      border: 2px solid #2196f3;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #e3f2fd;
+    }
+
+    .input-group i {
+      color: #2196f3;
+      margin-left: 10px;
+      font-size: 1.2rem;
+    }
+
+    .input-group input,
+    .input-group select {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 1rem;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .material-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      align-items: center;
+    }
+
+    .material-row .input-group {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .material-header {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .material-header div {
+      flex: 1;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    button {
+      background-color: #6200ea;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    button:hover {
+      background-color: #3700b3;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .action-buttons button {
+      flex: 1 1 auto;
+    }
+
+    button.reset-btn {
+      background-color: #f44336;
+    }
+
+    button.reset-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    button.export-btn {
+      background-color: #ff9800;
+    }
+
+    button.export-btn:hover {
+      background-color: #f57c00;
+    }
+
+    button.pdf-btn {
+      background-color: #d32f2f;
+    }
+
+    button.pdf-btn:hover {
+      background-color: #b71c1c;
+    }
+
+    #stageGPAResult, #finalGPAResult, #competitiveGPAResult {
+      background: #e1f5fe;
+      border-left: 5px solid #039be5;
+      padding: 12px 16px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #0277bd;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .gpa-container {
+        padding: 20px;
+      }
+
+      .material-row {
+        flex-direction: column;
+      }
+
+      .material-row .input-group {
+        width: 100%;
+      }
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      h2 {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="gpa-container">
+    <h2>أداة حساب المعدل التراكمي والتنافسي</h2>
+    <h3>تصميم وتطوير: د. طلال ناظم الزهيري</h3>
+    <label for="department">اختر القسم العلمي:</label>
+    <div class="input-group">
+      <i class="fas fa-university"></i>
+      <select id="department">
+        <option value="">-- اختر القسم --</option>
+        <option>اللغة العربية</option>
+        <option>اللغة الانكليزية</option>
+        <option>الجغرافية ونظم المعلومات الجغرافية</option>
+        <option>المعلومات وتقنيات المعرفة</option>
+        <option>الفلسفة</option>
+        <option>الترجمة</option>
+      </select>
+    </div>
+
+    <label for="studentName">اسم الطالب:</label>
+    <div class="input-group">
+      <i class="fas fa-user"></i>
+      <input type="text" id="studentName" placeholder="اكتب اسم الطالب">
+    </div>
+
+    <label for="stage">المرحلة الدراسية:</label>
+    <div class="input-group">
+      <i class="fas fa-layer-group"></i>
+      <input type="text" id="stage" placeholder="مثلاً: الأولى">
+    </div>
+
+    <div id="materialCountSection" class="hidden">
+      <label for="materialCount">عدد المواد:</label>
+      <div class="input-group">
+        <i class="fas fa-list-ol"></i>
+        <input type="number" id="materialCount" min="1" oninput="generateMaterialTable()">
+      </div>
+    </div>
+
+    <div id="materialsTableSection"></div>
+
+    <div id="stageGPASection" class="hidden">
+      <button id="calculateStageBtn" class="hidden" onclick="calculateStageGPA()"><i class="fas fa-calculator"></i> احسب معدل المرحلة</button>
+      <p id="stageGPAResult"></p>
+      <button id="nextStageBtn" class="hidden" onclick="goToNextStage()"><i class="fas fa-arrow-right"></i> الانتقال إلى المرحلة التالية</button>
+    </div>
+
+    <div id="finalGPASection" class="hidden">
+      <p id="finalGPAResult"></p>
+      <button onclick="calculateCompetitiveGPA()"><i class="fas fa-balance-scale"></i> احسب المعدل التنافسي</button>
+
+      <div id="competitiveInputSection" class="hidden">
+        <label for="topStudentGPA">معدل الطالب الأول:</label>
+        <div class="input-group">
+          <i class="fas fa-trophy"></i>
+          <input type="number" step="0.01" id="topStudentGPA">
+        </div>
+        <button onclick="showCompetitiveResult()"><i class="fas fa-equals"></i> احسب</button>
+      </div>
+
+      <p id="competitiveGPAResult"></p>
+    </div>
+
+    <div id="actionButtons" class="hidden action-buttons">
+      <button class="reset-btn" onclick="resetForm()"><i class="fas fa-redo"></i> إعادة تعيين</button>
+      <button class="export-btn" onclick="exportToWord()"><i class="fas fa-file-word"></i> تصدير إلى Word</button>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      const stageInput = document.getElementById('stage');
+      const materialCountSection = document.getElementById('materialCountSection');
+
+      stageInput.addEventListener('input', function () {
+        if (stageInput.value.trim() !== '') {
+          materialCountSection.classList.remove('hidden');
+        } else {
+          materialCountSection.classList.add('hidden');
+        }
+      });
+    });
+
+    let currentStageIndex = 0;
+    const stageNames = ['الأولى', 'الثانية', 'الثالثة', 'الرابعة'];
+    const stageWeights = [0.1, 0.2, 0.3, 0.4];
+    const stageGPAs = [];
+    let studentData = {
+      name: '',
+      department: '',
+      stages: []
+    };
+
+    function generateMaterialTable() {
+      const countInput = document.getElementById("materialCount");
+      const count = parseInt(countInput.value);
+      
+      // التحقق من صحة المدخلات
+      if (isNaN(count) || count < 1) {
+        document.getElementById("materialsTableSection").innerHTML = '';
+        return;
+      }
+      
+      // بقية الدالة كما هي...
+      const container = document.getElementById("materialsTableSection");
+      container.innerHTML = '';
+      
+      // إضافة عناوين الأعمدة
+      container.innerHTML += `
+        <div class="material-header">
+          <div>اسم المادة</div>
+          <div>الدرجة</div>
+          <div>الساعات المعتمدة</div>
+        </div>`;
+      
+      for (let i = 0; i < count; i++) {
+        container.innerHTML += `
+          <div class="material-row" id="material-row-${i}">
+            <div class="input-group"><i class="fas fa-book"></i><input type="text" placeholder="اسم المادة" id="material-name-${i}" required></div>
+            <div class="input-group"><i class="fas fa-star"></i><input type="number" min="0" max="100" placeholder="الدرجة" id="material-grade-${i}" required></div>
+            <div class="input-group"><i class="fas fa-clock"></i><input type="number" min="1" placeholder="الساعات" id="material-credit-${i}" required></div>
+          </div>`;
+      }
+      
+      document.getElementById("stageGPASection").classList.remove("hidden");
+      document.getElementById("calculateStageBtn").classList.remove("hidden");
+    }
+
+    function calculateStageGPA() {
+      const count = parseInt(document.getElementById("materialCount").value);
+      let totalWeighted = 0, totalCredits = 0;
+      const stageMaterials = [];
+      let allValid = true;
+      
+      // التحقق من صحة جميع المدخلات
+      for (let i = 0; i < count; i++) {
+        const name = document.getElementById(`material-name-${i}`).value;
+        const grade = parseFloat(document.getElementById(`material-grade-${i}`).value);
+        const credit = parseFloat(document.getElementById(`material-credit-${i}`).value);
+        
+        if (!name || isNaN(grade) || isNaN(credit) || grade < 0 || grade > 100 || credit < 1) {
+          allValid = false;
+          // تظليل الحقل غير الصحيح
+          if (!name) document.getElementById(`material-name-${i}`).style.border = "1px solid red";
+          if (isNaN(grade) || grade < 0 || grade > 100) document.getElementById(`material-grade-${i}`).style.border = "1px solid red";
+          if (isNaN(credit) || credit < 1) document.getElementById(`material-credit-${i}`).style.border = "1px solid red";
+          break;
+        } else {
+          // إزالة التظليل إذا كان الحقل صحيحًا
+          document.getElementById(`material-name-${i}`).style.border = "";
+          document.getElementById(`material-grade-${i}`).style.border = "";
+          document.getElementById(`material-credit-${i}`).style.border = "";
+        }
+      }
+      
+      if (!allValid) {
+        alert("الرجاء إدخال بيانات صحيحة لجميع المواد");
+        return;
+      }
+      
+      // حساب المعدل إذا كانت جميع المدخلات صحيحة
+      for (let i = 0; i < count; i++) {
+        const name = document.getElementById(`material-name-${i}`).value;
+        const grade = parseFloat(document.getElementById(`material-grade-${i}`).value);
+        const credit = parseFloat(document.getElementById(`material-credit-${i}`).value);
+        
+        totalWeighted += grade * credit;
+        totalCredits += credit;
+        stageMaterials.push({
+          name: name,
+          grade: grade,
+          credit: credit
+        });
+      }
+      
+      const gpa = totalWeighted / totalCredits;
+      stageGPAs[currentStageIndex] = gpa;
+      
+      // حفظ بيانات المرحلة
+      studentData.stages[currentStageIndex] = {
+        name: stageNames[currentStageIndex],
+        gpa: gpa,
+        materials: stageMaterials
+      };
+      
+      document.getElementById("stageGPAResult").innerText = `معدل المرحلة ${stageNames[currentStageIndex]}: ${gpa.toFixed(2)}`;
+      document.getElementById("nextStageBtn").classList.remove("hidden");
+      document.getElementById("calculateStageBtn").classList.add("hidden");
+    }
+
+    function goToNextStage() {
+      currentStageIndex++;
+      if (currentStageIndex < stageNames.length) {
+        document.getElementById("stage").value = stageNames[currentStageIndex];
+        document.getElementById("materialCount").value = '';
+        document.getElementById("materialsTableSection").innerHTML = '';
+        document.getElementById("stageGPASection").classList.add("hidden");
+        document.getElementById("materialCountSection").classList.remove("hidden");
+        document.getElementById("stageGPAResult").innerText = '';
+        document.getElementById("nextStageBtn").classList.add("hidden");
+        document.getElementById("calculateStageBtn").classList.add("hidden");
+      } else {
+        document.getElementById("finalGPASection").classList.remove("hidden");
+        calculateFinalGPA();
+      }
+    }
+
+    function calculateFinalGPA() {
+      let finalGPA = 0;
+      for (let i = 0; i < stageGPAs.length; i++) {
+        finalGPA += stageGPAs[i] * stageWeights[i];
+      }
+      document.getElementById("finalGPAResult").innerText = `المعدل التراكمي النهائي: ${finalGPA.toFixed(2)}`;
+      
+      // حفظ المعدل النهائي
+      studentData.finalGPA = finalGPA;
+      
+      // إظهار أزرار الحفظ والتصدير
+      document.getElementById("actionButtons").classList.remove("hidden");
+    }
+
+    function calculateCompetitiveGPA() {
+      document.getElementById("competitiveInputSection").classList.remove("hidden");
+    }
+
+    function showCompetitiveResult() {
+      const finalGPA = parseFloat(document.getElementById("finalGPAResult").innerText.split(":")[1]);
+      const topGPA = parseFloat(document.getElementById("topStudentGPA").value);
+      if (!isNaN(finalGPA) && !isNaN(topGPA) && topGPA > 0) {
+        const competitive = (finalGPA / topGPA) * 100;
+        document.getElementById("competitiveGPAResult").innerText = `المعدل التنافسي: ${competitive.toFixed(2)}%`;
+        
+        // حفظ المعدل التنافسي
+        studentData.competitiveGPA = competitive;
+        studentData.topStudentGPA = topGPA;
+      } else {
+        alert("الرجاء إدخال معدل الطالب الأول بشكل صحيح");
+      }
+    }
+
+    function resetForm() {
+      // إعادة تعيين جميع المتغيرات
+      currentStageIndex = 0;
+      stageGPAs.length = 0;
+      studentData = {
+        name: '',
+        department: '',
+        stages: []
+      };
+      
+      // إعادة تعيين النموذج
+      document.getElementById("department").value = "";
+      document.getElementById("studentName").value = "";
+      document.getElementById("stage").value = "";
+      document.getElementById("materialCount").value = "";
+      document.getElementById("materialsTableSection").innerHTML = "";
+      document.getElementById("stageGPAResult").innerText = "";
+      document.getElementById("finalGPAResult").innerText = "";
+      document.getElementById("competitiveGPAResult").innerText = "";
+      document.getElementById("topStudentGPA").value = "";
+      
+      // إخفاء الأقسام غير الضرورية
+      document.getElementById("materialCountSection").classList.add("hidden");
+      document.getElementById("stageGPASection").classList.add("hidden");
+      document.getElementById("finalGPASection").classList.add("hidden");
+      document.getElementById("competitiveInputSection").classList.add("hidden");
+      document.getElementById("actionButtons").classList.add("hidden");
+      document.getElementById("nextStageBtn").classList.add("hidden");
+      document.getElementById("calculateStageBtn").classList.add("hidden");
+    }
+
+    function exportToWord() {
+      // تحديث بيانات الطالب قبل التصدير
+      studentData.name = document.getElementById("studentName").value;
+      studentData.department = document.getElementById("department").value;
+      
+      // إنشاء محتوى HTML للتصدير
+      let htmlContent = `
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>بيانات الطالب ${studentData.name}</title>
+          <style>
+            body { font-family: 'Cairo', sans-serif; margin: 20px; }
+            h1, h2 { color: #2c3e50; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+            th { background-color: #f2f2f2; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .result { font-weight: bold; color: #0277bd; margin: 15px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>بيانات الطالب: ${studentData.name}</h1>
+            <h2>القسم: ${studentData.department}</h2>
+          </div>
+      `;
+      
+      // إضافة بيانات المراحل
+      for (let i = 0; i < studentData.stages.length; i++) {
+        const stage = studentData.stages[i];
+        htmlContent += `
+          <h2>المرحلة ${stage.name}</h2>
+          <table>
+            <tr>
+              <th>اسم المادة</th>
+              <th>الدرجة</th>
+              <th>الساعات المعتمدة</th>
+            </tr>
+        `;
+        
+        for (let j = 0; j < stage.materials.length; j++) {
+          const material = stage.materials[j];
+          htmlContent += `
+            <tr>
+              <td>${material.name}</td>
+              <td>${material.grade}</td>
+              <td>${material.credit}</td>
+            </tr>
+          `;
+        }
+        
+        htmlContent += `
+          </table>
+          <div class="result">معدل المرحلة: ${stage.gpa.toFixed(2)}</div>
+        `;
+      }
+      
+      // إضافة النتائج النهائية
+      if (studentData.finalGPA) {
+        htmlContent += `
+          <h2>النتائج النهائية</h2>
+          <div class="result">المعدل التراكمي النهائي: ${studentData.finalGPA.toFixed(2)}</div>
+        `;
+      }
+      
+      if (studentData.competitiveGPA) {
+       htmlContent += `
+          <div class="result">المعدل التنافسي: ${studentData.competitiveGPA.toFixed(2)}%</div>
+          <div class="result">معدل الطالب الأول: ${studentData.topStudentGPA}</div>
+        `;
+      }
+      
+      htmlContent += `
+          </body>
+          </html>
+      `;
+      
+      // إنشاء ملف Word
+      const blob = new Blob([htmlContent], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `بيانات_الطالب_${studentData.name}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+  <div style="position: fixed; bottom: 10px; width: 100%; text-align: center; color: #555; font-size: 1.2rem;">
+    طلال ناظم الزهيري ©2025
+  </div>
+</body>
+</html>
