@@ -315,7 +315,7 @@
         <div class="material-header">
           <div>اسم المادة</div>
           <div>الدرجة</div>
-          <div>الساعات المعتمدة</div>
+          <div>الوحدات المعتمدة</div>
         </div>`;
       
       for (let i = 0; i < count; i++) {
@@ -323,7 +323,7 @@
           <div class="material-row" id="material-row-${i}">
             <div class="input-group"><i class="fas fa-book"></i><input type="text" placeholder="اسم المادة" id="material-name-${i}" required></div>
             <div class="input-group"><i class="fas fa-star"></i><input type="number" min="0" max="100" placeholder="الدرجة" id="material-grade-${i}" required></div>
-            <div class="input-group"><i class="fas fa-clock"></i><input type="number" min="1" placeholder="الساعات" id="material-credit-${i}" required></div>
+            <div class="input-group"><i class="fas fa-clock"></i><input type="number" min="1" placeholder="الوحدات" id="material-credit-${i}" required></div>
           </div>`;
       }
       
@@ -512,7 +512,7 @@
             <tr>
               <th>اسم المادة</th>
               <th>الدرجة</th>
-              <th>الساعات المعتمدة</th>
+              <th>الوحدات المعتمدة</th>
             </tr>
         `;
         
@@ -565,5 +565,5 @@
       URL.revokeObjectURL(url);
     }
   </script>
- </body>
+</body>
 </html>
