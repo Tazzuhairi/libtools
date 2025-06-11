@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>أداة حساب المعدل</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<html dir="rtl" lang="ar">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   أداة حساب المعدل
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&amp;display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
+  </script>
   <style>
-    body {
+   body {
       font-family: 'Cairo', sans-serif;
       background: linear-gradient(to right, #e3f2fd, #fce4ec);
       margin: 0;
@@ -203,77 +206,126 @@
       }
     }
   </style>
-</head>
-<body>
+ </head>
+ <body>
   <div class="gpa-container">
-    <h2>أداة حساب المعدل التراكمي والتنافسي</h2>
-    <h3>تصميم وتطوير: د. طلال ناظم الزهيري</h3>
-    <label for="department">اختر القسم العلمي:</label>
+   <h2>
+    أداة حساب المعدل التراكمي والتنافسي
+   </h2>
+   <h3>
+    تصميم وتطوير: د. طلال ناظم الزهيري
+   </h3>
+   <label for="department">
+    اختر القسم العلمي:
+   </label>
+   <div class="input-group">
+    <i class="fas fa-university">
+    </i>
+    <select id="department">
+     <option value="">
+      -- اختر القسم --
+     </option>
+     <option>
+      اللغة العربية
+     </option>
+     <option>
+      اللغة الانكليزية
+     </option>
+     <option>
+      الجغرافية ونظم المعلومات الجغرافية
+     </option>
+     <option>
+      المعلومات وتقنيات المعرفة
+     </option>
+     <option>
+      الفلسفة
+     </option>
+     <option>
+      الترجمة
+     </option>
+    </select>
+   </div>
+   <label for="studentName">
+    اسم الطالب:
+   </label>
+   <div class="input-group">
+    <i class="fas fa-user">
+    </i>
+    <input id="studentName" placeholder="اكتب اسم الطالب" type="text"/>
+   </div>
+   <label for="stage">
+    المرحلة الدراسية:
+   </label>
+   <div class="input-group">
+    <i class="fas fa-layer-group">
+    </i>
+    <input id="stage" placeholder="مثلاً: الأولى" type="text"/>
+   </div>
+   <div class="hidden" id="materialCountSection">
+    <label for="materialCount">
+     عدد المواد:
+    </label>
     <div class="input-group">
-      <i class="fas fa-university"></i>
-      <select id="department">
-        <option value="">-- اختر القسم --</option>
-        <option>اللغة العربية</option>
-        <option>اللغة الانكليزية</option>
-        <option>الجغرافية ونظم المعلومات الجغرافية</option>
-        <option>المعلومات وتقنيات المعرفة</option>
-        <option>الفلسفة</option>
-        <option>الترجمة</option>
-      </select>
+     <i class="fas fa-list-ol">
+     </i>
+     <input id="materialCount" min="1" oninput="generateMaterialTable()" type="number"/>
     </div>
-
-    <label for="studentName">اسم الطالب:</label>
-    <div class="input-group">
-      <i class="fas fa-user"></i>
-      <input type="text" id="studentName" placeholder="اكتب اسم الطالب">
+   </div>
+   <div id="materialsTableSection">
+   </div>
+   <div class="hidden" id="stageGPASection">
+    <button class="hidden" id="calculateStageBtn" onclick="calculateStageGPA()">
+     <i class="fas fa-calculator">
+     </i>
+     احسب معدل المرحلة
+    </button>
+    <p id="stageGPAResult">
+    </p>
+    <button class="hidden" id="nextStageBtn" onclick="goToNextStage()">
+     <i class="fas fa-arrow-right">
+     </i>
+     الانتقال إلى المرحلة التالية
+    </button>
+   </div>
+   <div class="hidden" id="finalGPASection">
+    <p id="finalGPAResult"></p>
+    <button onclick="calculateCompetitiveGPA()">
+     <i class="fas fa-balance-scale"></i>
+     احسب المعدل التنافسي
+    </button>
+    <div class="hidden" id="competitiveInputSection">
+     <label for="topStudentGPA">
+      معدل الطالب الأول:
+     </label>
+     <div class="input-group">
+      <i class="fas fa-trophy">
+      </i>
+      <input id="topStudentGPA" step="0.01" type="number"/>
+     </div>
+     <button onclick="showCompetitiveResult()">
+      <i class="fas fa-equals">
+      </i>
+      احسب
+     </button>
     </div>
-
-    <label for="stage">المرحلة الدراسية:</label>
-    <div class="input-group">
-      <i class="fas fa-layer-group"></i>
-      <input type="text" id="stage" placeholder="مثلاً: الأولى">
-    </div>
-
-    <div id="materialCountSection" class="hidden">
-      <label for="materialCount">عدد المواد:</label>
-      <div class="input-group">
-        <i class="fas fa-list-ol"></i>
-        <input type="number" id="materialCount" min="1" oninput="generateMaterialTable()">
-      </div>
-    </div>
-
-    <div id="materialsTableSection"></div>
-
-    <div id="stageGPASection" class="hidden">
-      <button id="calculateStageBtn" class="hidden" onclick="calculateStageGPA()"><i class="fas fa-calculator"></i> احسب معدل المرحلة</button>
-      <p id="stageGPAResult"></p>
-      <button id="nextStageBtn" class="hidden" onclick="goToNextStage()"><i class="fas fa-arrow-right"></i> الانتقال إلى المرحلة التالية</button>
-    </div>
-
-    <div id="finalGPASection" class="hidden">
-      <p id="finalGPAResult"></p>
-      <button onclick="calculateCompetitiveGPA()"><i class="fas fa-balance-scale"></i> احسب المعدل التنافسي</button>
-
-      <div id="competitiveInputSection" class="hidden">
-        <label for="topStudentGPA">معدل الطالب الأول:</label>
-        <div class="input-group">
-          <i class="fas fa-trophy"></i>
-          <input type="number" step="0.01" id="topStudentGPA">
-        </div>
-        <button onclick="showCompetitiveResult()"><i class="fas fa-equals"></i> احسب</button>
-      </div>
-
-      <p id="competitiveGPAResult"></p>
-    </div>
-
-    <div id="actionButtons" class="hidden action-buttons">
-      <button class="reset-btn" onclick="resetForm()"><i class="fas fa-redo"></i> إعادة تعيين</button>
-      <button class="export-btn" onclick="exportToWord()"><i class="fas fa-file-word"></i> تصدير إلى Word</button>
-    </div>
+    <p id="competitiveGPAResult">
+    </p>
+   </div>
+   <div class="hidden action-buttons" id="actionButtons">
+    <button class="reset-btn" onclick="resetForm()">
+     <i class="fas fa-redo">
+     </i>
+     إعادة تعيين
+    </button>
+    <button class="export-btn" onclick="exportToWord()">
+     <i class="fas fa-file-word">
+     </i>
+     تصدير إلى Word
+    </button>
+   </div>
   </div>
-
   <script>
-    window.addEventListener('DOMContentLoaded', function () {
+   window.addEventListener('DOMContentLoaded', function () {
       const stageInput = document.getElementById('stage');
       const materialCountSection = document.getElementById('materialCountSection');
 
@@ -437,11 +489,21 @@ function showCompetitiveResult() {
     const part2 = finalGPA / 2;
     const competitive = (part1 + part2) / 2;
 
-    document.getElementById("competitiveGPAResult").innerText = `المعدل التنافسي: ${competitive.toFixed(2)}%`;
+    document.getElementById("competitiveGPAResult").innerText = `المعدل التنافسي: ${competitive.toFixed(2)}`;
 
     // حفظ المعدل التنافسي في بيانات الطالب
     studentData.competitiveGPA = competitive;
     studentData.topStudentGPA = topGPA;
+
+// عرض زر حساب معدل أساس المفاضلة بعد ظهور المعدل التنافسي
+if (!document.getElementById("baseScoreBtn")) {
+  const btn = document.createElement("button");
+  btn.id = "baseScoreBtn";
+  btn.innerHTML = '<i class="fas fa-percent"></i> احسب معدل أساس المفاضلة';
+  btn.onclick = showBaseScoreInput;
+  document.getElementById("competitiveInputSection").appendChild(btn);
+}
+
   } else {
     alert("الرجاء إدخال معدل الطالب الأول بشكل صحيح");
   }
@@ -478,96 +540,95 @@ function showCompetitiveResult() {
       document.getElementById("calculateStageBtn").classList.add("hidden");
     }
 
-    function exportToWord() {
-      // تحديث بيانات الطالب قبل التصدير
-      studentData.name = document.getElementById("studentName").value;
-      studentData.department = document.getElementById("department").value;
-      
-      // إنشاء محتوى HTML للتصدير
-      let htmlContent = `
-        <!DOCTYPE html>
-        <html dir="rtl">
-        <head>
-          <meta charset="UTF-8">
-          <title>بيانات الطالب ${studentData.name}</title>
-          <style>
-            body { font-family: 'Cairo', sans-serif; margin: 20px; }
-            h1, h2 { color: #2c3e50; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-            th { background-color: #f2f2f2; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .result { font-weight: bold; color: #0277bd; margin: 15px 0; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>بيانات الطالب: ${studentData.name}</h1>
-            <h2>القسم: ${studentData.department}</h2>
-          </div>
-      `;
-      
-      // إضافة بيانات المراحل
-      for (let i = 0; i < studentData.stages.length; i++) {
-        const stage = studentData.stages[i];
-        htmlContent += `
-          <h2>المرحلة ${stage.name}</h2>
-          <table>
-            <tr>
-              <th>اسم المادة</th>
-              <th>الدرجة</th>
-              <th>الوحدات المعتمدة</th>
-            </tr>
-        `;
-        
-        for (let j = 0; j < stage.materials.length; j++) {
-          const material = stage.materials[j];
-          htmlContent += `
-            <tr>
-              <td>${material.name}</td>
-              <td>${material.grade}</td>
-              <td>${material.credit}</td>
-            </tr>
-          `;
-        }
-        
-        htmlContent += `
-          </table>
-          <div class="result">معدل المرحلة: ${stage.gpa.toFixed(2)}</div>
-        `;
-      }
-      
-      // إضافة النتائج النهائية
-      if (studentData.finalGPA) {
-        htmlContent += `
-          <h2>النتائج النهائية</h2>
-          <div class="result">المعدل التراكمي النهائي: ${studentData.finalGPA.toFixed(2)}</div>
-        `;
-      }
-      
-      if (studentData.competitiveGPA) {
-       htmlContent += `
-          <div class="result">المعدل التنافسي: ${studentData.competitiveGPA.toFixed(2)}%</div>
-          <div class="result">معدل الطالب الأول: ${studentData.topStudentGPA}</div>
-        `;
-      }
-      
-      htmlContent += `
-          </body>
-          </html>
-      `;
-      
-      // إنشاء ملف Word
-      const blob = new Blob([htmlContent], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `بيانات_الطالب_${studentData.name}.doc`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    
+function exportToWord() {
+  studentData.name = document.getElementById("studentName").value;
+  studentData.department = document.getElementById("department").value;
+
+  let htmlContent = `
+    <!DOCTYPE html>
+    <html dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>بيانات الطالب ${studentData.name}</title>
+      <style>
+        body { font-family: 'Cairo', sans-serif; margin: 20px; }
+        h1, h2 { color: #2c3e50; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 1.1em; }
+        th { background-color: #f2f2f2; }
+      </style>
+    </head>
+    <body>
+      <h1>بيانات الطالب</h1>
+      <table>
+        <tr><th>الاسم</th><td>${studentData.name}</td></tr>
+        <tr><th>القسم</th><td>${studentData.department}</td></tr>
+        <tr><th>المعدل التراكمي</th><td>${studentData.finalGPA ? studentData.finalGPA.toFixed(2) : '-'}</td></tr>
+        <tr><th>معدل الطالب الأول</th><td>${studentData.topStudentGPA ? studentData.topStudentGPA : '-'}</td></tr>
+        <tr><th>المعدل التنافسي</th><td>${studentData.competitiveGPA ? studentData.competitiveGPA.toFixed(2) : '-'}</td></tr>
+        <tr><th>درجة الامتحان التنافسي</th><td>${studentData.examScore ? studentData.examScore : '-'}</td></tr>
+        <tr><th>معدل أساس المفاضلة</th><td>${studentData.baseScore ? studentData.baseScore.toFixed(2) : '-'}</td></tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob([htmlContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `بيانات_الطالب_${studentData.name}.doc`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function showBaseScoreInput() {
+  if (!document.getElementById("competitiveExamScore")) {
+    const inputGroup = document.createElement("div");
+    inputGroup.className = "input-group";
+    inputGroup.innerHTML = `
+      <i class="fas fa-pen"></i>
+      <input type="number" step="0.01" id="competitiveExamScore" placeholder="درجة الامتحان التنافسي (من 100)">
+    `;
+    document.getElementById("competitiveInputSection").appendChild(inputGroup);
+  }
+
+  if (!document.getElementById("calculateBaseBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "calculateBaseBtn";
+    btn.innerHTML = '<i class="fas fa-equals"></i> احسب معدل المفاضلة';
+    btn.onclick = calculateBaseScore;
+    document.getElementById("competitiveInputSection").appendChild(btn);
+  }
+}
+
+function calculateBaseScore() {
+  const examScore = parseFloat(document.getElementById("competitiveExamScore").value);
+  const competitive = studentData.competitiveGPA;
+
+  if (!isNaN(examScore) && !isNaN(competitive)) {
+    const baseScore = (competitive * 0.7) + (examScore * 0.3);
+    studentData.examScore = examScore;
+    studentData.baseScore = baseScore;
+
+    const existing = document.getElementById("baseScoreResult");
+    if (existing) {
+      existing.innerText = `معدل أساس المفاضلة: ${baseScore.toFixed(2)}`;
+    } else {
+      const resultDiv = document.createElement("p");
+      resultDiv.id = "baseScoreResult";
+      resultDiv.style.marginTop = "10px";
+      resultDiv.style.color = "#00796b";
+      resultDiv.style.fontWeight = "bold";
+      resultDiv.innerText = `معدل أساس المفاضلة: ${baseScore.toFixed(2)}`;
+      document.getElementById("competitiveInputSection").appendChild(resultDiv);
     }
+  } else {
+    alert("يرجى إدخال درجة صحيحة للامتحان التنافسي.");
+  }
+}
   </script>
-</body>
+ </body>
 </html>
