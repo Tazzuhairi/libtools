@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ar">
 <head>
 <meta charset="utf-8"/>
@@ -21,7 +20,7 @@
     }
     h2 {
       text-align: center;
-      color: #2e7d32;
+      color: #0f100f;
       margin-bottom: 30px;
     }
     label {
@@ -92,12 +91,24 @@
     .options-button:hover {
       background-color: #2e7d32;
     }
-  </style>
+  
+    .header {
+      background: linear-gradient(90deg, #2e7d32, #66bb6a);
+      padding: 15px 10px;
+      border-radius: 12px 12px 0 0;
+      text-align: center;
+      color: white;
+      margin: -25px -25px 20px -25px;
+    }
+
+    .container {
+      border: 2px solid #2e7d32;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+</style>
 </head>
 <body>
-<div class="container">
-<h2>أداة إنشاء بطاقة فهرسة</h2>
-<p style="text-align: center; font-weight: bold; color: #555;">تصميم وتطوير د. طلال ناظم الزهيري</p>
+<div class="container"><div class="header"><h2>أداة إنشاء بطاقة فهرسة</h2><p style="text-align: center; font-weight: bold; color: white; margin: 0;">تصميم وتطوير د. طلال ناظم الزهيري</p></div>
 <label>🌐 اختر اللغة:</label>
 <select id="language" onchange="changeLanguage()">
 <option value="ar">العربية</option>
@@ -266,7 +277,6 @@ ${callNumber}`;
   document.getElementById('outputText').textContent = fullText;
   document.getElementById('optionsContainer').style.display = 'flex';
 }
-
 function handleOption(option) {
   if (option === "reset") {
     document.querySelectorAll("input, textarea").forEach(e => e.value = '');
@@ -310,7 +320,6 @@ function generateMARC() {
 
   return marc;
 }
-
 function generateRDA() {
   return (
 `البيانات الأساسية:
@@ -334,7 +343,6 @@ function generateRDA() {
 - ملاحظات: ${getField('notes')}`
   );
 }
-
 function exportCSV() {
   const headers = [
     "المؤلف", "العنوان", "مكان النشر", "الناشر", "تاريخ النشر",
@@ -359,7 +367,6 @@ ${values.map(v => `"${v}"`).join(",")}`;
   link.click();
   document.body.removeChild(link);
 }
-
 function exportToWord() {
   const content = document.getElementById("outputText").textContent;
   const htmlContent = `
@@ -384,7 +391,6 @@ function exportToWord() {
         <div class="card">${content.replace(/\n/g, "<br>")}</div>
       </body>
     </html>`;
-
   const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -394,14 +400,11 @@ function exportToWord() {
   link.click();
   document.body.removeChild(link);
 }
-
 function changeLanguage() {
   const lang = document.getElementById('language').value;
   const isArabic = lang === 'ar';
-
   document.documentElement.lang = isArabic ? 'ar' : 'en';
   document.body.style.direction = isArabic ? 'rtl' : 'ltr';
-
   const labels = {
     author: isArabic ? "المؤلف:" : "Author:",
     title: isArabic ? "العنوان:" : "Title:",
@@ -419,13 +422,11 @@ function changeLanguage() {
     notes: isArabic ? "ملاحظات:" : "Notes:",
     cardType: isArabic ? "اختيار نوع البطاقة:" : "Select Card Type:"
   };
-
   for (const id in labels) {
     const labelEl = document.querySelector(`label[for="${id}"]`) ||
                     document.querySelector(`label + input#${id}`)?.previousElementSibling;
     if (labelEl) labelEl.textContent = labels[id];
   }
-
   const cardType = document.getElementById('cardType');
   cardType.options[0].text = isArabic ? "-- اختر نوع البطاقة --" : "-- Select Card Type --";
   cardType.options[1].text = isArabic ? "بطاقة المؤلف" : "Author Card";
@@ -442,7 +443,6 @@ function changeLanguage() {
   document.getElementById("wordBtn").textContent = isArabic ? "تصدير Word" : "Export Word";
   document.getElementById("copyBtn").textContent = isArabic ? "نسخ البطاقة" : "Copy Card";
 }
-
 </script>
 <footer style="text-align: center; margin-top: 40px; font-size: 14px; color: #666;">
   الدكتور طلال ناظم الزهيري @2025
