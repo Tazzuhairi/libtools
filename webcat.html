@@ -32,6 +32,8 @@
       width: 100%;
       padding: 10px;
       font-size: 18px;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
       border: 1px solid #ccc;
       border-radius: 8px;
       margin-bottom: 15px;
@@ -48,6 +50,7 @@
       border-radius: 8px;
       font-size: 16px;
       font-weight: bold;
+      font-family: 'Arial', sans-serif;
       cursor: pointer;
       width: 100%;
     }
@@ -62,7 +65,7 @@
       margin-top: 30px;
       white-space: pre-wrap;
       font-family: "Courier New", monospace;
-      font-size: 16px;
+      font-size: 18px;
       position: relative;
     }
     .options-container {
@@ -79,7 +82,7 @@
       padding: 10px 20px;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: bold;
       cursor: pointer;
       width: auto;
@@ -93,27 +96,39 @@
 <body>
 <div class="container">
   <h2>أداة إنشاء بطاقة فهرسة</h2>
+  <p style="text-align: center; font-weight: bold; color: #555;">تصميم وتطوير د. طلال ناظم الزهيري</p>
 
-  <label>المؤلف:</label>
+  <label>اختر اللغة:</label>
+  <select id="language" onchange="changeLanguage()">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+  </select>
+
+  <label for="author">المؤلف:</label>
   <input type="text" id="author">
   <div id="additionalAuthors"></div>
-  <button type="button" class="options-button" onclick="addAuthorField()">إضافة مؤلف آخر</button>
+  <button type="button" class="options-button" id="addAuthorBtn" onclick="addAuthorField()">إضافة مؤلف آخر</button>
 
-  <label>العنوان:</label><input type="text" id="title">
-  <label>مكان النشر:</label><input type="text" id="pubPlace">
-  <label>الناشر:</label><input type="text" id="publisher">
-  <label>تاريخ النشر:</label><input type="text" id="pubDate">
-  <label>الطبعة:</label><input type="text" id="edition">
-  <label>عدد الصفحات:</label><input type="text" id="pages">
-  <label>الموضوعات:</label><input type="text" id="subjects">
-  <label>رقم التصنيف:</label><input type="text" id="classification">
-  <label>رقم المؤلف:</label><input type="text" id="authorNumber">
-  <label>رقم الإيداع:</label><input type="text" id="legalDeposit">
-  <label>ردمك (ISBN):</label><input type="text" id="isbn">
-  <label>السلسلة:</label><input type="text" id="series">
-  <label>ملاحظات:</label><textarea id="notes"></textarea>
+  <label>العنوان:</label>
+  <input type="text" id="title">
 
   <div class="buttons">
+    <button id="showMoreBtn" type="button" onclick="showMoreFields()">أكمل البيانات</button>
+  </div>
+
+  <div id="moreFields" style="display: none;">
+    <label>مكان النشر:</label><input type="text" id="pubPlace">
+    <label>الناشر:</label><input type="text" id="publisher">
+    <label>تاريخ النشر:</label><input type="text" id="pubDate">
+    <label>الطبعة:</label><input type="text" id="edition">
+    <label>عدد الصفحات:</label><input type="text" id="pages">
+    <label>الموضوعات:</label><input type="text" id="subjects">
+    <label>رقم التصنيف:</label><input type="text" id="classification">
+    <label>رقم المؤلف:</label><input type="text" id="authorNumber">
+    <label>رقم الإيداع:</label><input type="text" id="legalDeposit">
+    <label>ردمك (ISBN):</label><input type="text" id="isbn">
+    <label>السلسلة:</label><input type="text" id="series">
+    <label>ملاحظات:</label><textarea id="notes"></textarea>
     <label>اختيار نوع البطاقة:</label>
     <select id="cardType">
       <option value="">-- اختر نوع البطاقة --</option>
@@ -121,22 +136,28 @@
       <option value="title">بطاقة العنوان</option>
       <option value="subject">بطاقة الموضوع</option>
     </select>
-    <button onclick="handleGenerate()">توليد البطاقة</button>
+    <button id="generateBtn" onclick="handleGenerate()">توليد البطاقة</button>
   </div>
 
   <div class="output" id="output" style="display: none;">
     <div id="outputText"></div>
     <div class="options-container" id="optionsContainer">
-      <button class="options-button" onclick="handleOption('reset')">إعادة الإدخال</button>
-      <button class="options-button" onclick="handleOption('marc')">تصدير Marc</button>
-      <button class="options-button" onclick="handleOption('rda')">تصدير RDA</button>
-      <button class="options-button" onclick="handleOption('csv')">تصدير CSV</button>
-      <button class="options-button" onclick="handleOption('copy')">نسخ البطاقة</button>
+      <button class="options-button" id="resetBtn" onclick="handleOption('reset')">إعادة الإدخال</button>
+      <button class="options-button" id="marcBtn" onclick="handleOption('marc')">تصدير Marc</button>
+      <button class="options-button" id="rdaBtn" onclick="handleOption('rda')">تصدير RDA</button>
+      <button class="options-button" id="csvBtn" onclick="handleOption('csv')">تصدير CSV</button>
+      <button class="options-button" id="wordBtn" onclick="handleOption('word')">تصدير Word</button>
+      <button class="options-button" id="copyBtn" onclick="handleOption('copy')">نسخ البطاقة</button>
     </div>
   </div>
 </div>
 
 <script>
+function showMoreFields() {
+  document.getElementById('moreFields').style.display = 'block';
+  document.getElementById('showMoreBtn').style.display = 'none';
+}
+
 function formatAuthorName(name) {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) {
@@ -226,17 +247,27 @@ function generateCard(type) {
     authorsText = `${authors[0]} و آخرون`;
   }
 
-  let description = `${title} / ${authorsText}. - ${pubPlace} : ${publisher}، ${pubDate}.\n`;
+  let description = `${title} / ${authorsText}. - ${pubPlace} : ${publisher}، ${pubDate}.
+`;
   if (edition) description += `ط. ${edition}. `;
-  if (pages) description += `${pages} ص.\n`;
-  if (series) description += `- (${series})\n`;
+  if (pages) description += `${pages} ص.
+`;
+  if (series) description += `- (${series})
+`;
 
   let extraInfo = '';
-  if (notes) extraInfo += `ملاحظات: ${notes}\n`;
-  if (legalDeposit) extraInfo += `رقم الإيداع: ${legalDeposit}\n`;
-  if (isbn) extraInfo += `ردمك: ${isbn}\n`;
+  if (notes) extraInfo += `ملاحظات: ${notes}
+`;
+  if (legalDeposit) extraInfo += `رقم الإيداع: ${legalDeposit}
+`;
+  if (isbn) extraInfo += `ردمك: ${isbn}
+`;
 
-  const fullText = `${callNumber}\n${mainEntry}\n\n${description}${extraInfo}\n${callNumber}`;
+  const fullText = `${callNumber}
+${mainEntry}
+
+${description}${extraInfo}
+${callNumber}`;
   document.getElementById('output').style.display = 'block';
   document.getElementById('outputText').textContent = fullText;
   document.getElementById('optionsContainer').style.display = 'flex';
@@ -258,11 +289,13 @@ function handleOption(option) {
     document.getElementById("outputText").textContent = generateRDA();
   } else if (option === "csv") {
     exportCSV();
+  } else if (option === "word") {
+    exportToWord();
   }
 }
 
 function generateMARC() {
-  let marc = 
+  let marc =
 `100 1_ $a ${getField('author')}
 245 10 $a ${getField('title')}
 260 __ $a ${getField('pubPlace')} : $b ${getField('publisher')}, $c ${getField('pubDate')}
@@ -320,7 +353,8 @@ function exportCSV() {
     getField('classification'), getField('authorNumber'), getField('legalDeposit'),
     getField('isbn'), getField('series'), getField('notes')
   ];
-  const csvContent = `${headers.join(",")}\n${values.map(v => `"${v}"`).join(",")}`;
+  const csvContent = `${headers.join(",")}
+${values.map(v => `"${v}"`).join(",")}`;
   const BOM = "\uFEFF";
   const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -331,10 +365,94 @@ function exportCSV() {
   link.click();
   document.body.removeChild(link);
 }
+
+function exportToWord() {
+  const content = document.getElementById("outputText").textContent;
+  const htmlContent = `
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          .card {
+            border: 2px solid #000;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            font-size: 18px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">${content.replace(/\n/g, "<br>")}</div>
+      </body>
+    </html>`;
+
+  const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'بطاقة_فهرسة.doc';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function changeLanguage() {
+  const lang = document.getElementById('language').value;
+  const isArabic = lang === 'ar';
+
+  document.documentElement.lang = isArabic ? 'ar' : 'en';
+  document.body.style.direction = isArabic ? 'rtl' : 'ltr';
+
+  const labels = {
+    author: isArabic ? "المؤلف:" : "Author:",
+    title: isArabic ? "العنوان:" : "Title:",
+    pubPlace: isArabic ? "مكان النشر:" : "Place of Publication:",
+    publisher: isArabic ? "الناشر:" : "Publisher:",
+    pubDate: isArabic ? "تاريخ النشر:" : "Publication Date:",
+    edition: isArabic ? "الطبعة:" : "Edition:",
+    pages: isArabic ? "عدد الصفحات:" : "Pages:",
+    subjects: isArabic ? "الموضوعات:" : "Subjects:",
+    classification: isArabic ? "رقم التصنيف:" : "Classification:",
+    authorNumber: isArabic ? "رقم المؤلف:" : "Author Number:",
+    legalDeposit: isArabic ? "رقم الإيداع:" : "Legal Deposit:",
+    isbn: isArabic ? "ردمك (ISBN):" : "ISBN:",
+    series: isArabic ? "السلسلة:" : "Series:",
+    notes: isArabic ? "ملاحظات:" : "Notes:",
+    cardType: isArabic ? "اختيار نوع البطاقة:" : "Select Card Type:"
+  };
+
+  for (const id in labels) {
+    const labelEl = document.querySelector(`label[for="${id}"]`) ||
+                    document.querySelector(`label + input#${id}`)?.previousElementSibling;
+    if (labelEl) labelEl.textContent = labels[id];
+  }
+
+  const cardType = document.getElementById('cardType');
+  cardType.options[0].text = isArabic ? "-- اختر نوع البطاقة --" : "-- Select Card Type --";
+  cardType.options[1].text = isArabic ? "بطاقة المؤلف" : "Author Card";
+  cardType.options[2].text = isArabic ? "بطاقة العنوان" : "Title Card";
+  cardType.options[3].text = isArabic ? "بطاقة الموضوع" : "Subject Card";
+
+  document.getElementById("addAuthorBtn").textContent = isArabic ? "إضافة مؤلف آخر" : "Add Another Author";
+  document.getElementById("showMoreBtn").textContent = isArabic ? "أكمل البيانات" : "Continue";
+  document.getElementById("generateBtn").textContent = isArabic ? "توليد البطاقة" : "Generate Card";
+  document.getElementById("resetBtn").textContent = isArabic ? "إعادة الإدخال" : "Reset";
+  document.getElementById("marcBtn").textContent = isArabic ? "تصدير Marc" : "Export Marc";
+  document.getElementById("rdaBtn").textContent = isArabic ? "تصدير RDA" : "Export RDA";
+  document.getElementById("csvBtn").textContent = isArabic ? "تصدير CSV" : "Export CSV";
+  document.getElementById("wordBtn").textContent = isArabic ? "تصدير Word" : "Export Word";
+  document.getElementById("copyBtn").textContent = isArabic ? "نسخ البطاقة" : "Copy Card";
+}
+
 </script>
 
 <footer style="text-align: center; margin-top: 40px; font-size: 14px; color: #666;">
   الدكتور طلال ناظم الزهيري @2025
 </footer>
 </body>
-</html>
+</html>-
