@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>بطاقة فهرسة</title>
-  <style>
+<meta charset="utf-8"/>
+<title>بطاقة فهرسة</title>
+<style>
     body {
       font-family: 'Arial', sans-serif;
       direction: rtl;
@@ -95,63 +96,56 @@
 </head>
 <body>
 <div class="container">
-  <h2>أداة إنشاء بطاقة فهرسة</h2>
-  <p style="text-align: center; font-weight: bold; color: #555;">تصميم وتطوير د. طلال ناظم الزهيري</p>
-
-  <label>اختر اللغة:</label>
-  <select id="language" onchange="changeLanguage()">
-    <option value="ar">العربية</option>
-    <option value="en">English</option>
-  </select>
-
-  <label for="author">المؤلف:</label>
-  <input type="text" id="author">
-  <div id="additionalAuthors"></div>
-  <button type="button" class="options-button" id="addAuthorBtn" onclick="addAuthorField()">إضافة مؤلف آخر</button>
-
-  <label>العنوان:</label>
-  <input type="text" id="title">
-
-  <div class="buttons">
-    <button id="showMoreBtn" type="button" onclick="showMoreFields()">أكمل البيانات</button>
-  </div>
-
-  <div id="moreFields" style="display: none;">
-    <label>مكان النشر:</label><input type="text" id="pubPlace">
-    <label>الناشر:</label><input type="text" id="publisher">
-    <label>تاريخ النشر:</label><input type="text" id="pubDate">
-    <label>الطبعة:</label><input type="text" id="edition">
-    <label>عدد الصفحات:</label><input type="text" id="pages">
-    <label>الموضوعات:</label><input type="text" id="subjects">
-    <label>رقم التصنيف:</label><input type="text" id="classification">
-    <label>رقم المؤلف:</label><input type="text" id="authorNumber">
-    <label>رقم الإيداع:</label><input type="text" id="legalDeposit">
-    <label>ردمك (ISBN):</label><input type="text" id="isbn">
-    <label>السلسلة:</label><input type="text" id="series">
-    <label>ملاحظات:</label><textarea id="notes"></textarea>
-    <label>اختيار نوع البطاقة:</label>
-    <select id="cardType">
-      <option value="">-- اختر نوع البطاقة --</option>
-      <option value="author">بطاقة المؤلف</option>
-      <option value="title">بطاقة العنوان</option>
-      <option value="subject">بطاقة الموضوع</option>
-    </select>
-    <button id="generateBtn" onclick="handleGenerate()">توليد البطاقة</button>
-  </div>
-
-  <div class="output" id="output" style="display: none;">
-    <div id="outputText"></div>
-    <div class="options-container" id="optionsContainer">
-      <button class="options-button" id="resetBtn" onclick="handleOption('reset')">إعادة الإدخال</button>
-      <button class="options-button" id="marcBtn" onclick="handleOption('marc')">تصدير Marc</button>
-      <button class="options-button" id="rdaBtn" onclick="handleOption('rda')">تصدير RDA</button>
-      <button class="options-button" id="csvBtn" onclick="handleOption('csv')">تصدير CSV</button>
-      <button class="options-button" id="wordBtn" onclick="handleOption('word')">تصدير Word</button>
-      <button class="options-button" id="copyBtn" onclick="handleOption('copy')">نسخ البطاقة</button>
-    </div>
-  </div>
+<h2>أداة إنشاء بطاقة فهرسة</h2>
+<p style="text-align: center; font-weight: bold; color: #555;">تصميم وتطوير د. طلال ناظم الزهيري</p>
+<label>🌐 اختر اللغة:</label>
+<select id="language" onchange="changeLanguage()">
+<option value="ar">العربية</option>
+<option value="en">English</option>
+</select>
+<label for="author">👤 المؤلف:</label>
+<input id="author" type="text"/>
+<div id="additionalAuthors"></div>
+<button class="options-button" id="addAuthorBtn" onclick="addAuthorField()" type="button">إضافة مؤلف آخر</button>
+<label>📖 العنوان:</label>
+<input id="title" type="text"/>
+<div class="buttons">
+<button id="showMoreBtn" onclick="showMoreFields()" type="button">أكمل البيانات</button>
 </div>
-
+<div id="moreFields" style="display: none;">
+<label>🌍 مكان النشر:</label><input id="pubPlace" type="text"/>
+<label>🏢 الناشر:</label><input id="publisher" type="text"/>
+<label>📅 تاريخ النشر:</label><input id="pubDate" type="text"/>
+<label>🔢 الطبعة:</label><input id="edition" type="text"/>
+<label>📄 عدد الصفحات:</label><input id="pages" type="text"/>
+<label>🏷️ الموضوعات:</label><input id="subjects" type="text"/>
+<label>📚 رقم التصنيف:</label><input id="classification" type="text"/>
+<label>🆔 رقم المؤلف:</label><input id="authorNumber" type="text"/>
+<label>📝 رقم الإيداع:</label><input id="legalDeposit" type="text"/>
+<label>🔖 ردمك (ISBN):</label><input id="isbn" type="text"/>
+<label>🔗 السلسلة:</label><input id="series" type="text"/>
+<label>🗒️ ملاحظات:</label><textarea id="notes"></textarea>
+<label>🗂️ اختيار نوع البطاقة:</label>
+<select id="cardType">
+<option value="">-- اختر نوع البطاقة --</option>
+<option value="author">بطاقة المؤلف</option>
+<option value="title">بطاقة العنوان</option>
+<option value="subject">بطاقة الموضوع</option>
+</select>
+<button id="generateBtn" onclick="handleGenerate()">توليد البطاقة</button>
+</div>
+<div class="output" id="output" style="display: none;">
+<div id="outputText"></div>
+<div class="options-container" id="optionsContainer">
+<button class="options-button" id="resetBtn" onclick="handleOption('reset')">إعادة الإدخال</button>
+<button class="options-button" id="marcBtn" onclick="handleOption('marc')">تصدير Marc</button>
+<button class="options-button" id="rdaBtn" onclick="handleOption('rda')">تصدير RDA</button>
+<button class="options-button" id="csvBtn" onclick="handleOption('csv')">تصدير CSV</button>
+<button class="options-button" id="wordBtn" onclick="handleOption('word')">تصدير Word</button>
+<button class="options-button" id="copyBtn" onclick="handleOption('copy')">نسخ البطاقة</button>
+</div>
+</div>
+</div>
 <script>
 function showMoreFields() {
   document.getElementById('moreFields').style.display = 'block';
@@ -450,7 +444,6 @@ function changeLanguage() {
 }
 
 </script>
-
 <footer style="text-align: center; margin-top: 40px; font-size: 14px; color: #666;">
   الدكتور طلال ناظم الزهيري @2025
 </footer>
