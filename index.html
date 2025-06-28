@@ -7,7 +7,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
     body {
-      font-family: 'Cairo', sans-serif;+
+      font-family: 'Cairo', sans-serif;
       background-color: #f4f4f4;
       margin: 0;
       padding: 0;
@@ -15,21 +15,39 @@
     }
 
     header {
-      position: relative;
       background-color: #007bff;
       color: white;
-      padding: 20px 0;
-      font-size: 32px;
-      text-align: center;
+      padding: 20px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-    header img.logo {
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 50px;
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-container img {
+      height: 100px;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      flex-grow: 1;
     }
 
     .container {
@@ -57,8 +75,8 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      font-size: 20px;
-	  min-width: 220px;
+      font-size: 17px;
+      min-width: 220px;
       box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
@@ -78,19 +96,23 @@
       border-top: 1px solid #ccc;
     }
 
-    @media (max-width: 500px) {
+    @media (max-width: 600px) {
+      .header-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-container img {
+        height: 80px;
+      }
+
+      .page-title {
+        font-size: 22px;
+      }
+
       button {
         min-width: 100%;
-      }
-
-      header img.logo {
-        height: 40px;
-        right: 10px;
-      }
-
-      header {
-        font-size: 24px;
-        padding: 15px 0;
       }
     }
   </style>
@@ -98,8 +120,13 @@
 <body>
 
   <header>
-    أدوات أمين المكتبة
-    <img src="logo.png" alt="شعار" class="logo">
+    <div class="header-content">
+      <div class="logo-container">
+        <img src="logo.png" alt="د. طلال ناظم الزهيري">
+        <div class="logo-text">د. طلال ناظم الزهيري</div>
+      </div>
+      <div class="page-title">أدوات أمين المكتبة</div>
+    </div>
   </header>
 
   <div class="container">
@@ -109,12 +136,13 @@
       <button onclick="window.location.href='QRT.html'">إنشاء رمز استجابة سريعة</button>
       <button onclick="window.location.href='Avg.html'">حساب المعدل التراكمي</button>
       <button onclick="window.location.href='GT4.html'">المعدل التنافسي للماجستير</button>
-      <button onclick="window.location.href='cit.html'">إنشاء استشهاد مرجعي</button>
+      <button onclick="window.location.href='cit.html'">الاستشهادات المرجعية</button>
     </div>
   </div>
 
   <footer>
     حقوق النشر © د. طلال الزهيري 2025 | أدوات أمين المكتبة
   </footer>
+
 </body>
 </html>
