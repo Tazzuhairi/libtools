@@ -177,7 +177,7 @@
         <fieldset style="border: 2px solid #0078d7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
           <legend id="sourceLegend" style="font-weight: bold; color: #0078d7;">📄 تفاصيل المصدر</legend>
           <label id="labelTitle">عنوان المصدر:</label>
-          <input type="text" id="sourceTitle" required>
+          <input type="text" id="SourceTitle" required>
 
           <div id="bookFields" style="display:none;">
             <label id="labelPlace">مكان النشر:</label>
@@ -439,13 +439,13 @@
       const style = document.getElementById("citationStyle").value;
       const lastName = document.getElementById("lastName").value.trim();
       const firstName = document.getElementById("firstName").value.trim();
-      const title = document.getElementById("title").value.trim();
+      const title = document.getElementById("SourceTitle").value.trim();
       const year = document.getElementById("year").value.trim();
       const totalPages = document.getElementById("totalPages").value.trim();
       let citation = "";
 
       function pageText(pages) {
-        return pages ? (lang === "ar" ? `${pages} ص.` : `p. ${pages}`) : "";
+        return pages ? (lang === "ar" ? `(${pages} ص.)` : `(${pages} p.)`) : "";
       }
 
       if (style === "apa") {
@@ -454,6 +454,7 @@
           const publisher = document.getElementById("publisher").value.trim();
           citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i>. ${publisher}.`;
           if (place) citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i>. ${place}: ${publisher}.`;
+          if (totalPages) citation += ` ${pageText(totalPages)}`;
         } else if (type === "journal") {
           const journal = document.getElementById("journalName").value.trim();
           const volume = document.getElementById("volume").value.trim();
@@ -467,11 +468,13 @@
           const university = document.getElementById("university").value.trim();
           const thesisType = document.getElementById("thesisType").value;
           citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i> (${thesisType}). ${university}.`;
+          if (totalPages) citation += ` ${pageText(totalPages)}`;
         }
       } else if (style === "mla") {
         if (type === "book") {
           const publisher = document.getElementById("publisher").value.trim();
           citation = `${lastName}, ${firstName}. <i>${title}</i>. ${publisher}, ${year}.`;
+          if (totalPages) citation += ` ${pageText(totalPages)}`;
         } else if (type === "journal") {
           const journal = document.getElementById("journalName").value.trim();
           const volume = document.getElementById("volume").value.trim();
@@ -483,12 +486,14 @@
           const university = document.getElementById("university").value.trim();
           const thesisType = document.getElementById("thesisType").value;
           citation = `${lastName}, ${firstName}. <i>${title}</i>. ${thesisType}, ${university}, ${year}.`;
+          if (totalPages) citation += ` ${pageText(totalPages)}`;
         }
       } else if (style === "chicago") {
         if (type === "book") {
           const place = document.getElementById("place").value.trim();
           const publisher = document.getElementById("publisher").value.trim();
           citation = `${lastName}, ${firstName}. ${year}. <i>${title}</i>. ${place}: ${publisher}.`;
+          if (totalPages) citation += ` ${pageText(totalPages)}`;
         } else if (type === "journal") {
           const journal = document.getElementById("journalName").value.trim();
           const volume = document.getElementById("volume").value.trim();
@@ -502,10 +507,10 @@
           const university = document.getElementById("university").value.trim();
           const thesisType = document.getElementById("thesisType").value;
           citation = `${lastName}, ${firstName}. ${year}. "<i>${title}</i>." ${thesisType}, ${university}.`;
+          if (totalPages) citation += ` ${pageText(totalPages)}`;
         }
       }
 
-      // Add style badge
       const styleName = translations[lang].citationStyles[style] || style;
       document.getElementById("output").innerHTML = citation ? 
         `<div><span class="citation-type-badge">${styleName}</span> ${citation}</div>` : 
