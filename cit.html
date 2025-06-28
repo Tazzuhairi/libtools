@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مولّد الاستشهاد المرجعي المتطور</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f8ff;
+      padding: 20px;
+    }
+    .container {
+      max-width: 850px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #fafafa;
+      transition: border 0.3s;
+    }
+    input:focus, select:focus {
+      border: 1px solid #0078d7;
+      outline: none;
+      background-color: #fff;
+    }
+    button {
+      margin-top: 15px;
+      margin-left: 5px;
+      padding: 12px 20px;
+      background-color: #0078d7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background-color: #005fa3;
+      transform: scale(1.05);
+    }
+    .output-box {
+      margin-top: 20px;
+      background-color: #eef6ff;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px dashed #0078d7;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .saved-list {
+      margin-top: 30px;
+      background: #fffbe7;
+      padding: 15px;
+      border: 1px solid #e0c97d;
+      border-radius: 8px;
+    }
+    .saved-list h3 {
+      margin-bottom: 10px;
+      color: #5a4e00;
+    }
+    .saved-list ul {
+      padding: 0;
+      list-style: none;
+    }
+    .saved-list li {
+      margin-bottom: 12px;
+      padding: 10px;
+      border-bottom: 1px dashed #d0b95d;
+      position: relative;
+    }
+    .saved-item-actions {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 5px;
+    }
+    .action-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+    .copy-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    .clear-all-btn {
+      background-color: #f44336;
+      color: white;
+      margin-top: 10px;
+    }
+    #formSection {
+      display: none;
+    }
+    .citation-type-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      background-color: #0078d7;
+      color: white;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="appContainer">
+    <h2 id="mainTitle">📚 مولّد الاستشهاد المرجعي</h2>
+    <h3 id="developerCredit">تصميم وتطوير: د. طلال ناظم الزهيري</h3>
+    
+    <label for="langSelect" id="langLabel">🌐 اختر اللغة:</label>
+    <select id="langSelect" onchange="switchLanguage()">
+      <option value="ar">العربية</option>
+      <option value="en">English</option>
+    </select>
+
+    <label id="labelSourceType" for="sourceType">نوع المصدر:</label>
+    <select id="sourceType" onchange="checkShowForm(); toggleFields();">
+      <option value="">-- اختر نوع المصدر --</option>
+      <option value="book">📘 كتاب</option>
+      <option value="journal">📰 مقال في مجلة</option>
+      <option value="thesis">🎓 رسالة جامعية</option>
+    </select>
+
+    <label id="labelStyle" for="citationStyle">معيار الاستشهاد:</label>
+    <select id="citationStyle" onchange="checkShowForm()">
+      <option value="">-- اختر المعيار --</option>
+      <option value="apa">APA</option>
+      <option value="mla">MLA</option>
+      <option value="chicago">Chicago</option>
+    </select>
+
+    <div id="formSection">
+      <form onsubmit="generateCitation(event)">
+        <fieldset style="border: 2px solid #0078d7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+          <legend id="authorLegend" style="font-weight: bold; color: #0078d7;">👤 بيانات المؤلف</legend>
+          <label id="labelLastName">اللقب:</label>
+          <input type="text" id="lastName" required>
+
+          <label id="labelFirstName">الاسم الأول:</label>
+          <input type="text" id="firstName" required>
+        </fieldset>
+
+        <fieldset style="border: 2px solid #0078d7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+          <legend id="sourceLegend" style="font-weight: bold; color: #0078d7;">📄 تفاصيل المصدر</legend>
+          <label id="labelTitle">عنوان المصدر:</label>
+          <input type="text" id="title" required>
+
+          <div id="bookFields" style="display:none;">
+            <label id="labelPlace">مكان النشر:</label>
+            <input type="text" id="place">
+            <label id="labelPublisher">الناشر:</label>
+            <input type="text" id="publisher">
+          </div>
+
+          <div id="journalFields" style="display:none;">
+            <label id="labelJournal">اسم المجلة:</label>
+            <input type="text" id="journalName">
+            <label id="labelVolume">المجلد:</label>
+            <input type="text" id="volume">
+            <label id="labelIssue">العدد:</label>
+            <input type="text" id="issue">
+            <label id="labelPageStart">من صفحة:</label>
+            <input type="text" id="pageStart">
+            <label id="labelPageEnd">إلى صفحة:</label>
+            <input type="text" id="pageEnd">
+            <label id="doiLabel">معرف DOI:</label>
+            <input type="text" id="doi">
+          </div>
+
+          <div id="thesisFields" style="display:none;">
+            <label id="labelThesisType">نوع الرسالة:</label>
+            <select id="thesisType">
+              <option value="رسالة ماجستير">رسالة ماجستير</option>
+              <option value="أطروحة دكتوراه">أطروحة دكتوراه</option>
+            </select>
+            <label id="labelUniversity">اسم الجامعة:</label>
+            <input type="text" id="university">
+          </div>
+
+          <div id="pagesField" style="display:none;">
+            <label id="labelPages">عدد الصفحات:</label>
+            <input type="text" id="totalPages">
+          </div>
+
+          <label id="labelYear">سنة النشر:</label>
+          <input type="text" id="year" required pattern="\d{4}" title="أدخل سنة صحيحة (4 أرقام)">
+        </fieldset>
+
+        <div class="btn-group">
+          <button type="submit" id="generateBtn">🔄 إنشاء الاستشهاد</button>
+          <button type="button" onclick="resetForm()" id="resetBtn">🧹 إعادة التعيين</button>
+          <button type="button" onclick="saveCitation()" id="saveBtn">💾 حفظ</button>
+          <button type="button" onclick="exportToWord()" id="exportBtn">📄 تصدير Word</button>
+        </div>
+      </form>
+      <div id="output" class="output-box"></div>
+    </div>
+
+    <div class="saved-list">
+      <h3 id="savedListTitle">📚 السجل المحفوظ:</h3>
+      <ul id="savedList"></ul>
+      <button onclick="clearAllSavedCitations()" class="clear-all-btn" id="clearAllBtn" style="display:none;">🗑️ مسح الكل</button>
+    </div>
+  </div>
+
+  <script>
+    let lang = "ar";
+    let savedCitations = [];
+    
+    const translations = {
+      ar: {
+        title: "مولّد الاستشهاد المرجعي",
+        developer: "تصميم وتطوير: د. طلال ناظم الزهيري",
+        selectLanguage: "🌐 اختر اللغة:",
+        sourceType: "نوع المصدر:",
+        citationStyle: "معيار الاستشهاد:",
+        authorData: "👤 بيانات المؤلف",
+        sourceDetails: "📄 تفاصيل المصدر",
+        lastName: "اللقب:",
+        firstName: "الاسم الأول:",
+        title: "عنوان المصدر:",
+        place: "مكان النشر:",
+        publisher: "الناشر:",
+        journalName: "اسم المجلة:",
+        volume: "المجلد:",
+        issue: "العدد:",
+        pageStart: "من صفحة:",
+        pageEnd: "إلى صفحة:",
+        doi: "معرف DOI:",
+        thesisType: "نوع الرسالة:",
+        university: "اسم الجامعة:",
+        pages: "عدد الصفحات:",
+        year: "سنة النشر:",
+        generate: "🔄 إنشاء الاستشهاد",
+        reset: "🧹 إعادة التعيين",
+        save: "💾 حفظ",
+        export: "📄 تصدير Word",
+        savedList: "📚 السجل المحفوظ:",
+        noCitation: "يرجى إدخال بيانات صحيحة.",
+        noCitationToSave: "⚠️ لا يوجد استشهاد لحفظه.",
+        noSavedCitations: "⚠️ لا توجد استشهادات محفوظة.",
+        saveSuccess: "تم حفظ الاستشهاد بنجاح!",
+        copy: "نسخ",
+        delete: "حذف",
+        clearAll: "🗑️ مسح الكل",
+        confirmDelete: "هل تريد حذف هذا الاستشهاد؟",
+        confirmClearAll: "هل تريد مسح جميع الاستشهادات المحفوظة؟",
+        copied: "تم النسخ",
+        deleted: "تم الحذف",
+        cleared: "تم مسح الكل",
+       
+        citationStyles: {
+          apa: "APA",
+          mla: "MLA",
+          chicago: "Chicago"
+        },
+        sourceTypes: {
+          book: "📘 كتاب",
+          journal: "📰 مقال في مجلة",
+          thesis: "🎓 رسالة جامعية"
+        }
+      },
+      en: {
+        title: "📚 Citation Generator",
+        developer: "Designed and developed by Dr. Talal Nazim Al-Zuhairi",
+        selectLanguage: "🌐 Select Language:",
+        sourceType: "Source Type:",
+        citationStyle: "Citation Style:",
+        authorData: "👤 Author Data",
+        sourceDetails: "📄 Source Details",
+        lastName: "Last Name:",
+        firstName: "First Name:",
+        title: "Source Title:",
+        place: "Place:",
+        publisher: "Publisher:",
+        journalName: "Journal Name:",
+        volume: "Volume:",
+        issue: "Issue:",
+        pageStart: "Page Start:",
+        pageEnd: "Page End:",
+        doi: "DOI:",
+        thesisType: "Thesis Type:",
+        university: "University:",
+        pages: "Number of Pages:",
+        year: "Year:",
+        generate: "🔄 Generate Citation",
+        reset: "🧹 Reset",
+        save: "💾 Save",
+        export: "📄 Export to Word",
+        savedList: "📚 Saved Citations",
+        noCitation: "Please enter valid data.",
+        noCitationToSave: "⚠️ No citation to save.",
+        noSavedCitations: "⚠️ No saved citations.",
+        saveSuccess: "Citation saved successfully!",
+        copy: "Copy",
+        delete: "Delete",
+        clearAll: "🗑️ Clear All",
+        confirmDelete: "Delete this citation?",
+        confirmClearAll: "Clear all saved citations?",
+        copied: "Copied",
+        deleted: "Deleted",
+        cleared: "All cleared",
+        citationStyles: {
+          apa: "APA (Social Sciences)",
+          mla: "MLA (Humanities)",
+          chicago: "Chicago (Multidisciplinary)"
+        },
+        sourceTypes: {
+          book: "📘 Book",
+          journal: "📰 Journal Article",
+          thesis: "🎓 Thesis"
+        }
+      }
+    };
+
+    function updateUIText() {
+      const t = translations[lang];
+      
+      // Update all text elements
+      document.getElementById("mainTitle").textContent = t.title;
+      document.getElementById("developerCredit").textContent = t.developer;
+      document.getElementById("langLabel").textContent = t.selectLanguage;
+      document.getElementById("labelSourceType").textContent = t.sourceType;
+      document.getElementById("labelStyle").textContent = t.citationStyle;
+      document.getElementById("authorLegend").textContent = t.authorData;
+      document.getElementById("labelLastName").textContent = t.lastName;
+      document.getElementById("labelFirstName").textContent = t.firstName;
+      document.getElementById("sourceLegend").textContent = t.sourceDetails;
+      document.getElementById("labelTitle").textContent = t.title;
+      document.getElementById("labelPlace").textContent = t.place;
+      document.getElementById("labelPublisher").textContent = t.publisher;
+      document.getElementById("labelJournal").textContent = t.journalName;
+      document.getElementById("labelVolume").textContent = t.volume;
+      document.getElementById("labelIssue").textContent = t.issue;
+      document.getElementById("labelPageStart").textContent = t.pageStart;
+      document.getElementById("labelPageEnd").textContent = t.pageEnd;
+      document.getElementById("doiLabel").textContent = t.doi;
+      document.getElementById("labelThesisType").textContent = t.thesisType;
+      document.getElementById("labelUniversity").textContent = t.university;
+      document.getElementById("labelPages").textContent = t.pages;
+      document.getElementById("labelYear").textContent = t.year;
+      document.getElementById("generateBtn").textContent = t.generate;
+      document.getElementById("resetBtn").textContent = t.reset;
+      document.getElementById("saveBtn").textContent = t.save;
+      document.getElementById("exportBtn").textContent = t.export;
+      document.getElementById("savedListTitle").textContent = t.savedList;
+      document.getElementById("clearAllBtn").textContent = t.clearAll;
+
+      // Update select options
+      document.getElementById("sourceType").innerHTML = `
+        <option value="">-- ${t.sourceType} --</option>
+        <option value="book">${t.sourceTypes.book}</option>
+        <option value="journal">${t.sourceTypes.journal}</option>
+        <option value="thesis">${t.sourceTypes.thesis}</option>
+      `;
+
+      document.getElementById("citationStyle").innerHTML = `
+        <option value="">-- ${t.citationStyle} --</option>
+        <option value="apa">${t.citationStyles.apa}</option>
+        <option value="mla">${t.citationStyles.mla}</option>
+        <option value="chicago">${t.citationStyles.chicago}</option>
+      `;
+
+      document.getElementById("thesisType").innerHTML = `
+        <option value="${lang === 'ar' ? 'رسالة ماجستير' : 'Master\'s Thesis'}">
+          ${lang === 'ar' ? 'رسالة ماجستير' : 'Master\'s Thesis'}
+        </option>
+        <option value="${lang === 'ar' ? 'أطروحة دكتوراه' : 'PhD Dissertation'}">
+          ${lang === 'ar' ? 'أطروحة دكتوراه' : 'PhD Dissertation'}
+        </option>
+      `;
+    }
+
+    function switchLanguage() {
+      lang = document.getElementById("langSelect").value;
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+      updateUIText();
+      renderSavedCitations();
+    }
+
+    function checkShowForm() {
+      const source = document.getElementById('sourceType').value;
+      const style = document.getElementById('citationStyle').value;
+      const formSection = document.getElementById('formSection');
+      if (source && style) {
+        formSection.style.display = 'block';
+      } else {
+        formSection.style.display = 'none';
+      }
+    }
+
+    function toggleFields() {
+      const type = document.getElementById("sourceType").value;
+      document.getElementById("bookFields").style.display = type === "book" ? "block" : "none";
+      document.getElementById("journalFields").style.display = type === "journal" ? "block" : "none";
+      document.getElementById("thesisFields").style.display = type === "thesis" ? "block" : "none";
+      document.getElementById("pagesField").style.display = (type === "book" || type === "thesis") ? "block" : "none";
+    }
+
+    function generateCitation(e) {
+      e.preventDefault();
+
+      const type = document.getElementById("sourceType").value;
+      const style = document.getElementById("citationStyle").value;
+      const lastName = document.getElementById("lastName").value.trim();
+      const firstName = document.getElementById("firstName").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const year = document.getElementById("year").value.trim();
+      const totalPages = document.getElementById("totalPages").value.trim();
+      let citation = "";
+
+      function pageText(pages) {
+        return pages ? (lang === "ar" ? `${pages} ص.` : `p. ${pages}`) : "";
+      }
+
+      if (style === "apa") {
+        if (type === "book") {
+          const place = document.getElementById("place").value.trim();
+          const publisher = document.getElementById("publisher").value.trim();
+          citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i>. ${publisher}.`;
+          if (place) citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i>. ${place}: ${publisher}.`;
+        } else if (type === "journal") {
+          const journal = document.getElementById("journalName").value.trim();
+          const volume = document.getElementById("volume").value.trim();
+          const issue = document.getElementById("issue").value.trim();
+          const pageStart = document.getElementById("pageStart").value.trim();
+          const pageEnd = document.getElementById("pageEnd").value.trim();
+          const doi = document.getElementById("doi").value.trim();
+          citation = `${lastName}, ${firstName.charAt(0)}. (${year}). ${title}. <i>${journal}</i>, ${volume}(${issue}), ${pageStart}-${pageEnd}.`;
+          if (doi) citation += ` https://doi.org/${doi}`;
+        } else if (type === "thesis") {
+          const university = document.getElementById("university").value.trim();
+          const thesisType = document.getElementById("thesisType").value;
+          citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i> (${thesisType}). ${university}.`;
+        }
+      } else if (style === "mla") {
+        if (type === "book") {
+          const publisher = document.getElementById("publisher").value.trim();
+          citation = `${lastName}, ${firstName}. <i>${title}</i>. ${publisher}, ${year}.`;
+        } else if (type === "journal") {
+          const journal = document.getElementById("journalName").value.trim();
+          const volume = document.getElementById("volume").value.trim();
+          const issue = document.getElementById("issue").value.trim();
+          const pageStart = document.getElementById("pageStart").value.trim();
+          const pageEnd = document.getElementById("pageEnd").value.trim();
+          citation = `${lastName}, ${firstName}. "${title}." <i>${journal}</i>, vol. ${volume}, no. ${issue}, ${year}, pp. ${pageStart}-${pageEnd}.`;
+        } else if (type === "thesis") {
+          const university = document.getElementById("university").value.trim();
+          const thesisType = document.getElementById("thesisType").value;
+          citation = `${lastName}, ${firstName}. <i>${title}</i>. ${thesisType}, ${university}, ${year}.`;
+        }
+      } else if (style === "chicago") {
+        if (type === "book") {
+          const place = document.getElementById("place").value.trim();
+          const publisher = document.getElementById("publisher").value.trim();
+          citation = `${lastName}, ${firstName}. ${year}. <i>${title}</i>. ${place}: ${publisher}.`;
+        } else if (type === "journal") {
+          const journal = document.getElementById("journalName").value.trim();
+          const volume = document.getElementById("volume").value.trim();
+          const issue = document.getElementById("issue").value.trim();
+          const pageStart = document.getElementById("pageStart").value.trim();
+          const pageEnd = document.getElementById("pageEnd").value.trim();
+          const doi = document.getElementById("doi").value.trim();
+          citation = `${lastName}, ${firstName}. ${year}. "${title}." <i>${journal}</i> ${volume}, no. ${issue}: ${pageStart}-${pageEnd}.`;
+          if (doi) citation += ` https://doi.org/${doi}`;
+        } else if (type === "thesis") {
+          const university = document.getElementById("university").value.trim();
+          const thesisType = document.getElementById("thesisType").value;
+          citation = `${lastName}, ${firstName}. ${year}. "<i>${title}</i>." ${thesisType}, ${university}.`;
+        }
+      }
+
+      // Add style badge
+      const styleName = translations[lang].citationStyles[style] || style;
+      document.getElementById("output").innerHTML = citation ? 
+        `<div><span class="citation-type-badge">${styleName}</span> ${citation}</div>` : 
+        translations[lang].noCitation;
+    }
+
+    function resetForm() {
+      document.querySelector("form").reset();
+      document.getElementById("output").innerHTML = "";
+      toggleFields();
+    }
+
+    function saveCitation() {
+      const citation = document.getElementById("output").innerHTML;
+      if (citation && citation !== translations[lang].noCitation) {
+        savedCitations.push(citation);
+        saveToLocalStorage();
+        renderSavedCitations();
+        alert(translations[lang].saveSuccess);
+      } else {
+        alert(translations[lang].noCitationToSave);
+      }
+    }
+
+    function renderSavedCitations() {
+      const savedList = document.getElementById("savedList");
+      savedList.innerHTML = '';
+      
+      savedCitations.forEach((citation, index) => {
+        const li = document.createElement("li");
+        li.className = "saved-item";
+        li.innerHTML = `
+          ${citation}
+          <div class="saved-item-actions">
+            <button onclick="copySavedCitation(${index})" class="action-btn copy-btn">
+              ${translations[lang].copy}
+            </button>
+            <button onclick="deleteSavedCitation(${index})" class="action-btn delete-btn">
+              ${translations[lang].delete}
+            </button>
+          </div>
+        `;
+        savedList.appendChild(li);
+      });
+      
+      // Show/hide clear all button
+      document.getElementById("clearAllBtn").style.display = savedCitations.length > 0 ? "block" : "none";
+    }
+
+    function copySavedCitation(index) {
+      const citation = savedCitations[index];
+      const textToCopy = citation.replace(/<[^>]*>/g, '');
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => alert(translations[lang].copied))
+        .catch(err => console.error('Failed to copy: ', err));
+    }
+
+    function deleteSavedCitation(index) {
+      if (confirm(translations[lang].confirmDelete)) {
+        savedCitations.splice(index, 1);
+        saveToLocalStorage();
+        renderSavedCitations();
+        alert(translations[lang].deleted);
+      }
+    }
+
+    function clearAllSavedCitations() {
+      if (confirm(translations[lang].confirmClearAll)) {
+        savedCitations = [];
+        saveToLocalStorage();
+        renderSavedCitations();
+        alert(translations[lang].cleared);
+      }
+    }
+
+    function exportToWord() {
+      if (savedCitations.length === 0) {
+        alert(translations[lang].noSavedCitations);
+        return;
+      }
+
+      let content = `<html><head><meta charset='utf-8'></head><body dir="${lang === 'ar' ? 'rtl' : 'ltr'}"><h2>${translations[lang].savedList}:</h2>`;
+      savedCitations.forEach((c, index) => {
+        content += `<p>${index + 1}. ${c.replace(/<span class="citation-type-badge">.*?<\/span>/, '')}</p>`;
+      });
+      content += "</body></html>";
+
+      const blob = new Blob(['\ufeff', content], {
+        type: 'application/msword'
+      });
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = lang === 'ar' ? "الاستشهادات.doc" : "citations.doc";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function saveToLocalStorage() {
+      localStorage.setItem('citations', JSON.stringify(savedCitations));
+      localStorage.setItem('lang', lang);
+    }
+
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('citations');
+      if (saved) {
+        savedCitations = JSON.parse(saved);
+      }
+      const savedLang = localStorage.getItem('lang');
+      if (savedLang) {
+        lang = savedLang;
+        document.getElementById("langSelect").value = lang;
+      }
+    }
+
+    window.onload = function() {
+      loadFromLocalStorage();
+      switchLanguage();
+      toggleFields();
+      renderSavedCitations();
+    };
+  </script>
+</body>
+</html>
