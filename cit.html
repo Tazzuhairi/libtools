@@ -217,7 +217,7 @@
           </div>
 
           <label id="labelYear">سنة النشر:</label>
-          <input type="text" id="year" required pattern="\d{4}" title="أدخل سنة صحيحة (4 أرقام)">
+          <input type="text" id="year" required>
         </fieldset>
 
         <div class="btn-group">
@@ -282,7 +282,7 @@
         copied: "تم النسخ",
         deleted: "تم الحذف",
         cleared: "تم مسح الكل",
-       
+        
         citationStyles: {
           apa: "APA",
           mla: "MLA",
@@ -432,6 +432,22 @@
       document.getElementById("pagesField").style.display = (type === "book" || type === "thesis") ? "block" : "none";
     }
 
+    // دالة لتحويل الأرقام العربية-الهندية إلى أرقام غربية
+    function convertToArabicToWestern(numStr) {
+      const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+      let westernNumStr = '';
+      for (let i = 0; i < numStr.length; i++) {
+        const char = numStr[i];
+        const index = arabicNumerals.indexOf(char);
+        if (index !== -1) {
+          westernNumStr += index;
+        } else {
+          westernNumStr += char; // Keep non-arabic numerals as is (e.g., western digits)
+        }
+      }
+      return westernNumStr;
+    }
+
     function generateCitation(e) {
       e.preventDefault();
 
@@ -440,9 +456,21 @@
       const lastName = document.getElementById("lastName").value.trim();
       const firstName = document.getElementById("firstName").value.trim();
       const title = document.getElementById("SourceTitle").value.trim();
-      const year = document.getElementById("year").value.trim();
-      const totalPages = document.getElementById("totalPages").value.trim();
+      
+      // تنظيف وتحويل سنة النشر
+      let yearInput = document.getElementById("year").value.trim();
+      let year = convertToArabicToWestern(yearInput); // تحويل الأرقام الهندية إلى غربية
+      year = year.replace(/\D/g, ''); // إزالة أي أحرف غير رقمية
+      
+      const totalPagesInput = document.getElementById("totalPages").value.trim();
+      const totalPages = convertToArabicToWestern(totalPagesInput).replace(/\D/g, ''); // تنظيف وتحويل الصفحات
       let citation = "";
+
+      // التحقق من أن السنة رقمية مكونة من 4 أرقام
+      if (!/^\d{4}$/.test(year)) {
+        document.getElementById("output").innerHTML = translations[lang].noCitation + (lang === 'ar' ? " (يرجى إدخال سنة صحيحة من 4 أرقام)." : " (Please enter a valid 4-digit year).");
+        return;
+      }
 
       function pageText(pages) {
         return pages ? (lang === "ar" ? `(${pages} ص.)` : `(${pages} p.)`) : "";
@@ -457,10 +485,10 @@
           if (totalPages) citation += ` ${pageText(totalPages)}`;
         } else if (type === "journal") {
           const journal = document.getElementById("journalName").value.trim();
-          const volume = document.getElementById("volume").value.trim();
-          const issue = document.getElementById("issue").value.trim();
-          const pageStart = document.getElementById("pageStart").value.trim();
-          const pageEnd = document.getElementById("pageEnd").value.trim();
+          const volume = convertToArabicToWestern(document.getElementById("volume").value.trim()).replace(/\D/g, '');
+          const issue = convertToArabicToWestern(document.getElementById("issue").value.trim()).replace(/\D/g, '');
+          const pageStart = convertToArabicToWestern(document.getElementById("pageStart").value.trim()).replace(/\D/g, '');
+          const pageEnd = convertToArabicToWestern(document.getElementById("pageEnd").value.trim()).replace(/\D/g, '');
           const doi = document.getElementById("doi").value.trim();
           citation = `${lastName}, ${firstName.charAt(0)}. (${year}). ${title}. <i>${journal}</i>, ${volume}(${issue}), ${pageStart}-${pageEnd}.`;
           if (doi) citation += ` https://doi.org/${doi}`;
@@ -477,10 +505,10 @@
           if (totalPages) citation += ` ${pageText(totalPages)}`;
         } else if (type === "journal") {
           const journal = document.getElementById("journalName").value.trim();
-          const volume = document.getElementById("volume").value.trim();
-          const issue = document.getElementById("issue").value.trim();
-          const pageStart = document.getElementById("pageStart").value.trim();
-          const pageEnd = document.getElementById("pageEnd").value.trim();
+          const volume = convertToArabicToWestern(document.getElementById("volume").value.trim()).replace(/\D/g, '');
+          const issue = convertToArabicToWestern(document.getElementById("issue").value.trim()).replace(/\D/g, '');
+          const pageStart = convertToArabicToWestern(document.getElementById("pageStart").value.trim()).replace(/\D/g, '');
+          const pageEnd = convertToArabicToWestern(document.getElementById("pageEnd").value.trim()).replace(/\D/g, '');
           citation = `${lastName}, ${firstName}. "${title}." <i>${journal}</i>, vol. ${volume}, no. ${issue}, ${year}, pp. ${pageStart}-${pageEnd}.`;
         } else if (type === "thesis") {
           const university = document.getElementById("university").value.trim();
@@ -496,10 +524,10 @@
           if (totalPages) citation += ` ${pageText(totalPages)}`;
         } else if (type === "journal") {
           const journal = document.getElementById("journalName").value.trim();
-          const volume = document.getElementById("volume").value.trim();
-          const issue = document.getElementById("issue").value.trim();
-          const pageStart = document.getElementById("pageStart").value.trim();
-          const pageEnd = document.getElementById("pageEnd").value.trim();
+          const volume = convertToArabicToWestern(document.getElementById("volume").value.trim()).replace(/\D/g, '');
+          const issue = convertToArabicToWestern(document.getElementById("issue").value.trim()).replace(/\D/g, '');
+          const pageStart = convertToArabicToWestern(document.getElementById("pageStart").value.trim()).replace(/\D/g, '');
+          const pageEnd = convertToArabicToWestern(document.getElementById("pageEnd").value.trim()).replace(/\D/g, '');
           const doi = document.getElementById("doi").value.trim();
           citation = `${lastName}, ${firstName}. ${year}. "${title}." <i>${journal}</i> ${volume}, no. ${issue}: ${pageStart}-${pageEnd}.`;
           if (doi) citation += ` https://doi.org/${doi}`;
@@ -520,12 +548,13 @@
     function resetForm() {
       document.querySelector("form").reset();
       document.getElementById("output").innerHTML = "";
+      document.getElementById("formSection").style.display = 'none'; // إخفاء القسم عند إعادة التعيين
       toggleFields();
     }
 
     function saveCitation() {
       const citation = document.getElementById("output").innerHTML;
-      if (citation && citation !== translations[lang].noCitation) {
+      if (citation && citation !== translations[lang].noCitation && !citation.includes("Please enter a valid 4-digit year.")) {
         savedCitations.push(citation);
         saveToLocalStorage();
         renderSavedCitations();
@@ -630,6 +659,7 @@
     window.onload = function() {
       loadFromLocalStorage();
       switchLanguage();
+      checkShowForm(); // استدعاء checkShowForm عند التحميل لضمان ظهور النموذج إذا كانت القيم محددة
       toggleFields();
       renderSavedCitations();
     };
