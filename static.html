@@ -9,7 +9,7 @@
       font-family: 'Cairo', Tahoma, sans-serif;
       background-color: #e9f0f7;
       padding: 25px;
-      max-width: 960px;
+      max-width: 1200px;
       margin: auto;
       color: #2c3e50;
     }
@@ -62,6 +62,24 @@
     button:hover {
       background: linear-gradient(45deg, #1b4f72, #154360);
     }
+    .btn-delete {
+      background: linear-gradient(45deg, #c0392b, #a93226);
+      padding: 8px 15px;
+      min-width: 80px;
+      margin: 0;
+    }
+    .btn-delete:hover {
+      background: linear-gradient(45deg, #922b21, #78281f);
+    }
+    .btn-edit {
+      background: linear-gradient(45deg, #f39c12, #e67e22);
+      padding: 8px 15px;
+      min-width: 80px;
+      margin: 0;
+    }
+    .btn-edit:hover {
+      background: linear-gradient(45deg, #d68910, #ca6f1e);
+    }
     .buttons-row {
       display: flex;
       justify-content: flex-start;
@@ -86,12 +104,12 @@
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 6px 12px rgba(41, 128, 185, 0.2);
-      font-size: 15px;
+      font-size: 14px;
       user-select: none;
     }
     th, td {
       border: 1px solid #aed6f1;
-      padding: 10px 12px;
+      padding: 10px 8px;
       text-align: center;
       vertical-align: middle;
       transition: background-color 0.25s ease;
@@ -100,8 +118,9 @@
       background-color: #2874a6;
       color: #ecf0f1;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.05em;
       user-select: none;
+      font-size: 13px;
     }
     tr:nth-child(even) td {
       background-color: #f9fbfe;
@@ -117,20 +136,13 @@
       font-style: italic;
       user-select: none;
     }
-    /* أيقونات بسيطة باستخدام خطوط رموز Unicode */
     .icon-sample-size::before { content: "📊"; }
     .icon-scale-type::before { content: "⚖️"; }
     .icon-question-number::before { content: "❓"; }
-    .icon-weight::before { content: "⚙️"; }
-    .icon-count::before { content: "🔢"; }
     button svg, button .btn-icon {
       font-size: 18px;
     }
-    /* رسالة الخطأ */
-    #errorMessage {
-      color: #c0392b;
-      background-color: #f9e6e6;
-      border: 1px solid #e74c3c;
+    #errorMessage, #infoMessage {
       padding: 12px 15px;
       margin-top: 15px;
       border-radius: 8px;
@@ -138,16 +150,86 @@
       display: none;
       user-select: none;
     }
+    #errorMessage {
+      color: #c0392b;
+      background-color: #f9e6e6;
+      border: 1px solid #e74c3c;
+    }
+    #infoMessage {
+      color: #16a085;
+      background-color: #d5f4e6;
+      border: 1px solid #1abc9c;
+    }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      margin-right: 5px;
+      color: #2980b9;
+      font-weight: bold;
+    }
+    .tooltip:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #34495e;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-size: 13px;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .summary-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .summary-card h4 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    .summary-card .value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .hidden {
+      display: none;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
-  <h2>أداة المعالجة الاحصائية</h2>
+  <h2>أداة المعالجة الاحصائية المتقدمة</h2>
 
   <div class="section">
-    <label for="sampleSize" class="icon-sample-size">حجم العينة:</label>
+    <label for="sampleSize" class="icon-sample-size">
+      حجم العينة:
+      <span class="tooltip" data-tooltip="إجمالي عدد المشاركين في الاستبيان">ℹ️</span>
+    </label>
     <input type="number" id="sampleSize" placeholder="مثال: 30" min="1" />
 
-    <label for="scaleType" class="icon-scale-type">نوع مقياس ليكرت:</label>
+    <label for="scaleType" class="icon-scale-type">
+      نوع مقياس ليكرت:
+      <span class="tooltip" data-tooltip="اختر عدد خيارات الإجابة (ثنائي، ثلاثي، أو خماسي)">ℹ️</span>
+    </label>
     <select id="scaleType">
       <option value="" selected>-- اختر --</option>
       <option value="2">ثنائي</option>
@@ -155,20 +237,24 @@
       <option value="5">خماسي</option>
     </select>
 
-    <label for="questionNumber" class="icon-question-number">رقم السؤال:</label>
+    <label for="questionNumber" class="icon-question-number">
+      رقم السؤال:
+      <span class="tooltip" data-tooltip="رقم السؤال في الاستبيان (سيزداد تلقائياً)">ℹ️</span>
+    </label>
     <input type="text" id="questionNumber" placeholder="مثال: 1 أو 2 أو ..." />
 
     <div id="weightInputsContainer" class="section hidden"></div>
     <div id="inputsContainer" class="section hidden"></div>
 
     <button id="calculateQuestionBtn" title="إضافة السؤال">
-      <span class="btn-icon">➕</span> إضافة السؤال
+      <span class="btn-icon">➕</span> <span id="btnText">إضافة السؤال</span>
     </button>
 
     <div id="errorMessage"></div>
+    <div id="infoMessage"></div>
   </div>
 
-  <div class="section">
+  <div class="section" id="resultsSection">
     <h3>نتائج الأسئلة</h3>
     <table id="resultsTable" dir="rtl">
       <thead id="resultsTableHead"></thead>
@@ -184,6 +270,11 @@
     </div>
   </div>
 
+  <div class="section hidden" id="summarySection">
+    <h3>📈 التحليل العام لجميع الأسئلة</h3>
+    <div class="summary-grid" id="summaryGrid"></div>
+  </div>
+
   <footer>
     حقوق النشر © 2025 - د. طلال ناظم الزهيري
   </footer>
@@ -196,6 +287,9 @@
     };
 
     let fixedWeights = null;
+    let questionsData = [];
+    let editingIndex = -1;
+    
     const inputsContainer = document.getElementById('inputsContainer');
     const weightInputsContainer = document.getElementById('weightInputsContainer');
     const scaleType = document.getElementById('scaleType');
@@ -205,8 +299,11 @@
     const resultsBody = resultsTable.querySelector('tbody');
     const resultsTableHead = document.getElementById('resultsTableHead');
     const errorMessage = document.getElementById('errorMessage');
+    const infoMessage = document.getElementById('infoMessage');
+    const summarySection = document.getElementById('summarySection');
+    const summaryGrid = document.getElementById('summaryGrid');
+    const btnText = document.getElementById('btnText');
 
-    // تحديث رؤوس الجدول حسب نوع المقياس وترتيب الأعمدة حسب طلبك
     function updateTableHeaders() {
       const scale = scaleOptions[scaleType.value];
       resultsTableHead.innerHTML = '';
@@ -215,7 +312,7 @@
 
       const headerRow = document.createElement('tr');
 
-      ['حجم العينة', 'نوع المقياس', 'رقم السؤال'].forEach(text => {
+      ['رقم السؤال', 'حجم العينة', 'نوع المقياس'].forEach(text => {
         const th = document.createElement('th');
         th.textContent = text;
         headerRow.appendChild(th);
@@ -227,7 +324,7 @@
         headerRow.appendChild(th);
       });
 
-      ['الوسط الحسابي المرجح', 'الانحراف المعياري'].forEach(text => {
+      ['الوسط المرجح', 'الانحراف', 'الوسيط', 'المنوال', 'المدى', 'إجراءات'].forEach(text => {
         const th = document.createElement('th');
         th.textContent = text;
         headerRow.appendChild(th);
@@ -237,60 +334,81 @@
     }
 
     scaleType.addEventListener('change', () => {
-      fixedWeights = null;
-      weightInputsContainer.innerHTML = '';
-      inputsContainer.innerHTML = '';
-      questionNumberInput.value = '';
-      errorMessage.style.display = 'none'; // اخفاء رسالة الخطأ عند تغيير المقياس
+      if (questionsData.length > 0) {
+        showError('❌ لا يمكن تغيير نوع المقياس بعد إضافة أسئلة. يرجى إنهاء المعالجة الحالية أو إعادة التعيين.');
+        scaleType.value = questionsData[0].scaleVal;
+        return;
+      }
+      
+      if (fixedWeights !== null) {
+        showError('❌ لا يمكن تغيير نوع المقياس بعد تثبيت الأوزان. يرجى إعادة التعيين.');
+        scaleType.value = scaleType.dataset.currentValue || '';
+        return;
+      }
+      
+      scaleType.dataset.currentValue = scaleType.value;
+      hideMessages();
       updateTableHeaders();
 
       const scale = scaleOptions[scaleType.value];
       if (!scale) return;
 
-      // حقول الأوزان مع أيقونات
-      weightInputsContainer.innerHTML = '';
+      weightInputsContainer.innerHTML = '<h4 style="color: #154360; margin-top: 0;">أوزان الفئات:</h4>';
       scale.forEach((label, idx) => {
         const div = document.createElement('div');
         div.style.marginTop = '12px';
+        const lbl = document.createElement('label');
+        lbl.textContent = label + ':';
+        lbl.style.marginTop = '5px';
         const input = document.createElement('input');
         input.type = 'number';
         input.step = 'any';
         input.placeholder = `الوزن لـ: ${label}`;
         input.dataset.index = idx;
-        input.style.width = '100%';
+        input.value = scale.length - idx;
+        div.appendChild(lbl);
         div.appendChild(input);
         weightInputsContainer.appendChild(div);
       });
       weightInputsContainer.classList.remove('hidden');
 
-      // حقول التكرارات مع أيقونات
-      inputsContainer.innerHTML = '';
+      inputsContainer.innerHTML = '<h4 style="color: #154360; margin-top: 0;">تكرارات الإجابات:</h4>';
       scale.forEach(label => {
+        const div = document.createElement('div');
+        div.style.marginTop = '12px';
+        const lbl = document.createElement('label');
+        lbl.textContent = label + ':';
+        lbl.style.marginTop = '5px';
         const input = document.createElement('input');
         input.type = 'number';
         input.min = 0;
         input.placeholder = `عدد الإجابات: ${label}`;
-        inputsContainer.appendChild(input);
+        div.appendChild(lbl);
+        div.appendChild(input);
+        inputsContainer.appendChild(div);
       });
       inputsContainer.classList.remove('hidden');
+      
+      showInfo('تم تعيين الأوزان الافتراضية. يمكنك تعديلها حسب الحاجة.');
     });
 
     document.getElementById('calculateQuestionBtn').addEventListener('click', () => {
-      errorMessage.style.display = 'none'; // إخفاء رسالة الخطأ قبل الفحص
+      hideMessages();
+      
       const questionNum = questionNumberInput.value.trim();
       const sampleSize = parseInt(sampleSizeInput.value.trim());
       const scaleVal = scaleType.value;
 
       if (!questionNum) {
-        showError("يرجى إدخال رقم السؤال.");
+        showError("⚠️ يرجى إدخال رقم السؤال.");
         return;
       }
       if (!sampleSize || sampleSize <= 0) {
-        showError("يرجى إدخال حجم عينة صحيح.");
+        showError("⚠️ يرجى إدخال حجم عينة صحيح.");
         return;
       }
       if (!scaleVal) {
-        showError("يرجى اختيار نوع المقياس.");
+        showError("⚠️ يرجى اختيار نوع المقياس.");
         return;
       }
 
@@ -300,72 +418,216 @@
       if (!fixedWeights) {
         fixedWeights = Array.from(weightInputs).map(input => parseFloat(input.value || '0'));
         if (fixedWeights.some(isNaN)) {
-          showError("يرجى إدخال الأوزان بشكل صحيح لكل فئة.");
+          showError("⚠️ يرجى إدخال الأوزان بشكل صحيح لكل فئة.");
           return;
         }
         Array.from(weightInputs).forEach(input => input.disabled = true);
         sampleSizeInput.disabled = true;
         scaleType.disabled = true;
+        showInfo('✓ تم تثبيت الأوزان وحجم العينة ونوع المقياس لجميع الأسئلة القادمة.');
       }
 
       const counts = Array.from(countInputs).map(input => parseInt(input.value || '0'));
       if (counts.reduce((a, b) => a + b, 0) === 0) {
-        showError("يرجى إدخال التكرارات.");
+        showError("⚠️ يرجى إدخال التكرارات.");
         return;
       }
 
       const total = counts.reduce((a, b) => a + b, 0);
 
-      // التحقق من تساوي مجموع الأجوبة مع حجم العينة
       if (total !== sampleSize) {
-        showError(`خطأ: مجموع الأجوبة (${total}) لا يساوي حجم العينة (${sampleSize}). يرجى تعديل القيم.`);
-        return; // يمنع إضافة السؤال أو الانتقال للسؤال التالي
+        showError(`❌ مجموع الأجوبة (${total}) لا يساوي حجم العينة (${sampleSize}). يرجى تعديل القيم.`);
+        return;
       }
 
-      const weightedSum = counts.reduce((sum, c, i) => sum + c * fixedWeights[i], 0);
+      const stats = calculateStatistics(counts, fixedWeights);
+
+      const questionData = {
+        questionNum,
+        sampleSize,
+        scaleVal,
+        counts: [...counts],
+        stats
+      };
+
+      if (editingIndex >= 0) {
+        questionsData[editingIndex] = questionData;
+        editingIndex = -1;
+        btnText.textContent = 'إضافة السؤال';
+        showInfo('✓ تم تحديث السؤال بنجاح!');
+      } else {
+        questionsData.push(questionData);
+        questionNumberInput.value = parseInt(questionNum) + 1;
+        showInfo('✓ تمت إضافة السؤال بنجاح!');
+      }
+
+      renderTable();
+      updateSummary();
+      resetInputFields();
+    });
+
+    function calculateStatistics(counts, weights) {
+      const total = counts.reduce((a, b) => a + b, 0);
+      
+      const weightedSum = counts.reduce((sum, c, i) => sum + c * weights[i], 0);
       const mean = weightedSum / total;
 
       let variance = 0;
       for (let i = 0; i < counts.length; i++) {
-        variance += counts[i] * Math.pow(fixedWeights[i] - mean, 2);
+        variance += counts[i] * Math.pow(weights[i] - mean, 2);
       }
       variance = variance / total;
       const std = Math.sqrt(variance);
 
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${sampleSize}</td>
-        <td>${scaleVal}</td>
-        <td>${questionNum}</td>
-        ${counts.map(c => `<td>${c}</td>`).join('')}
-        <td>${mean.toFixed(2)}</td>
-        <td>${std.toFixed(2)}</td>
-      `;
-      resultsBody.appendChild(row);
+      const valuesArray = [];
+      for (let i = 0; i < counts.length; i++) {
+        for (let j = 0; j < counts[i]; j++) {
+          valuesArray.push(weights[i]);
+        }
+      }
+      valuesArray.sort((a, b) => a - b);
+      
+      const median = valuesArray.length % 2 === 0
+        ? (valuesArray[valuesArray.length / 2 - 1] + valuesArray[valuesArray.length / 2]) / 2
+        : valuesArray[Math.floor(valuesArray.length / 2)];
 
-      questionNumberInput.value = parseInt(questionNum) + 1;
+      let maxCount = 0;
+      let mode = weights[0];
+      for (let i = 0; i < counts.length; i++) {
+        if (counts[i] > maxCount) {
+          maxCount = counts[i];
+          mode = weights[i];
+        }
+      }
 
-      // إعادة تعيين حقول التكرارات فقط (للمقياس نفسه)
-      inputsContainer.innerHTML = '';
-      const scale = scaleOptions[scaleType.value];
-      scale.forEach(label => {
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = 0;
-        input.placeholder = `عدد الإجابات: ${label}`;
-        inputsContainer.appendChild(input);
+      const range = Math.max(...weights) - Math.min(...weights);
+
+      return { mean, std, median, mode, range };
+    }
+
+    function renderTable() {
+      resultsBody.innerHTML = '';
+      questionsData.forEach((data, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${data.questionNum}</td>
+          <td>${data.sampleSize}</td>
+          <td>${data.scaleVal}</td>
+          ${data.counts.map(c => `<td>${c}</td>`).join('')}
+          <td>${data.stats.mean.toFixed(2)}</td>
+          <td>${data.stats.std.toFixed(2)}</td>
+          <td>${data.stats.median.toFixed(2)}</td>
+          <td>${data.stats.mode.toFixed(2)}</td>
+          <td>${data.stats.range.toFixed(2)}</td>
+          <td class="action-buttons">
+            <button class="btn-edit" onclick="editQuestion(${index})" title="تعديل السؤال">✏️</button>
+            <button class="btn-delete" onclick="deleteQuestion(${index})" title="حذف السؤال">🗑️</button>
+          </td>
+        `;
+        resultsBody.appendChild(row);
       });
-      inputsContainer.classList.remove('hidden');
-    });
+    }
+
+    function updateSummary() {
+      if (questionsData.length === 0) {
+        summarySection.classList.add('hidden');
+        return;
+      }
+
+      summarySection.classList.remove('hidden');
+      
+      const avgMean = questionsData.reduce((sum, q) => sum + q.stats.mean, 0) / questionsData.length;
+      const avgStd = questionsData.reduce((sum, q) => sum + q.stats.std, 0) / questionsData.length;
+      const avgMedian = questionsData.reduce((sum, q) => sum + q.stats.median, 0) / questionsData.length;
+      const maxMean = Math.max(...questionsData.map(q => q.stats.mean));
+      const minMean = Math.min(...questionsData.map(q => q.stats.mean));
+
+      summaryGrid.innerHTML = `
+        <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <h4>عدد الأسئلة</h4>
+          <div class="value">${questionsData.length}</div>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <h4>متوسط الوسط المرجح</h4>
+          <div class="value">${avgMean.toFixed(2)}</div>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+          <h4>متوسط الانحراف المعياري</h4>
+          <div class="value">${avgStd.toFixed(2)}</div>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+          <h4>متوسط الوسيط</h4>
+          <div class="value">${avgMedian.toFixed(2)}</div>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <h4>أعلى وسط مرجح</h4>
+          <div class="value">${maxMean.toFixed(2)}</div>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+          <h4>أقل وسط مرجح</h4>
+          <div class="value">${minMean.toFixed(2)}</div>
+        </div>
+      `;
+    }
+
+    function resetInputFields() {
+      const countInputs = inputsContainer.querySelectorAll('input');
+      countInputs.forEach(input => input.value = '');
+    }
+
+    window.editQuestion = function(index) {
+      const data = questionsData[index];
+      questionNumberInput.value = data.questionNum;
+      
+      const countInputs = inputsContainer.querySelectorAll('input');
+      data.counts.forEach((count, i) => {
+        countInputs[i].value = count;
+      });
+      
+      editingIndex = index;
+      btnText.textContent = 'تحديث السؤال';
+      showInfo('💡 قم بتعديل البيانات ثم اضغط "تحديث السؤال"');
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.deleteQuestion = function(index) {
+      if (confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
+        questionsData.splice(index, 1);
+        renderTable();
+        updateSummary();
+        showInfo('✓ تم حذف السؤال بنجاح!');
+        
+        if (questionsData.length === 0) {
+          resetAll();
+        }
+      }
+    };
 
     function showError(message) {
       errorMessage.textContent = message;
       errorMessage.style.display = 'block';
+      infoMessage.style.display = 'none';
     }
 
-    // زر إعادة تعيين
-    document.getElementById('resetBtn').addEventListener('click', () => {
+    function showInfo(message) {
+      infoMessage.textContent = message;
+      infoMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+      setTimeout(() => {
+        infoMessage.style.display = 'none';
+      }, 5000);
+    }
+
+    function hideMessages() {
+      errorMessage.style.display = 'none';
+      infoMessage.style.display = 'none';
+    }
+
+    function resetAll() {
       fixedWeights = null;
+      questionsData = [];
+      editingIndex = -1;
       sampleSizeInput.disabled = false;
       scaleType.disabled = false;
       weightInputsContainer.innerHTML = '';
@@ -375,34 +637,75 @@
       scaleType.value = '';
       resultsBody.innerHTML = '';
       resultsTableHead.innerHTML = '';
-      errorMessage.style.display = 'none';
       weightInputsContainer.classList.add('hidden');
       inputsContainer.classList.add('hidden');
-    });
+      summarySection.classList.add('hidden');
+      btnText.textContent = 'إضافة السؤال';
+      scaleType.dataset.currentValue = '';
+      hideMessages();
+    }
 
-    // تصدير إلى ملف Word
-    function exportToWord() {
-      if (!resultsBody.hasChildNodes()) {
-        showError("لا توجد بيانات لتصديرها.");
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (questionsData.length > 0 && !confirm('هل أنت متأكد من حذف جميع البيانات وبدء معالجة جديدة؟')) {
         return;
       }
-      errorMessage.style.display = 'none';
+      resetAll();
+      showInfo('✓ تم إعادة تعيين الأداة بنجاح!');
+    });
+
+    function exportToWord() {
+      if (!resultsBody.hasChildNodes()) {
+        showError("⚠️ لا توجد بيانات لتصديرها.");
+        return;
+      }
+      hideMessages();
+      
+      let summaryHTML = '';
+      if (questionsData.length > 0) {
+        const avgMean = questionsData.reduce((sum, q) => sum + q.stats.mean, 0) / questionsData.length;
+        const avgStd = questionsData.reduce((sum, q) => sum + q.stats.std, 0) / questionsData.length;
+        summaryHTML = `
+          <h3 style="text-align: center; margin-top: 30px;">التحليل العام</h3>
+          <table border="1" style="width: 50%; margin: 20px auto; border-collapse: collapse;">
+            <tr><th>المؤشر</th><th>القيمة</th></tr>
+            <tr><td>عدد الأسئلة</td><td>${questionsData.length}</td></tr>
+            <tr><td>متوسط الوسط المرجح</td><td>${avgMean.toFixed(2)}</td></tr>
+            <tr><td>متوسط الانحراف المعياري</td><td>${avgStd.toFixed(2)}</td></tr>
+          </table>
+        `;
+      }
+      
       let html = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' 
           xmlns:w='urn:schemas-microsoft-com:office:word' 
           xmlns='http://www.w3.org/TR/REC-html40'>
-          <head><title>تصدير إلى Word</title></head><body>${resultsTable.outerHTML}</body></html>`;
+          <head>
+            <meta charset="utf-8">
+            <title>تصدير إلى Word</title>
+            <style>
+              table { border-collapse: collapse; width: 100%; direction: rtl; }
+              th, td { border: 1px solid black; padding: 8px; text-align: center; }
+              th { background-color: #2874a6; color: white; }
+            </style>
+          </head>
+          <body>
+            <h2 style="text-align: center;">نتائج التحليل الإحصائي</h2>
+            ${resultsTable.outerHTML}
+            ${summaryHTML}
+          </body>
+        </html>`;
       const blob = new Blob(['\ufeff', html], {type: 'application/msword'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'نتائج_الأسئلة.doc';
+      a.download = 'نتائج_الأسئلة_المحسنة.doc';
       document.body.appendChild(a);
       a.click();
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }, 0);
+      showInfo('✓ تم تصدير البيانات بنجاح!');
     }
   </script>
 </body>
