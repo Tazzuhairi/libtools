@@ -655,6 +655,112 @@
       showInfo('✓ تم إعادة تعيين الأداة بنجاح!');
     });
 
+    function generateAnalyticalText(avgMean, avgStd, avgVariance, avgCV, avgMedian, maxMean, minMean, totalQuestions) {
+      // تحديد مستوى الموافقة بناءً على الوسط المرجح
+      let agreementLevel = '';
+      let agreementDescription = '';
+      if (avgMean >= 4) {
+        agreementLevel = 'موافقة عالية جداً';
+        agreementDescription = 'تشير إلى اتجاه إيجابي قوي وقبول واسع من المشاركين';
+      } else if (avgMean >= 3.5) {
+        agreementLevel = 'موافقة عالية';
+        agreementDescription = 'تعكس اتجاهاً إيجابياً ملحوظاً لدى المشاركين';
+      } else if (avgMean >= 3) {
+        agreementLevel = 'موافقة متوسطة';
+        agreementDescription = 'تشير إلى اتجاه محايد يميل نحو الإيجابية';
+      } else if (avgMean >= 2.5) {
+        agreementLevel = 'موافقة منخفضة';
+        agreementDescription = 'تعكس تحفظاً من المشاركين';
+      } else {
+        agreementLevel = 'عدم موافقة';
+        agreementDescription = 'تشير إلى اتجاه سلبي واضح لدى المشاركين';
+      }
+
+      // تحديد مستوى التجانس بناءً على الانحراف المعياري
+      let homogeneityLevel = '';
+      let homogeneityDescription = '';
+      if (avgStd < 0.5) {
+        homogeneityLevel = 'تجانس عالٍ جداً';
+        homogeneityDescription = 'مما يدل على إجماع قوي وتطابق كبير في الآراء';
+      } else if (avgStd < 1.0) {
+        homogeneityLevel = 'تجانس جيد';
+        homogeneityDescription = 'يشير إلى اتساق ملحوظ في الإجابات مع تباين محدود';
+      } else if (avgStd < 1.5) {
+        homogeneityLevel = 'تجانس متوسط';
+        homogeneityDescription = 'يعكس وجود بعض التباين في الآراء دون تشتت كبير';
+      } else {
+        homogeneityLevel = 'تباين ملحوظ';
+        homogeneityDescription = 'يشير إلى اختلاف واضح في وجهات نظر المشاركين';
+      }
+
+      // تحديد مستوى الاتساق بناءً على معامل الاختلاف
+      let consistencyLevel = '';
+      let consistencyDescription = '';
+      if (avgCV < 15) {
+        consistencyLevel = 'اتساق ممتاز';
+        consistencyDescription = 'وهو ضمن المعايير المثالية للدراسات الإحصائية';
+      } else if (avgCV < 25) {
+        consistencyLevel = 'اتساق جيد';
+        consistencyDescription = 'وهو ضمن المدى المقبول للبحوث الاجتماعية';
+      } else if (avgCV < 35) {
+        consistencyLevel = 'اتساق مقبول';
+        consistencyDescription = 'مع وجود تنوع معتدل في الاستجابات';
+      } else {
+        consistencyLevel = 'تنوع كبير';
+        consistencyDescription = 'مما يستدعي فحصاً أعمق للعوامل المؤثرة';
+      }
+
+      // بناء النص التحليلي
+      let analysisText = `
+        <div style="margin: 30px 20px; padding: 25px; background-color: #f8f9fa; border-right: 5px solid #2874a6; line-height: 2; text-align: justify; direction: rtl;">
+          <h3 style="color: #1a5276; margin-bottom: 20px; text-align: center;">📊 التحليل النوعي للنتائج</h3>
+          
+          <p style="margin-bottom: 15px; font-size: 15px;">
+            <strong>أولاً: النظرة العامة</strong><br/>
+            بناءً على التحليل الإحصائي لـ <strong>(${totalQuestions})</strong> سؤالاً في الاستبيان، 
+            أظهرت النتائج أن متوسط الوسط الحسابي المرجح بلغ <strong>(${avgMean.toFixed(2)})</strong> 
+            مما يعكس مستوى <strong>${agreementLevel}</strong> من المشاركين، ${agreementDescription}.
+          </p>
+
+          <p style="margin-bottom: 15px; font-size: 15px;">
+            <strong>ثانياً: تجانس الآراء</strong><br/>
+            بلغ متوسط الانحراف المعياري <strong>(${avgStd.toFixed(2)})</strong> وهو ما يشير إلى 
+            <strong>${homogeneityLevel}</strong> ${homogeneityDescription}. 
+            كما بلغ متوسط التباين <strong>(${avgVariance.toFixed(2)})</strong> 
+            مما يؤكد هذا التوجه في تحليل البيانات.
+          </p>
+
+          <p style="margin-bottom: 15px; font-size: 15px;">
+            <strong>ثالثاً: اتساق الاستجابات</strong><br/>
+            سجل معامل الاختلاف متوسطاً قدره <strong>(${avgCV.toFixed(2)}%)</strong> وهو يمثل 
+            <strong>${consistencyLevel}</strong> ${consistencyDescription}. 
+            هذا المؤشر يعتبر مقياساً نسبياً مهماً لتقييم جودة البيانات المجمعة.
+          </p>
+
+          <p style="margin-bottom: 15px; font-size: 15px;">
+            <strong>رابعاً: النطاق والتباين</strong><br/>
+            تراوحت قيم الوسط الحسابي المرجح بين <strong>(${minMean.toFixed(2)})</strong> 
+            كأدنى قيمة و<strong>(${maxMean.toFixed(2)})</strong> كأعلى قيمة، 
+            مما يشير إلى ${maxMean - minMean < 1 ? 'تقارب كبير' : maxMean - minMean < 2 ? 'تباين معتدل' : 'تباين ملحوظ'} 
+            في استجابات المشاركين عبر مختلف الأسئلة. 
+            ${avgMedian ? `كما بلغ متوسط الوسيط <strong>(${avgMedian.toFixed(2)})</strong> وهو قريب من المتوسط الحسابي، 
+            مما يعزز مصداقية التحليل.` : ''}
+          </p>
+
+          <p style="margin-bottom: 0; font-size: 15px;">
+            <strong>الخلاصة:</strong><br/>
+            تشير المؤشرات الإحصائية بشكل عام إلى ${avgMean >= 3.5 && avgCV < 25 ? 
+            'نتائج إيجابية ومتسقة تعكس وضوحاً في توجهات المشاركين واتساقاً في آرائهم' : 
+            avgMean >= 3 ? 'نتائج مقبولة مع وجود مجال للتحسين في بعض المحاور' :
+            'نتائج تستدعي إعادة النظر في العوامل المؤثرة ومعالجة نقاط الضعف المحددة'}.
+            ${avgCV > 30 ? ' يُنصح بإجراء تحليل أعمق للأسئلة ذات التباين العالي لفهم أسباب الاختلاف في الآراء.' : ''}
+          </p>
+        </div>
+      `;
+
+      return analysisText;
+    }
+
     function exportToWord() {
       if (!resultsBody.hasChildNodes()) {
         showError("⚠️ لا توجد بيانات لتصديرها.");
@@ -663,11 +769,17 @@
       hideMessages();
       
       let summaryHTML = '';
+      let analyticalText = '';
+      
       if (questionsData.length > 0) {
         const avgMean = questionsData.reduce((sum, q) => sum + q.stats.mean, 0) / questionsData.length;
         const avgStd = questionsData.reduce((sum, q) => sum + q.stats.std, 0) / questionsData.length;
         const avgVariance = questionsData.reduce((sum, q) => sum + q.stats.variance, 0) / questionsData.length;
         const avgCV = questionsData.reduce((sum, q) => sum + q.stats.cv, 0) / questionsData.length;
+        const avgMedian = questionsData.reduce((sum, q) => sum + q.stats.median, 0) / questionsData.length;
+        const maxMean = Math.max(...questionsData.map(q => q.stats.mean));
+        const minMean = Math.min(...questionsData.map(q => q.stats.mean));
+        
         summaryHTML = `
           <h3 style="text-align: center; margin-top: 30px;">التحليل العام</h3>
           <table border="1" style="width: 60%; margin: 20px auto; border-collapse: collapse;">
@@ -677,8 +789,14 @@
             <tr><td>متوسط الانحراف المعياري</td><td>${avgStd.toFixed(2)}</td></tr>
             <tr><td>متوسط التباين</td><td>${avgVariance.toFixed(2)}</td></tr>
             <tr><td>متوسط معامل الاختلاف</td><td>${avgCV.toFixed(2)}%</td></tr>
+            <tr><td>متوسط الوسيط</td><td>${avgMedian.toFixed(2)}</td></tr>
+            <tr><td>أعلى وسط مرجح</td><td>${maxMean.toFixed(2)}</td></tr>
+            <tr><td>أقل وسط مرجح</td><td>${minMean.toFixed(2)}</td></tr>
           </table>
         `;
+        
+        // توليد النص التحليلي
+        analyticalText = generateAnalyticalText(avgMean, avgStd, avgVariance, avgCV, avgMedian, maxMean, minMean, questionsData.length);
       }
       
       let html = `
@@ -698,6 +816,7 @@
             <h2 style="text-align: center;">نتائج التحليل الإحصائي</h2>
             ${resultsTable.outerHTML}
             ${summaryHTML}
+            ${analyticalText}
           </body>
         </html>`;
       const blob = new Blob(['\ufeff', html], {type: 'application/msword'});
