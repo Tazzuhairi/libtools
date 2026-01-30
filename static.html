@@ -224,7 +224,7 @@
       حجم العينة:
       <span class="tooltip" data-tooltip="إجمالي عدد المشاركين في الاستبيان">ℹ️</span>
     </label>
-    <input type="number" id="sampleSize" placeholder="مثال: 30" min="1" />
+    <input type="number" id="sampleSize" placeholder="استخدم الارقام العربية 123" min="1" />
 
     <label for="scaleType" class="icon-scale-type">
       نوع مقياس ليكرت:
@@ -324,7 +324,7 @@
         headerRow.appendChild(th);
       });
 
-      ['الوسط المرجح', 'الانحراف', 'الوسيط', 'المنوال', 'المدى', 'إجراءات'].forEach(text => {
+      ['الوسط المرجح', 'الانحراف', 'التباين', 'معامل الاختلاف %', 'الوسيط', 'إجراءات'].forEach(text => {
         const th = document.createElement('th');
         th.textContent = text;
         headerRow.appendChild(th);
@@ -479,6 +479,9 @@
       variance = variance / total;
       const std = Math.sqrt(variance);
 
+      // حساب معامل الاختلاف (CV)
+      const cv = mean !== 0 ? (std / mean) * 100 : 0;
+
       const valuesArray = [];
       for (let i = 0; i < counts.length; i++) {
         for (let j = 0; j < counts[i]; j++) {
@@ -491,18 +494,7 @@
         ? (valuesArray[valuesArray.length / 2 - 1] + valuesArray[valuesArray.length / 2]) / 2
         : valuesArray[Math.floor(valuesArray.length / 2)];
 
-      let maxCount = 0;
-      let mode = weights[0];
-      for (let i = 0; i < counts.length; i++) {
-        if (counts[i] > maxCount) {
-          maxCount = counts[i];
-          mode = weights[i];
-        }
-      }
-
-      const range = Math.max(...weights) - Math.min(...weights);
-
-      return { mean, std, median, mode, range };
+      return { mean, std, variance, cv, median };
     }
 
     function renderTable() {
@@ -516,9 +508,9 @@
           ${data.counts.map(c => `<td>${c}</td>`).join('')}
           <td>${data.stats.mean.toFixed(2)}</td>
           <td>${data.stats.std.toFixed(2)}</td>
+          <td>${data.stats.variance.toFixed(2)}</td>
+          <td>${data.stats.cv.toFixed(2)}</td>
           <td>${data.stats.median.toFixed(2)}</td>
-          <td>${data.stats.mode.toFixed(2)}</td>
-          <td>${data.stats.range.toFixed(2)}</td>
           <td class="action-buttons">
             <button class="btn-edit" onclick="editQuestion(${index})" title="تعديل السؤال">✏️</button>
             <button class="btn-delete" onclick="deleteQuestion(${index})" title="حذف السؤال">🗑️</button>
@@ -538,6 +530,8 @@
       
       const avgMean = questionsData.reduce((sum, q) => sum + q.stats.mean, 0) / questionsData.length;
       const avgStd = questionsData.reduce((sum, q) => sum + q.stats.std, 0) / questionsData.length;
+      const avgVariance = questionsData.reduce((sum, q) => sum + q.stats.variance, 0) / questionsData.length;
+      const avgCV = questionsData.reduce((sum, q) => sum + q.stats.cv, 0) / questionsData.length;
       const avgMedian = questionsData.reduce((sum, q) => sum + q.stats.median, 0) / questionsData.length;
       const maxMean = Math.max(...questionsData.map(q => q.stats.mean));
       const minMean = Math.min(...questionsData.map(q => q.stats.mean));
@@ -556,14 +550,22 @@
           <div class="value">${avgStd.toFixed(2)}</div>
         </div>
         <div class="summary-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+          <h4>متوسط التباين</h4>
+          <div class="value">${avgVariance.toFixed(2)}</div>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <h4>متوسط معامل الاختلاف</h4>
+          <div class="value">${avgCV.toFixed(2)}%</div>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
           <h4>متوسط الوسيط</h4>
           <div class="value">${avgMedian.toFixed(2)}</div>
         </div>
-        <div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+        <div class="summary-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
           <h4>أعلى وسط مرجح</h4>
           <div class="value">${maxMean.toFixed(2)}</div>
         </div>
-        <div class="summary-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+        <div class="summary-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
           <h4>أقل وسط مرجح</h4>
           <div class="value">${minMean.toFixed(2)}</div>
         </div>
@@ -664,13 +666,17 @@
       if (questionsData.length > 0) {
         const avgMean = questionsData.reduce((sum, q) => sum + q.stats.mean, 0) / questionsData.length;
         const avgStd = questionsData.reduce((sum, q) => sum + q.stats.std, 0) / questionsData.length;
+        const avgVariance = questionsData.reduce((sum, q) => sum + q.stats.variance, 0) / questionsData.length;
+        const avgCV = questionsData.reduce((sum, q) => sum + q.stats.cv, 0) / questionsData.length;
         summaryHTML = `
           <h3 style="text-align: center; margin-top: 30px;">التحليل العام</h3>
-          <table border="1" style="width: 50%; margin: 20px auto; border-collapse: collapse;">
+          <table border="1" style="width: 60%; margin: 20px auto; border-collapse: collapse;">
             <tr><th>المؤشر</th><th>القيمة</th></tr>
             <tr><td>عدد الأسئلة</td><td>${questionsData.length}</td></tr>
             <tr><td>متوسط الوسط المرجح</td><td>${avgMean.toFixed(2)}</td></tr>
             <tr><td>متوسط الانحراف المعياري</td><td>${avgStd.toFixed(2)}</td></tr>
+            <tr><td>متوسط التباين</td><td>${avgVariance.toFixed(2)}</td></tr>
+            <tr><td>متوسط معامل الاختلاف</td><td>${avgCV.toFixed(2)}%</td></tr>
           </table>
         `;
       }
