@@ -354,6 +354,13 @@
       if (!scale) return;
 
       weightInputsContainer.innerHTML = '<h4 style="color: #154360; margin-top: 0;">أوزان الفئات:</h4>';
+      
+      // إضافة ملاحظة حول قلب الأوزان
+      const noteDiv = document.createElement('div');
+      noteDiv.style.cssText = 'background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px; margin: 10px 0 15px 0; font-size: 14px; color: #856404;';
+      noteDiv.innerHTML = '<strong>💡 ملاحظة هامة:</strong> يمكنك قلب الأوزان حسب اتجاه المقياس (إيجابي أو سلبي). مثلاً: إذا كانت العبارة سلبية، يمكن عكس ترتيب الأوزان.';
+      weightInputsContainer.appendChild(noteDiv);
+      
       scale.forEach((label, idx) => {
         const div = document.createElement('div');
         div.style.marginTop = '12px';
@@ -768,7 +775,29 @@
       }
       hideMessages();
       
-      let summaryHTML = '';
+      // إنشاء نسخة من الجدول لإزالة عمود الإجراءات منها
+      const tableClone = resultsTable.cloneNode(true);
+      
+      // إزالة عمود الإجراءات من الرأس
+      const headerRow = tableClone.querySelector('thead tr');
+      if (headerRow) {
+        const headers = headerRow.querySelectorAll('th');
+        if (headers.length > 0) {
+          // حذف آخر عمود (الإجراءات)
+          headers[headers.length - 1].remove();
+        }
+      }
+      
+      // إزالة عمود الإجراءات من كل صف في البيانات
+      const dataRows = tableClone.querySelectorAll('tbody tr');
+      dataRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+          // حذف آخر خلية (الإجراءات)
+          cells[cells.length - 1].remove();
+        }
+      });
+      
       let analyticalText = '';
       
       if (questionsData.length > 0) {
@@ -780,22 +809,7 @@
         const maxMean = Math.max(...questionsData.map(q => q.stats.mean));
         const minMean = Math.min(...questionsData.map(q => q.stats.mean));
         
-        summaryHTML = `
-          <h3 style="text-align: center; margin-top: 30px;">التحليل العام</h3>
-          <table border="1" style="width: 60%; margin: 20px auto; border-collapse: collapse;">
-            <tr><th>المؤشر</th><th>القيمة</th></tr>
-            <tr><td>عدد الأسئلة</td><td>${questionsData.length}</td></tr>
-            <tr><td>متوسط الوسط المرجح</td><td>${avgMean.toFixed(2)}</td></tr>
-            <tr><td>متوسط الانحراف المعياري</td><td>${avgStd.toFixed(2)}</td></tr>
-            <tr><td>متوسط التباين</td><td>${avgVariance.toFixed(2)}</td></tr>
-            <tr><td>متوسط معامل الاختلاف</td><td>${avgCV.toFixed(2)}%</td></tr>
-            <tr><td>متوسط الوسيط</td><td>${avgMedian.toFixed(2)}</td></tr>
-            <tr><td>أعلى وسط مرجح</td><td>${maxMean.toFixed(2)}</td></tr>
-            <tr><td>أقل وسط مرجح</td><td>${minMean.toFixed(2)}</td></tr>
-          </table>
-        `;
-        
-        // توليد النص التحليلي
+        // توليد النص التحليلي فقط (بدون جدول التحليل العام)
         analyticalText = generateAnalyticalText(avgMean, avgStd, avgVariance, avgCV, avgMedian, maxMean, minMean, questionsData.length);
       }
       
@@ -814,8 +828,7 @@
           </head>
           <body>
             <h2 style="text-align: center;">نتائج التحليل الإحصائي</h2>
-            ${resultsTable.outerHTML}
-            ${summaryHTML}
+            ${tableClone.outerHTML}
             ${analyticalText}
           </body>
         </html>`;
