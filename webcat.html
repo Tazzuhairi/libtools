@@ -623,7 +623,7 @@
     <div class="field-row" style="margin-bottom:12px;">
       <div class="field-group">
         <label id="lblSubtitle" for="subtitle">العنوان الفرعي</label>
-        <input type="text" id="subtitle" placeholder="اختياري"/>
+        <input type="text" id="subtitle"/>
       </div>
       <div class="field-group">
         <label id="lblEdition" for="edition">الطبعة</label>
@@ -653,7 +653,7 @@
       </div>
       <div class="field-group">
         <label id="lblSeries" for="series">السلسلة</label>
-        <input type="text" id="series" placeholder="اختياري"/>
+        <input type="text" id="series"/>
       </div>
     </div>
 
@@ -667,11 +667,11 @@
     <div class="field-row" style="margin-bottom:12px;">
       <div class="field-group">
         <label id="lblClassification" for="classification">رقم التصنيف (ديوي)</label>
-        <input type="text" id="classification" placeholder="مثال: 025.3"/>
+        <input type="text" id="classification"/>
       </div>
       <div class="field-group">
         <label id="lblAuthorNumber" for="authorNumber">رمز المؤلف (كتر)</label>
-        <input type="text" id="authorNumber" placeholder="مثال: ز889ب"/>
+        <input type="text" id="authorNumber"/>
       </div>
     </div>
 
@@ -682,7 +682,7 @@
       </div>
       <div class="field-group">
         <label id="lblLegalDeposit" for="legalDeposit">رقم الإيداع القانوني</label>
-        <input type="text" id="legalDeposit" placeholder="اختياري"/>
+        <input type="text" id="legalDeposit"/>
       </div>
     </div>
 
@@ -1401,10 +1401,9 @@ function copyCard() {
    RESET
 =========================== */
 function resetForm() {
-  // Clear all fields EXCEPT subjects and notes
-  const preserveIds = ['subjects', 'notes'];
+  // Clear ALL fields completely
   document.querySelectorAll('input[type="text"], textarea').forEach(el => {
-    if (!preserveIds.includes(el.id)) el.value = '';
+    el.value = '';
   });
   document.getElementById('additionalAuthors').innerHTML = '';
   document.getElementById('outputSection').style.display = 'none';
