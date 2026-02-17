@@ -1,451 +1,1536 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"/>
-<title>بطاقة فهرسة</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>بطاقة الفهرسة الببليوغرافية</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
 <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      direction: rtl;
-      background-color: #f9f9f9;
-      padding: 20px;
-    }
-    .container {
-      background-color: #fff;
-      border-radius: 15px;
-      padding: 25px;
-      max-width: 700px;
-      margin: auto;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #0f100f;
-      margin-bottom: 30px;
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-    input, textarea, select {
-      width: 100%;
-      padding: 10px;
-      font-size: 18px;
-      font-family: 'Arial', sans-serif;
-      font-weight: bold;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      box-sizing: border-box;
-    }
-    .buttons {
-      margin-top: 20px;
-    }
-    button {
-      background-color: #388e3c;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      font-family: 'Arial', sans-serif;
-      cursor: pointer;
-      width: 100%;
-    }
-    button:hover {
-      background-color: #2e7d32;
-    }
-    .output {
-      background-color: #f1f8e9;
-      border: 1px solid #c5e1a5;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 30px;
-      white-space: pre-wrap;
-      font-family: "Courier New", monospace;
-      font-size: 18px;
-      position: relative;
-    }
-    .options-container {
-      flex-direction: row;
-      gap: 15px;
-      margin-top: 20px;
-      justify-content: center;
-      display: flex;
-      flex-wrap: wrap;
-    }
-    .options-button {
-      background-color: #388e3c;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      width: auto;
-      text-align: center;
-    }
-    .options-button:hover {
-      background-color: #2e7d32;
-    }
-  
-    .header {
-      background: linear-gradient(90deg, #2e7d32, #66bb6a);
-      padding: 15px 10px;
-      border-radius: 12px 12px 0 0;
-      text-align: center;
-      color: white;
-      margin: -25px -25px 20px -25px;
-    }
+  :root {
+    --ink: #1a1207;
+    --paper: #faf7f0;
+    --parchment: #f0ead6;
+    --gold: #b8860b;
+    --gold-light: #d4a843;
+    --gold-pale: #f5e6b3;
+    --border: #8b6914;
+    --muted: #6b5a3e;
+    --accent: #2c4a1e;
+    --accent-light: #4a7a32;
+    --white: #ffffff;
+    --shadow: rgba(26,18,7,0.15);
+    --input-bg: #fffdf7;
+  }
 
-    .container {
-      border: 2px solid #2e7d32;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(184,134,11,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(44,74,30,0.05) 0%, transparent 50%);
+    min-height: 100vh;
+    padding: 30px 20px 60px;
+    color: var(--ink);
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .page-header .ornament {
+    font-family: 'Amiri', serif;
+    font-size: 28px;
+    color: var(--gold);
+    letter-spacing: 8px;
+    display: block;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  .page-header h1 {
+    font-family: 'Amiri', serif;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+    position: relative;
+    display: inline-block;
+  }
+
+  .page-header h1::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin-top: 8px;
+  }
+
+  .page-header .subtitle {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+
+  .main-card {
+    background: var(--white);
+    border: 1px solid rgba(184,134,11,0.3);
+    border-radius: 4px;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 2px 30px var(--shadow), 0 0 0 4px rgba(184,134,11,0.06);
+    overflow: hidden;
+  }
+
+  .card-band {
+    background: linear-gradient(135deg, var(--accent) 0%, #1a3012 100%);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .card-band .band-icon {
+    font-size: 26px;
+    opacity: 0.9;
+  }
+
+  .card-band .band-title {
+    font-family: 'Amiri', serif;
+    font-size: 1.25rem;
+    color: var(--gold-light);
+    font-weight: 700;
+  }
+
+  .card-band .lang-selector {
+    margin-right: auto;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lang-selector select {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(212,168,67,0.5);
+    color: var(--gold-pale);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s;
+  }
+
+  .lang-selector select option { background: #1a3012; color: #fff; }
+  .lang-selector select:hover { background: rgba(255,255,255,0.2); }
+
+  .form-body {
+    padding: 28px 30px 24px;
+  }
+
+  .section-title {
+    font-family: 'Amiri', serif;
+    font-size: 1rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--parchment);
+    padding-bottom: 6px;
+    margin: 24px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title:first-of-type { margin-top: 0; }
+
+  .section-title .sec-icon { font-size: 16px; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field-row.single { grid-template-columns: 1fr; }
+  .field-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field-group { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input[type="text"], textarea, select.field-select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    font-family: 'Cairo', sans-serif;
+    border: 1.5px solid #e0d8c8;
+    border-radius: 3px;
+    background: var(--input-bg);
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  input[type="text"]:focus, textarea:focus, select.field-select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,134,11,0.1);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 70px;
+    line-height: 1.6;
+  }
+
+  .add-author-btn {
+    margin-top: 8px;
+    background: none;
+    border: 1.5px dashed var(--gold);
+    color: var(--gold);
+    padding: 7px 16px;
+    border-radius: 3px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .add-author-btn:hover {
+    background: var(--gold-pale);
+    border-style: solid;
+  }
+
+  .extra-author-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+  }
+
+  .extra-author-row input { flex: 1; margin-bottom: 0; }
+
+  .remove-author {
+    background: none;
+    border: none;
+    color: #c0392b;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .remove-author:hover { opacity: 1; }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--parchment), transparent);
+    margin: 22px 0;
+  }
+
+  /* Card type selector */
+  .card-type-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .card-type-btn {
+    border: 1.5px solid #e0d8c8;
+    background: var(--input-bg);
+    padding: 10px 8px;
+    border-radius: 3px;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .card-type-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .card-type-btn.active {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+    color: var(--border);
+    box-shadow: 0 2px 8px rgba(184,134,11,0.15);
+  }
+
+  .card-type-btn .type-icon { display: block; font-size: 20px; margin-bottom: 4px; }
+
+  .generate-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent) 0%, #1a3012 100%);
+    color: var(--gold-pale);
+    border: none;
+    border-radius: 3px;
+    font-family: 'Amiri', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    margin-top: 20px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .generate-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; right: auto;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    transition: left 0.5s;
+  }
+
+  .generate-btn:hover::before { left: 100%; }
+  .generate-btn:hover { box-shadow: 0 4px 20px rgba(44,74,30,0.35); }
+  .generate-btn:active { transform: scale(0.99); }
+
+  /* Output section */
+  .output-section {
+    display: none;
+    padding: 0 30px 30px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .output-label {
+    font-family: 'Amiri', serif;
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--parchment);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* The actual catalog card */
+  .catalog-card {
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    padding: 0;
+    font-family: 'Amiri', serif;
+    position: relative;
+    margin-bottom: 20px;
+    box-shadow: 4px 4px 0 rgba(26,18,7,0.12);
+  }
+
+  .catalog-card-inner {
+    padding: 16px 20px 20px;
+    min-height: 160px;
+    direction: rtl;
+  }
+
+  .catalog-card .call-number {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.4;
+    border: 1px solid var(--ink);
+    padding: 3px 7px;
+    min-width: 52px;
+    background: var(--white);
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .catalog-card .main-entry {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    padding-right: 0;
+    padding-left: 70px;
+    line-height: 1.5;
+  }
+
+  .catalog-card .description-area {
+    padding-right: 28px;
+    padding-left: 70px;
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
+  .catalog-card .desc-line {
+    display: block;
+  }
+
+  .catalog-card .tracing {
+    border-top: 1px solid #ccc;
+    margin-top: 14px;
+    padding-top: 10px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    direction: rtl;
+  }
+
+  .catalog-card .tracing-item {
+    display: inline-block;
+    margin-left: 16px;
+    margin-bottom: 3px;
+  }
+
+  .catalog-card .corner-mark {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 0.75rem;
+    font-family: 'Cairo', sans-serif;
+    color: var(--muted);
+    border-top: 1px solid #ccc;
+    padding-top: 3px;
+    min-width: 52px;
+    text-align: center;
+  }
+
+  /* Export action buttons */
+  .export-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .export-btn {
+    padding: 10px 8px;
+    border: 1.5px solid;
+    border-radius: 3px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: var(--white);
+  }
+
+  .export-btn .btn-icon { font-size: 18px; }
+
+  .export-btn.btn-word { border-color: #2b5797; color: #2b5797; }
+  .export-btn.btn-word:hover { background: #e8f0fa; }
+
+  .export-btn.btn-marc { border-color: #8b1a1a; color: #8b1a1a; }
+  .export-btn.btn-marc:hover { background: #faeaea; }
+
+  .export-btn.btn-rda { border-color: #5c2d91; color: #5c2d91; }
+  .export-btn.btn-rda:hover { background: #f0e8fa; }
+
+  .export-btn.btn-csv { border-color: #1a6b1a; color: #1a6b1a; }
+  .export-btn.btn-csv:hover { background: #e8fae8; }
+
+  .export-btn.btn-copy { border-color: var(--border); color: var(--border); }
+  .export-btn.btn-copy:hover { background: var(--gold-pale); }
+
+  .export-btn.btn-reset { border-color: #555; color: #555; }
+  .export-btn.btn-reset:hover { background: #f5f5f5; }
+
+  /* Tabs for MARC/RDA view */
+  .view-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--parchment);
+    margin-bottom: 16px;
+    gap: 0;
+  }
+
+  .view-tab {
+    padding: 8px 18px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+
+  .view-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .technical-output {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 14px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    direction: ltr;
+    text-align: left;
+    display: none;
+    max-height: 280px;
+    overflow-y: auto;
+    color: #333;
+  }
+
+  .technical-output.active { display: block; }
+
+  .card-view.active { display: block; }
+  .card-view { display: none; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'Amiri', serif;
+    letter-spacing: 0.5px;
+  }
+
+  footer .author-credit {
+    font-weight: 700;
+    color: var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .field-row, .field-row.triple { grid-template-columns: 1fr; }
+    .card-type-row { grid-template-columns: 1fr 1fr; }
+    .export-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-body { padding: 20px 18px 16px; }
+    .output-section { padding: 0 18px 24px; }
+    .card-band { padding: 14px 18px; }
+  }
+
+  .new-card-btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #b8860b 0%, #8b6914 100%);
+    color: #fffdf7;
+    border: none;
+    border-radius: 3px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    transition: all 0.25s;
+    box-shadow: 0 3px 12px rgba(184,134,11,0.3);
+  }
+
+  .new-card-btn:hover {
+    background: linear-gradient(135deg, #d4a843 0%, #b8860b 100%);
+    box-shadow: 0 5px 18px rgba(184,134,11,0.45);
+    transform: translateY(-1px);
+  }
+
+  .new-card-btn:active { transform: scale(0.99); }
+
+  /* Print */
+  @media print {
+    body { background: white; padding: 0; }
+    .main-card { box-shadow: none; border: none; max-width: 100%; }
+    .card-band, .form-body, .export-grid, .view-tabs, .output-label, .technical-output { display: none !important; }
+    .output-section { display: block !important; padding: 0; }
+    .catalog-card { box-shadow: none; }
+  }
 </style>
 </head>
 <body>
-<div class="container"><div class="header"><h2>أداة إنشاء بطاقة فهرسة</h2><p style="text-align: center; font-weight: bold; color: white; margin: 0;">تصميم وتطوير د. طلال ناظم الزهيري</p></div>
-<label>🌐 اختر اللغة:</label>
-<select id="language" onchange="changeLanguage()">
-<option value="ar">العربية</option>
-<option value="en">English</option>
-</select>
-<label for="author">👤 المؤلف:</label>
-<input id="author" type="text"/>
-<div id="additionalAuthors"></div>
-<button class="options-button" id="addAuthorBtn" onclick="addAuthorField()" type="button">إضافة مؤلف آخر</button>
-<label>📖 العنوان:</label>
-<input id="title" type="text"/>
-<div class="buttons">
-<button id="showMoreBtn" onclick="showMoreFields()" type="button">أكمل البيانات</button>
-</div>
-<div id="moreFields" style="display: none;">
-<label>🌍 مكان النشر:</label><input id="pubPlace" type="text"/>
-<label>🏢 الناشر:</label><input id="publisher" type="text"/>
-<label>📅 تاريخ النشر:</label><input id="pubDate" type="text"/>
-<label>🔢 الطبعة:</label><input id="edition" type="text"/>
-<label>📄 عدد الصفحات:</label><input id="pages" type="text"/>
-<label>🏷️ الموضوعات:</label><input id="subjects" type="text"/>
-<label>📚 رقم التصنيف:</label><input id="classification" type="text"/>
-<label>🆔 رقم المؤلف:</label><input id="authorNumber" type="text"/>
-<label>📝 رقم الإيداع:</label><input id="legalDeposit" type="text"/>
-<label>🔖 ردمك (ISBN):</label><input id="isbn" type="text"/>
-<label>🔗 السلسلة:</label><input id="series" type="text"/>
-<label>🗒️ ملاحظات:</label><textarea id="notes"></textarea>
-<label>🗂️ اختيار نوع البطاقة:</label>
-<select id="cardType">
-<option value="">-- اختر نوع البطاقة --</option>
-<option value="author">بطاقة المؤلف</option>
-<option value="title">بطاقة العنوان</option>
-<option value="subject">بطاقة الموضوع</option>
-</select>
-<button id="generateBtn" onclick="handleGenerate()">توليد البطاقة</button>
-</div>
-<div class="output" id="output" style="display: none;">
-<div id="outputText"></div>
-<div class="options-container" id="optionsContainer">
-<button class="options-button" id="resetBtn" onclick="handleOption('reset')">إعادة الإدخال</button>
-<button class="options-button" id="marcBtn" onclick="handleOption('marc')">تصدير Marc</button>
-<button class="options-button" id="rdaBtn" onclick="handleOption('rda')">تصدير RDA</button>
-<button class="options-button" id="csvBtn" onclick="handleOption('csv')">تصدير CSV</button>
-<button class="options-button" id="wordBtn" onclick="handleOption('word')">تصدير Word</button>
-<button class="options-button" id="copyBtn" onclick="handleOption('copy')">نسخ البطاقة</button>
-</div>
-</div>
-</div>
+
+<header class="page-header">
+  <span class="ornament">✦ ✦ ✦</span>
+  <h1 id="pageTitle">أداة إنشاء بطاقة الفهرسة الببليوغرافية</h1>
+  <p class="subtitle" id="pageSubtitle">وصف ببليوغرافي متكامل · MARC · RDA · تصدير Word</p>
+</header>
+
+<div class="main-card">
+  <div class="card-band">
+    <span class="band-icon">📚</span>
+    <span class="band-title" id="bandTitle">بيانات المصدر</span>
+    <div class="lang-selector">
+      <select id="language" onchange="changeLanguage()">
+        <option value="ar">🌐 العربية</option>
+        <option value="en">🌐 English</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-body">
+
+    <!-- Basic fields always shown -->
+    <div class="section-title">
+      <span class="sec-icon">👤</span>
+      <span id="secAuthors">المؤلفون</span>
+    </div>
+
+    <div class="field-row single field-group" style="margin-bottom:12px;">
+      <label id="lblAuthor" for="author">المؤلف الرئيسي</label>
+      <input type="text" id="author"/>
+    </div>
+
+    <div id="additionalAuthors"></div>
+
+    <button class="add-author-btn" id="addAuthorBtn" onclick="addAuthorField()" type="button">
+      <span>＋</span> <span id="addAuthorText">إضافة مؤلف مشارك</span>
+    </button>
+
+    <div class="divider"></div>
+
+    <div class="section-title">
+      <span class="sec-icon">📖</span>
+      <span id="secTitle">العنوان والنشر</span>
+    </div>
+
+    <div class="field-row single field-group" style="margin-bottom:12px;">
+      <label id="lblTitle" for="title">عنوان الكتاب</label>
+      <input type="text" id="title"/>
+    </div>
+
+    <div class="field-row" style="margin-bottom:12px;">
+      <div class="field-group">
+        <label id="lblSubtitle" for="subtitle">العنوان الفرعي</label>
+        <input type="text" id="subtitle" placeholder="اختياري"/>
+      </div>
+      <div class="field-group">
+        <label id="lblEdition" for="edition">الطبعة</label>
+        <input type="text" id="edition"/>
+      </div>
+    </div>
+
+    <div class="field-row" style="margin-bottom:12px;">
+      <div class="field-group">
+        <label id="lblPubPlace" for="pubPlace">مكان النشر</label>
+        <input type="text" id="pubPlace"/>
+      </div>
+      <div class="field-group">
+        <label id="lblPublisher" for="publisher">الناشر / دار النشر</label>
+        <input type="text" id="publisher"/>
+      </div>
+    </div>
+
+    <div class="field-row triple" style="margin-bottom:12px;">
+      <div class="field-group">
+        <label id="lblPubDate" for="pubDate">سنة النشر</label>
+        <input type="text" id="pubDate"/>
+      </div>
+      <div class="field-group">
+        <label id="lblPages" for="pages">عدد الصفحات</label>
+        <input type="text" id="pages"/>
+      </div>
+      <div class="field-group">
+        <label id="lblSeries" for="series">السلسلة</label>
+        <input type="text" id="series" placeholder="اختياري"/>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title">
+      <span class="sec-icon">🗂️</span>
+      <span id="secCatalog">بيانات الفهرسة</span>
+    </div>
+
+    <div class="field-row" style="margin-bottom:12px;">
+      <div class="field-group">
+        <label id="lblClassification" for="classification">رقم التصنيف (ديوي)</label>
+        <input type="text" id="classification" placeholder="مثال: 025.3"/>
+      </div>
+      <div class="field-group">
+        <label id="lblAuthorNumber" for="authorNumber">رمز المؤلف (كتر)</label>
+        <input type="text" id="authorNumber" placeholder="مثال: ز889ب"/>
+      </div>
+    </div>
+
+    <div class="field-row" style="margin-bottom:12px;">
+      <div class="field-group">
+        <label id="lblIsbn" for="isbn">ردمك – ISBN</label>
+        <input type="text" id="isbn"/>
+      </div>
+      <div class="field-group">
+        <label id="lblLegalDeposit" for="legalDeposit">رقم الإيداع القانوني</label>
+        <input type="text" id="legalDeposit" placeholder="اختياري"/>
+      </div>
+    </div>
+
+    <div class="field-row single" style="margin-bottom:12px;">
+      <div class="field-group">
+        <label id="lblSubjects" for="subjects">الموضوعات (افصل بفاصلة)</label>
+        <input type="text" id="subjects" placeholder="مثال: الفهرسة، علم المكتبات، الوصف الببليوغرافي"/>
+      </div>
+    </div>
+
+    <div class="field-row single" style="margin-bottom:0;">
+      <div class="field-group">
+        <label id="lblNotes" for="notes">ملاحظات</label>
+        <textarea id="notes" placeholder="أي ملاحظات ببليوغرافية إضافية..."></textarea>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title">
+      <span class="sec-icon">🗃️</span>
+      <span id="secCardType">نوع البطاقة</span>
+    </div>
+
+    <div class="card-type-row" id="cardTypeRow">
+      <button class="card-type-btn active" data-type="author" onclick="selectCardType(this)">
+        <span class="type-icon">👤</span>
+        <span id="typeAuthorLabel">بطاقة المؤلف</span>
+      </button>
+      <button class="card-type-btn" data-type="title" onclick="selectCardType(this)">
+        <span class="type-icon">📖</span>
+        <span id="typeTitleLabel">بطاقة العنوان</span>
+      </button>
+      <button class="card-type-btn" data-type="subject" onclick="selectCardType(this)">
+        <span class="type-icon">🏷️</span>
+        <span id="typeSubjectLabel">بطاقة الموضوع</span>
+      </button>
+    </div>
+
+    <button class="generate-btn" onclick="generateCard()" id="generateBtn">
+      ✦ &nbsp; توليد بطاقة الفهرسة &nbsp; ✦
+    </button>
+
+  </div><!-- /form-body -->
+
+  <!-- Output -->
+  <div class="output-section" id="outputSection">
+
+    <div class="divider" style="margin:0 0 20px;"></div>
+
+    <div class="view-tabs">
+      <button class="view-tab active" id="tab-card" onclick="switchTab('card')">
+        🃏 <span id="tabCardLabel">بطاقة الفهرسة</span>
+      </button>
+      <button class="view-tab" id="tab-marc" onclick="switchTab('marc')">
+        🏷 MARC
+      </button>
+      <button class="view-tab" id="tab-rda" onclick="switchTab('rda')">
+        📋 RDA
+      </button>
+    </div>
+
+    <!-- Card view -->
+    <div class="card-view active" id="view-card">
+      <div class="catalog-card" id="catalogCard">
+        <div class="call-number" id="cardCallNumber"></div>
+        <div class="catalog-card-inner">
+          <div class="main-entry" id="cardMainEntry"></div>
+          <div class="description-area" id="cardDescription"></div>
+          <div class="tracing" id="cardTracing"></div>
+        </div>
+        <div class="corner-mark" id="cardCornerMark"></div>
+      </div>
+    </div>
+
+    <!-- MARC view -->
+    <div id="view-marc">
+      <div class="technical-output active" id="marcOutput"></div>
+    </div>
+
+    <!-- RDA view -->
+    <div id="view-rda">
+      <div class="technical-output active" id="rdaOutput"></div>
+    </div>
+
+    <!-- New Card button -->
+    <button class="new-card-btn" onclick="resetForm()" id="newCardBtn">
+      ＋ &nbsp; إنشاء بطاقة جديدة
+    </button>
+
+    <!-- Export buttons -->
+    <div class="export-grid">
+      <button class="export-btn btn-word" onclick="exportToWord()">
+        <span class="btn-icon">📄</span>
+        <span id="btnWord">تصدير Word</span>
+      </button>
+      <button class="export-btn btn-marc" onclick="exportMARC()">
+        <span class="btn-icon">🏷</span>
+        <span>تصدير MARC</span>
+      </button>
+      <button class="export-btn btn-rda" onclick="exportRDA()">
+        <span class="btn-icon">📋</span>
+        <span>تصدير RDA</span>
+      </button>
+      <button class="export-btn btn-csv" onclick="exportCSV()">
+        <span class="btn-icon">📊</span>
+        <span>تصدير CSV</span>
+      </button>
+      <button class="export-btn btn-copy" onclick="copyCard()">
+        <span class="btn-icon">📋</span>
+        <span id="btnCopy">نسخ البطاقة</span>
+      </button>
+      <button class="export-btn btn-reset" onclick="resetForm()">
+        <span class="btn-icon">🔄</span>
+        <span id="btnReset">مسح الكل</span>
+      </button>
+    </div>
+
+  </div><!-- /output-section -->
+</div><!-- /main-card -->
+
+<footer>
+  <span class="author-credit">د. طلال ناظم الزهيري</span> &nbsp;·&nbsp; أداة الفهرسة الببليوغرافية &nbsp;·&nbsp; 2025 ©
+</footer>
+
 <script>
-function showMoreFields() {
-  document.getElementById('moreFields').style.display = 'block';
-  document.getElementById('showMoreBtn').style.display = 'none';
+/* ===========================
+   STATE
+=========================== */
+let currentLang = 'ar';
+let selectedCardType = 'author';
+let currentCardData = {};
+
+/* ===========================
+   CARD TYPE SELECTION
+=========================== */
+function selectCardType(btn) {
+  document.querySelectorAll('.card-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedCardType = btn.dataset.type;
 }
 
-function formatAuthorName(name) {
+/* ===========================
+   AUTHOR FIELDS
+=========================== */
+let authorCount = 0;
+
+function addAuthorField() {
+  authorCount++;
+  const container = document.getElementById('additionalAuthors');
+  const row = document.createElement('div');
+  row.className = 'extra-author-row';
+  row.dataset.id = authorCount;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'extra-author-input';
+  input.placeholder = currentLang === 'ar' ? `مؤلف مشارك ${authorCount + 1}` : `Co-author ${authorCount + 1}`;
+  input.style.marginBottom = '0';
+
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'remove-author';
+  removeBtn.textContent = '✕';
+  removeBtn.title = currentLang === 'ar' ? 'حذف' : 'Remove';
+  removeBtn.onclick = () => row.remove();
+
+  row.appendChild(input);
+  row.appendChild(removeBtn);
+  container.appendChild(row);
+}
+
+/* ===========================
+   GET FIELD VALUE
+=========================== */
+function g(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+/* ===========================
+   FORMAT AUTHOR (Arabic/English inversion)
+=========================== */
+function formatAuthorEntry(name) {
+  if (!name) return '';
   const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    const lastName = parts.pop();
-    const firstNames = parts.join(' ');
-    return `${lastName}، ${firstNames}`;
+  if (currentLang === 'ar' && parts.length >= 2) {
+    // Arabic: last name first with comma  الاسم الأخير، بقية الاسم
+    const last = parts[parts.length - 1];
+    const rest = parts.slice(0, -1).join(' ');
+    return `${last}، ${rest}`;
+  } else if (currentLang === 'en' && parts.length >= 2) {
+    // English: Last, First
+    const last = parts[parts.length - 1];
+    const rest = parts.slice(0, -1).join(' ');
+    return `${last}, ${rest}`;
   }
   return name;
 }
 
-function addAuthorField() {
-  const container = document.getElementById('additionalAuthors');
-  const index = container.querySelectorAll('input').length + 2;
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = `المؤلف رقم ${index}`;
-  input.className = 'additional-author';
-
-  input.style.width = '100%';
-  input.style.padding = '10px';
-  input.style.fontSize = '18px';
-  input.style.border = '1px solid #ccc';
-  input.style.borderRadius = '8px';
-  input.style.marginBottom = '15px';
-  input.style.boxSizing = 'border-box';
-
-  container.appendChild(input);
+/* ===========================
+   COLLECT ALL AUTHORS
+=========================== */
+function getAuthors() {
+  const main = g('author');
+  const extras = [];
+  document.querySelectorAll('.extra-author-input').forEach(inp => {
+    if (inp.value.trim()) extras.push(inp.value.trim());
+  });
+  return { main, extras, all: main ? [main, ...extras] : extras };
 }
 
-function getField(id) {
-  return document.getElementById(id).value.trim();
+function buildAuthorsText(authorsArr) {
+  const sep = currentLang === 'ar' ? '، و' : ', and ';
+  const andLast = currentLang === 'ar' ? ' و آخرون' : ' et al.';
+  if (!authorsArr.length) return '';
+  if (authorsArr.length === 1) return authorsArr[0];
+  if (authorsArr.length === 2) return `${authorsArr[0]}${sep} ${authorsArr[1]}`;
+  if (authorsArr.length === 3) return `${authorsArr[0]}، ${authorsArr[1]}${sep} ${authorsArr[2]}`;
+  return `${authorsArr[0]}${andLast}`;
 }
 
-function handleGenerate() {
-  const type = getField("cardType");
-  const author = getField('author');
-  const title = getField('title');
-  if (!type) {
-    alert("يرجى اختيار نوع البطاقة أولاً.");
-    return;
-  }
-  if (!author && !title) {
-    alert("يرجى إدخال المؤلف أو العنوان على الأقل.");
-    return;
-  }
-  generateCard(type);
-}
+/* ===========================
+   BUILD CARD DATA
+=========================== */
+function buildCardData() {
+  const authors = getAuthors();
+  const title = g('title');
+  const subtitle = g('subtitle');
+  const fullTitle = subtitle ? `${title} : ${subtitle}` : title;
+  const edition = g('edition');
+  const pubPlace = g('pubPlace');
+  const publisher = g('publisher');
+  const pubDate = g('pubDate');
+  const pages = g('pages');
+  const series = g('series');
+  const subjects = g('subjects');
+  const classification = g('classification');
+  const authorNumber = g('authorNumber');
+  const isbn = g('isbn');
+  const legalDeposit = g('legalDeposit');
+  const notes = g('notes');
 
-function generateCard(type) {
-  const author = getField('author');
-  const title = getField('title');
-  const pubPlace = getField('pubPlace');
-  const publisher = getField('publisher');
-  const pubDate = getField('pubDate');
-  const edition = getField('edition');
-  const pages = getField('pages');
-  const subjects = getField('subjects');
-  const classification = getField('classification');
-  const authorNumber = getField('authorNumber');
-  const legalDeposit = getField('legalDeposit');
-  const isbn = getField('isbn');
-  const series = getField('series');
-  const notes = getField('notes');
-  const callNumber = `${classification} ${authorNumber}`;
+  const callNumber = `${classification}${authorNumber ? '\n' + authorNumber : ''}`;
+  const authorsText = buildAuthorsText(authors.all);
 
+  // Build description line (ISBD style)
+  let desc = '';
+  desc += `${fullTitle} / ${authorsText}`;
+  if (edition) desc += ` .- ${currentLang === 'ar' ? 'ط. ' : 'Ed. '}${edition}`;
+  desc += ` .- ${pubPlace} : ${publisher}، ${pubDate}`;
+  if (pages) desc += ` .- ${pages} ${currentLang === 'ar' ? 'ص.' : 'p.'}`;
+  if (series) desc += `\n- (${series})`;
+
+  // Main entry based on card type
   let mainEntry = '';
-  if (type === 'author') mainEntry = formatAuthorName(author);
-  else if (type === 'title') mainEntry = title;
-  else if (type === 'subject') mainEntry = subjects.split(',')[0] || subjects;
+  const subjectsList = subjects.split(/[،,]/).map(s => s.trim()).filter(Boolean);
+  if (selectedCardType === 'author') mainEntry = formatAuthorEntry(authors.main || authors.all[0] || '');
+  else if (selectedCardType === 'title') mainEntry = fullTitle;
+  else if (selectedCardType === 'subject') mainEntry = subjectsList[0] || '';
 
-  let authors = [];
-  if (author) authors.push(author);
-  const additionalAuthors = document.querySelectorAll('.additional-author');
-  additionalAuthors.forEach(input => {
-    const name = input.value.trim();
-    if (name) authors.push(name);
-  });
-
-  let authorsText = '';
-  if (authors.length === 1) {
-    authorsText = authors[0];
-  } else if (authors.length === 2) {
-    authorsText = `${authors[0]}، و ${authors[1]}`;
-  } else if (authors.length === 3) {
-    authorsText = `${authors[0]}، ${authors[1]}، و ${authors[2]}`;
-  } else if (authors.length > 3) {
-    authorsText = `${authors[0]} و آخرون`;
-  }
-
-  let description = `${title} / ${authorsText}. - ${pubPlace} : ${publisher}، ${pubDate}.
-`;
-  if (edition) description += `ط. ${edition}. `;
-  if (pages) description += `${pages} ص.
-`;
-  if (series) description += `- (${series})
-`;
-
-  let extraInfo = '';
-  if (notes) extraInfo += `ملاحظات: ${notes}
-`;
-  if (legalDeposit) extraInfo += `رقم الإيداع: ${legalDeposit}
-`;
-  if (isbn) extraInfo += `ردمك: ${isbn}
-`;
-
-  const fullText = `${callNumber}
-${mainEntry}
-
-${description}${extraInfo}
-${callNumber}`;
-  document.getElementById('output').style.display = 'block';
-  document.getElementById('outputText').textContent = fullText;
-  document.getElementById('optionsContainer').style.display = 'flex';
-}
-function handleOption(option) {
-  if (option === "reset") {
-    document.querySelectorAll("input, textarea").forEach(e => e.value = '');
-    document.getElementById("output").style.display = "none";
-    document.getElementById("cardType").value = "";
-    document.getElementById('optionsContainer').style.display = 'none';
-  } else if (option === "copy") {
-    const text = document.getElementById("outputText").textContent;
-    navigator.clipboard.writeText(text);
-    alert("تم نسخ البطاقة إلى الحافظة.");
-  } else if (option === "marc") {
-    document.getElementById("outputText").textContent = generateMARC();
-  } else if (option === "rda") {
-    document.getElementById("outputText").textContent = generateRDA();
-  } else if (option === "csv") {
-    exportCSV();
-  } else if (option === "word") {
-    exportToWord();
-  }
-}
-
-function generateMARC() {
-  let marc =
-`100 1_ $a ${getField('author')}
-245 10 $a ${getField('title')}
-260 __ $a ${getField('pubPlace')} : $b ${getField('publisher')}, $c ${getField('pubDate')}
-250 __ $a ${getField('edition')}
-300 __ $a ${getField('pages')} ص.
-490 1_ $a ${getField('series')}
-500 __ $a ${getField('notes')}
-020 __ $a ${getField('isbn')}
-653 __ $a ${getField('subjects')}`;
-
-  const additionalAuthors = document.querySelectorAll('.additional-author');
-  additionalAuthors.forEach(input => {
-    const name = input.value.trim();
-    if (name) {
-      marc += `\n700 1_ $a ${name}`;
-    }
-  });
-
-  return marc;
-}
-function generateRDA() {
-  return (
-`البيانات الأساسية:
-- المؤلف: ${getField('author')}
-- العنوان: ${getField('title')}
-- الطبعة: ${getField('edition')}
-- مكان النشر: ${getField('pubPlace')}
-- الناشر: ${getField('publisher')}
-- تاريخ النشر: ${getField('pubDate')}
-
-البيانات المادية:
-- عدد الصفحات: ${getField('pages')}
-- السلسلة: ${getField('series')}
-
-البيانات الفرعية:
-- الموضوعات: ${getField('subjects')}
-- رقم التصنيف: ${getField('classification')}
-- رقم المؤلف: ${getField('authorNumber')}
-- رقم الإيداع: ${getField('legalDeposit')}
-- ردمك: ${getField('isbn')}
-- ملاحظات: ${getField('notes')}`
-  );
-}
-function exportCSV() {
-  const headers = [
-    "المؤلف", "العنوان", "مكان النشر", "الناشر", "تاريخ النشر",
-    "الطبعة", "عدد الصفحات", "الموضوعات", "رقم التصنيف", "رقم المؤلف",
-    "رقم الإيداع", "ردمك", "السلسلة", "ملاحظات"
-  ];
-  const values = [
-    getField('author'), getField('title'), getField('pubPlace'), getField('publisher'),
-    getField('pubDate'), getField('edition'), getField('pages'), getField('subjects'),
-    getField('classification'), getField('authorNumber'), getField('legalDeposit'),
-    getField('isbn'), getField('series'), getField('notes')
-  ];
-  const csvContent = `${headers.join(",")}
-${values.map(v => `"${v}"`).join(",")}`;
-  const BOM = "\uFEFF";
-  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", "بطاقة_فهرسة.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-function exportToWord() {
-  const content = document.getElementById("outputText").textContent;
-  const htmlContent = `
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          .card {
-            border: 2px solid #000;
-            padding: 20px;
-            width: 100%;
-            max-width: 600px;
-            margin: auto;
-            font-size: 18px;
-            line-height: 1.8;
-            white-space: pre-wrap;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="card">${content.replace(/\n/g, "<br>")}</div>
-      </body>
-    </html>`;
-  const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'بطاقة_فهرسة.doc';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-function changeLanguage() {
-  const lang = document.getElementById('language').value;
-  const isArabic = lang === 'ar';
-  document.documentElement.lang = isArabic ? 'ar' : 'en';
-  document.body.style.direction = isArabic ? 'rtl' : 'ltr';
-  const labels = {
-    author: isArabic ? "المؤلف:" : "Author:",
-    title: isArabic ? "العنوان:" : "Title:",
-    pubPlace: isArabic ? "مكان النشر:" : "Place of Publication:",
-    publisher: isArabic ? "الناشر:" : "Publisher:",
-    pubDate: isArabic ? "تاريخ النشر:" : "Publication Date:",
-    edition: isArabic ? "الطبعة:" : "Edition:",
-    pages: isArabic ? "عدد الصفحات:" : "Pages:",
-    subjects: isArabic ? "الموضوعات:" : "Subjects:",
-    classification: isArabic ? "رقم التصنيف:" : "Classification:",
-    authorNumber: isArabic ? "رقم المؤلف:" : "Author Number:",
-    legalDeposit: isArabic ? "رقم الإيداع:" : "Legal Deposit:",
-    isbn: isArabic ? "ردمك (ISBN):" : "ISBN:",
-    series: isArabic ? "السلسلة:" : "Series:",
-    notes: isArabic ? "ملاحظات:" : "Notes:",
-    cardType: isArabic ? "اختيار نوع البطاقة:" : "Select Card Type:"
+  return {
+    callNumber, mainEntry, desc, authors, authorsText, fullTitle,
+    edition, pubPlace, publisher, pubDate, pages, series,
+    subjects: subjectsList, classification, authorNumber, isbn,
+    legalDeposit, notes, title, subtitle
   };
-  for (const id in labels) {
-    const labelEl = document.querySelector(`label[for="${id}"]`) ||
-                    document.querySelector(`label + input#${id}`)?.previousElementSibling;
-    if (labelEl) labelEl.textContent = labels[id];
-  }
-  const cardType = document.getElementById('cardType');
-  cardType.options[0].text = isArabic ? "-- اختر نوع البطاقة --" : "-- Select Card Type --";
-  cardType.options[1].text = isArabic ? "بطاقة المؤلف" : "Author Card";
-  cardType.options[2].text = isArabic ? "بطاقة العنوان" : "Title Card";
-  cardType.options[3].text = isArabic ? "بطاقة الموضوع" : "Subject Card";
-
-  document.getElementById("addAuthorBtn").textContent = isArabic ? "إضافة مؤلف آخر" : "Add Another Author";
-  document.getElementById("showMoreBtn").textContent = isArabic ? "أكمل البيانات" : "Continue";
-  document.getElementById("generateBtn").textContent = isArabic ? "توليد البطاقة" : "Generate Card";
-  document.getElementById("resetBtn").textContent = isArabic ? "إعادة الإدخال" : "Reset";
-  document.getElementById("marcBtn").textContent = isArabic ? "تصدير Marc" : "Export Marc";
-  document.getElementById("rdaBtn").textContent = isArabic ? "تصدير RDA" : "Export RDA";
-  document.getElementById("csvBtn").textContent = isArabic ? "تصدير CSV" : "Export CSV";
-  document.getElementById("wordBtn").textContent = isArabic ? "تصدير Word" : "Export Word";
-  document.getElementById("copyBtn").textContent = isArabic ? "نسخ البطاقة" : "Copy Card";
 }
-</script>
-<footer style="text-align: center; margin-top: 40px; font-size: 14px; color: #666;">
-  الدكتور طلال ناظم الزهيري @2025
-</footer>
+
+/* ===========================
+   GENERATE CARD (main)
+=========================== */
+function generateCard() {
+  const authors = getAuthors();
+  const title = g('title');
+
+  if (!authors.main && !title) {
+    alert(currentLang === 'ar' ? 'يرجى إدخال المؤلف أو العنوان على الأقل.' : 'Please enter at least an author or title.');
+    return;
+  }
+
+  currentCardData = buildCardData();
+  renderCatalogCard(currentCardData);
+  renderMARC(currentCardData);
+  renderRDA(currentCardData);
+
+  document.getElementById('outputSection').style.display = 'block';
+  switchTab('card');
+  document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ===========================
+   RENDER CATALOG CARD (visual)
+=========================== */
+function renderCatalogCard(d) {
+  document.getElementById('cardCallNumber').innerHTML =
+    d.classification ? `<div>${d.classification}</div><div>${d.authorNumber}</div>` : '';
+
+  document.getElementById('cardMainEntry').textContent = d.mainEntry;
+
+  let descHTML = '';
+  const lines = d.desc.split('\n');
+  lines.forEach((line, i) => {
+    descHTML += `<span class="desc-line">${line}</span>`;
+  });
+  if (d.notes) descHTML += `<span class="desc-line" style="margin-top:6px;">${d.notes}</span>`;
+  if (d.isbn) descHTML += `<span class="desc-line">ردمك: ${d.isbn}</span>`;
+  if (d.legalDeposit) descHTML += `<span class="desc-line">الإيداع: ${d.legalDeposit}</span>`;
+  document.getElementById('cardDescription').innerHTML = descHTML;
+
+  // Tracing
+  let tracingHTML = '';
+  if (d.subjects.length) {
+    d.subjects.forEach((s, i) => {
+      tracingHTML += `<span class="tracing-item">${i + 1}. ${s}</span>`;
+    });
+  }
+  if (d.authors.extras.length) {
+    d.authors.extras.forEach(a => {
+      tracingHTML += `<span class="tracing-item">م: ${a}</span>`;
+    });
+  }
+  const tracingEl = document.getElementById('cardTracing');
+  tracingEl.innerHTML = tracingHTML;
+  tracingEl.style.display = tracingHTML ? 'block' : 'none';
+
+  document.getElementById('cardCornerMark').textContent =
+    d.classification ? `${d.classification} ${d.authorNumber}` : '';
+}
+
+/* ===========================
+   RENDER MARC
+=========================== */
+function renderMARC(d) {
+  const a = d.authors;
+  let marc = '';
+
+  if (a.main) marc += `LDR    00000nam a2200000 i 4500\n`;
+  marc += `001    [رقم السيطرة]\n`;
+  marc += `003    [رمز المؤسسة]\n`;
+  marc += `008    ${new Date().getFullYear().toString().slice(2)}    ` +
+          `${d.pubPlace ? d.pubPlace.slice(0,2) : '--'} ` +
+          `${currentLang === 'ar' ? 'ara' : 'eng'} ||||||||||||||||||00|\n`;
+
+  if (d.isbn) marc += `020 __ $a ${d.isbn}\n`;
+  if (d.classification) marc += `082 04 $a ${d.classification} $2 23\n`;
+  if (d.classification) marc += `092 __ $a ${d.classification} $b ${d.authorNumber}\n`;
+
+  if (a.main) marc += `100 1_ $a ${formatAuthorEntry(a.main)}، $e مؤلف\n`;
+
+  const titleInd2 = (d.title.startsWith('ال') || d.title.startsWith('Al-') || d.title.startsWith('The ')) ? '4' : '0';
+  marc += `245 1${a.main ? '0' : '0'} $a ${d.title}`;
+  if (d.subtitle) marc += ` $b ${d.subtitle} /`;
+  marc += ` $c ${d.authorsText}\n`;
+
+  if (d.edition) marc += `250 __ $a ${d.edition}\n`;
+  marc += `264 _1 $a ${d.pubPlace} $b ${d.publisher} $c ${d.pubDate}\n`;
+  if (d.pages) marc += `300 __ $a ${d.pages} صفحة\n`;
+  if (d.series) marc += `490 1_ $a ${d.series}\n`;
+  if (d.notes) marc += `500 __ $a ${d.notes}\n`;
+  if (d.legalDeposit) marc += `037 __ $a ${d.legalDeposit}\n`;
+
+  d.subjects.forEach((s, i) => {
+    marc += `650 _4 $a ${s}\n`;
+  });
+
+  a.extras.forEach(auth => {
+    marc += `700 1_ $a ${formatAuthorEntry(auth)}، $e مؤلف مشارك\n`;
+  });
+
+  document.getElementById('marcOutput').textContent = marc.trim();
+}
+
+/* ===========================
+   RENDER RDA
+=========================== */
+function renderRDA(d) {
+  const a = d.authors;
+  let rda = `── وصف المصدر وفق RDA (توصيف الموارد والوصول) ──\n\n`;
+
+  rda += `[كيان العمل / Work]\n`;
+  rda += `  العنوان المفضّل          : ${d.title}\n`;
+  if (d.subtitle) rda += `  العنوان الفرعي          : ${d.subtitle}\n`;
+  rda += `\n`;
+
+  rda += `[كيان التعبير / Expression]\n`;
+  rda += `  لغة التعبير             : ${currentLang === 'ar' ? 'العربية' : 'English'}\n`;
+  rda += `  نوع المحتوى             : نص\n`;
+  rda += `\n`;
+
+  rda += `[كيان المظهر / Manifestation]\n`;
+  rda += `  العنوان الفعلي          : ${d.fullTitle}\n`;
+  if (d.edition) rda += `  تعيين الطبعة            : ${d.edition}\n`;
+  rda += `  مكان النشر              : ${d.pubPlace}\n`;
+  rda += `  الناشر                  : ${d.publisher}\n`;
+  rda += `  تاريخ النشر             : ${d.pubDate}\n`;
+  if (d.pages) rda += `  حجم التوسّع             : ${d.pages} صفحة\n`;
+  if (d.series) rda += `  السلسلة                 : ${d.series}\n`;
+  if (d.isbn) rda += `  المعرّف                 : ${d.isbn}\n`;
+  if (d.legalDeposit) rda += `  رقم الإيداع             : ${d.legalDeposit}\n`;
+  if (d.notes) rda += `  ملاحظات                 : ${d.notes}\n`;
+  rda += `  نوع الوسيط              : دون وسيط\n`;
+  rda += `  نوع الناقل              : مجلد\n`;
+  rda += `\n`;
+
+  rda += `[كيان الشخص / Person]\n`;
+  if (a.main) rda += `  الاسم المفضّل (المؤلف)  : ${formatAuthorEntry(a.main)}\n`;
+  a.extras.forEach((auth, i) => {
+    rda += `  المؤلف المشارك ${i + 2}        : ${formatAuthorEntry(auth)}\n`;
+  });
+  rda += `\n`;
+
+  rda += `[نقاط الوصول الموضوعية]\n`;
+  d.subjects.forEach((s, i) => {
+    rda += `  الموضوع ${i + 1}               : ${s}\n`;
+  });
+  rda += `\n`;
+
+  rda += `[التصنيف]\n`;
+  rda += `  تصنيف ديوي العشري       : ${d.classification}\n`;
+  rda += `  رمز المؤلف (كتر)        : ${d.authorNumber}\n`;
+
+  document.getElementById('rdaOutput').textContent = rda.trim();
+}
+
+/* ===========================
+   TAB SWITCHING
+=========================== */
+function switchTab(tab) {
+  const tabs = ['card', 'marc', 'rda'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`tab-${t}`);
+    const view = document.getElementById(`view-${t}`);
+    if (btn) btn.classList.toggle('active', t === tab);
+    if (view) view.style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+/* ===========================
+   EXPORT: WORD (proper .docx-compatible HTML)
+=========================== */
+function exportToWord() {
+  const d = currentCardData;
+  if (!d.title && !d.authors.main) {
+    alert(currentLang === 'ar' ? 'يرجى توليد البطاقة أولاً.' : 'Please generate the card first.');
+    return;
+  }
+
+  const tracingLines = [];
+  if (d.subjects.length) {
+    d.subjects.forEach((s, i) => tracingLines.push(`${i+1}. ${s}`));
+  }
+  if (d.authors.extras.length) {
+    d.authors.extras.forEach(a => tracingLines.push(`م: ${a}`));
+  }
+
+  const tracingHTML = tracingLines.length
+    ? `<tr><td colspan="2" style="border-top:1px solid #999; padding-top:8pt; font-size:9pt; color:#555;">${tracingLines.join(' &nbsp;&nbsp; ')}</td></tr>`
+    : '';
+
+  const cornerMark = d.classification ? `${d.classification}${d.authorNumber ? '<br>' + d.authorNumber : ''}` : '';
+
+  const wordHTML = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta name="ProgId" content="Word.Document">
+<meta name="Generator" content="Microsoft Word 15">
+<meta name="Originator" content="Microsoft Word 15">
+<!--[if gte mso 9]>
+<xml>
+  <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+  </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  @page {
+    size: A4;
+    margin: 2.5cm;
+    mso-header-margin: 1cm;
+    mso-footer-margin: 1cm;
+  }
+  body {
+    font-family: "Traditional Arabic", "Simplified Arabic", Arial, sans-serif;
+    font-size: 12pt;
+    direction: rtl;
+    margin: 0;
+    padding: 0;
+  }
+  .page-title {
+    text-align: center;
+    font-size: 16pt;
+    font-weight: bold;
+    margin-bottom: 24pt;
+    color: #1a3012;
+    border-bottom: 2pt solid #1a3012;
+    padding-bottom: 8pt;
+  }
+  .card-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2pt solid #000;
+    font-family: "Traditional Arabic", Arial, sans-serif;
+    font-size: 12pt;
+    direction: rtl;
+    margin-bottom: 18pt;
+    page-break-inside: avoid;
+  }
+  .card-table td {
+    padding: 6pt 10pt;
+    vertical-align: top;
+  }
+  .call-cell {
+    width: 65pt;
+    border-left: 2pt solid #000;
+    text-align: center;
+    font-size: 11pt;
+    font-weight: bold;
+    vertical-align: middle;
+    line-height: 1.6;
+    border-bottom: 1pt solid #ccc;
+    background: #f9f9f9;
+  }
+  .main-entry-cell {
+    font-weight: bold;
+    font-size: 12pt;
+    padding-bottom: 4pt;
+  }
+  .desc-cell {
+    font-size: 11pt;
+    line-height: 1.8;
+    padding-top: 2pt;
+  }
+  .tracing-row td {
+    border-top: 1pt solid #aaa;
+    font-size: 9.5pt;
+    color: #444;
+    padding-top: 6pt;
+  }
+  .label-row {
+    font-size: 9pt;
+    color: #666;
+    font-weight: bold;
+    padding: 4pt 10pt 0;
+  }
+  .field-row {
+    margin-bottom: 8pt;
+  }
+  .field-label {
+    font-weight: bold;
+    color: #1a3012;
+    margin-bottom: 2pt;
+  }
+  .section-heading {
+    font-size: 13pt;
+    font-weight: bold;
+    color: #1a3012;
+    border-bottom: 1pt solid #c0a040;
+    padding-bottom: 4pt;
+    margin: 20pt 0 12pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">بطاقة الفهرسة الببليوغرافية</div>
+
+<!-- CATALOG CARD -->
+<table class="card-table">
+  <tr>
+    <td class="call-cell" rowspan="3">${cornerMark}</td>
+    <td class="main-entry-cell">${d.mainEntry}</td>
+  </tr>
+  <tr>
+    <td class="desc-cell">${d.desc.replace(/\n/g, '<br/>')}</td>
+  </tr>
+  <tr>
+    <td class="desc-cell">
+      ${d.notes ? '<div>' + d.notes + '</div>' : ''}
+      ${d.isbn ? '<div>ردمك: ' + d.isbn + '</div>' : ''}
+      ${d.legalDeposit ? '<div>الإيداع: ' + d.legalDeposit + '</div>' : ''}
+    </td>
+  </tr>
+  ${tracingHTML}
+</table>
+
+<!-- DETAILED BIBLIOGRAPHIC DATA -->
+<div class="section-heading">البيانات الببليوغرافية التفصيلية</div>
+
+<table style="width:100%; border-collapse:collapse; font-size:11pt; direction:rtl;">
+  <tr>
+    <td style="width:40%; padding:5pt 8pt; font-weight:bold; color:#333;">المؤلف الرئيسي</td>
+    <td style="padding:5pt 8pt;">${d.authors.main || '—'}</td>
+  </tr>
+  ${d.authors.extras.map((a, i) => `
+  <tr>
+    <td style="width:40%; padding:5pt 8pt; font-weight:bold; color:#333;">المؤلف المشارك ${i+2}</td>
+    <td style="padding:5pt 8pt;">${a}</td>
+  </tr>`).join('')}
+  <tr style="background:#f5f0e8;">
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">العنوان</td>
+    <td style="padding:5pt 8pt;">${d.title}</td>
+  </tr>
+  ${d.subtitle ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">العنوان الفرعي</td><td style="padding:5pt 8pt;">${d.subtitle}</td></tr>` : ''}
+  ${d.edition ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">الطبعة</td><td style="padding:5pt 8pt;">${d.edition}</td></tr>` : ''}
+  <tr style="background:#f5f0e8;">
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">مكان النشر</td>
+    <td style="padding:5pt 8pt;">${d.pubPlace || '—'}</td>
+  </tr>
+  <tr>
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">الناشر</td>
+    <td style="padding:5pt 8pt;">${d.publisher || '—'}</td>
+  </tr>
+  <tr style="background:#f5f0e8;">
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">سنة النشر</td>
+    <td style="padding:5pt 8pt;">${d.pubDate || '—'}</td>
+  </tr>
+  ${d.pages ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">عدد الصفحات</td><td style="padding:5pt 8pt;">${d.pages} ص.</td></tr>` : ''}
+  ${d.series ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333;">السلسلة</td><td style="padding:5pt 8pt;">${d.series}</td></tr>` : ''}
+  <tr>
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">رقم التصنيف (ديوي)</td>
+    <td style="padding:5pt 8pt;">${d.classification || '—'}</td>
+  </tr>
+  <tr style="background:#f5f0e8;">
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">رمز المؤلف (كتر)</td>
+    <td style="padding:5pt 8pt;">${d.authorNumber || '—'}</td>
+  </tr>
+  ${d.isbn ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">ردمك (ISBN)</td><td style="padding:5pt 8pt;">${d.isbn}</td></tr>` : ''}
+  ${d.legalDeposit ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333;">رقم الإيداع</td><td style="padding:5pt 8pt;">${d.legalDeposit}</td></tr>` : ''}
+  ${d.subjects.length ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333; vertical-align:top;">الموضوعات</td><td style="padding:5pt 8pt;">${d.subjects.join('<br/>')}</td></tr>` : ''}
+  ${d.notes ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333; vertical-align:top;">ملاحظات</td><td style="padding:5pt 8pt;">${d.notes}</td></tr>` : ''}
+</table>
+
+<br/>
+<p style="font-size:9pt; color:#888; text-align:center; border-top:1pt solid #ddd; padding-top:8pt;">
+  أُعدّت هذه البطاقة بأداة الفهرسة الببليوغرافية &nbsp;·&nbsp; د. طلال ناظم الزهيري &nbsp;·&nbsp; ${new Date().getFullYear()}
+</p>
+
 </body>
-</html>-
+</html>`;
+
+  const blob = new Blob(['\uFEFF' + wordHTML], {
+    type: 'application/vnd.ms-word;charset=utf-8'
+  });
+  downloadBlob(blob, 'بطاقة_فهرسة.doc');
+}
+
+/* ===========================
+   EXPORT: MARC text file
+=========================== */
+function exportMARC() {
+  const content = document.getElementById('marcOutput').textContent;
+  const blob = new Blob(['\uFEFF' + content], { type: 'text/plain;charset=utf-8' });
+  downloadBlob(blob, 'marc_record.txt');
+}
+
+/* ===========================
+   EXPORT: RDA text file
+=========================== */
+function exportRDA() {
+  const content = document.getElementById('rdaOutput').textContent;
+  const blob = new Blob(['\uFEFF' + content], { type: 'text/plain;charset=utf-8' });
+  downloadBlob(blob, 'rda_record.txt');
+}
+
+/* ===========================
+   EXPORT: CSV
+=========================== */
+function exportCSV() {
+  const d = currentCardData;
+  const headers = ['المؤلف','العنوان','العنوان الفرعي','الطبعة','مكان النشر','الناشر',
+                   'سنة النشر','الصفحات','السلسلة','رقم التصنيف','رمز المؤلف',
+                   'ردمك','رقم الإيداع','الموضوعات','ملاحظات'];
+  const values = [
+    d.authors.main, d.title, d.subtitle, d.edition,
+    d.pubPlace, d.publisher, d.pubDate, d.pages,
+    d.series, d.classification, d.authorNumber,
+    d.isbn, d.legalDeposit, d.subjects.join('؛ '), d.notes
+  ];
+
+  const escape = v => `"${(v || '').replace(/"/g, '""')}"`;
+  const csv = `\uFEFF${headers.map(escape).join(',')}\n${values.map(escape).join(',')}`;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  downloadBlob(blob, 'بطاقة_فهرسة.csv');
+}
+
+/* ===========================
+   COPY CARD TEXT
+=========================== */
+function copyCard() {
+  const d = currentCardData;
+  const text = `${d.callNumber}\n${d.mainEntry}\n\n${d.desc}` +
+    (d.notes ? `\nملاحظات: ${d.notes}` : '') +
+    (d.isbn ? `\nردمك: ${d.isbn}` : '') +
+    (d.legalDeposit ? `\nالإيداع: ${d.legalDeposit}` : '') +
+    (d.subjects.length ? '\n' + d.subjects.map((s,i)=>`${i+1}. ${s}`).join('  ') : '');
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert(currentLang === 'ar' ? '✓ تم نسخ البطاقة إلى الحافظة.' : '✓ Card copied to clipboard.');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert(currentLang === 'ar' ? '✓ تم النسخ.' : '✓ Copied.');
+  });
+}
+
+/* ===========================
+   RESET
+=========================== */
+function resetForm() {
+  // Clear all fields EXCEPT subjects and notes
+  const preserveIds = ['subjects', 'notes'];
+  document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+    if (!preserveIds.includes(el.id)) el.value = '';
+  });
+  document.getElementById('additionalAuthors').innerHTML = '';
+  document.getElementById('outputSection').style.display = 'none';
+  authorCount = 0;
+  currentCardData = {};
+  // Reset card type to author
+  document.querySelectorAll('.card-type-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.card-type-btn[data-type="author"]').classList.add('active');
+  selectedCardType = 'author';
+  // Focus on first field
+  document.getElementById('author').focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ===========================
+   HELPER: Download blob
+=========================== */
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+/* ===========================
+   LANGUAGE SWITCH
+=========================== */
+const LABELS = {
+  ar: {
+    pageTitle: 'أداة إنشاء بطاقة الفهرسة الببليوغرافية',
+    pageSubtitle: 'وصف ببليوغرافي متكامل · MARC · RDA · تصدير Word',
+    bandTitle: 'بيانات المصدر',
+    secAuthors: 'المؤلفون',
+    secTitle: 'العنوان والنشر',
+    secCatalog: 'بيانات الفهرسة',
+    secCardType: 'نوع البطاقة',
+    lblAuthor: 'المؤلف الرئيسي',
+    lblTitle: 'عنوان الكتاب',
+    lblSubtitle: 'العنوان الفرعي',
+    lblEdition: 'الطبعة',
+    lblPubPlace: 'مكان النشر',
+    lblPublisher: 'الناشر / دار النشر',
+    lblPubDate: 'سنة النشر',
+    lblPages: 'عدد الصفحات',
+    lblSeries: 'السلسلة',
+    lblClassification: 'رقم التصنيف (ديوي)',
+    lblAuthorNumber: 'رمز المؤلف (كتر)',
+    lblIsbn: 'ردمك – ISBN',
+    lblLegalDeposit: 'رقم الإيداع القانوني',
+    lblSubjects: 'الموضوعات (افصل بفاصلة)',
+    lblNotes: 'ملاحظات',
+    typeAuthorLabel: 'بطاقة المؤلف',
+    typeTitleLabel: 'بطاقة العنوان',
+    typeSubjectLabel: 'بطاقة الموضوع',
+    addAuthorText: 'إضافة مؤلف مشارك',
+    generateBtn: '✦   توليد بطاقة الفهرسة   ✦',
+    tabCardLabel: 'بطاقة الفهرسة',
+    btnWord: 'تصدير Word',
+    btnCopy: 'نسخ البطاقة',
+    btnReset: 'مسح الكل',
+    newCardBtn: '＋   إنشاء بطاقة جديدة',
+  },
+  en: {
+    pageTitle: 'Bibliographic Catalog Card Tool',
+    pageSubtitle: 'Complete Bibliographic Description · MARC · RDA · Word Export',
+    bandTitle: 'Source Data',
+    secAuthors: 'Authors',
+    secTitle: 'Title & Publication',
+    secCatalog: 'Cataloging Data',
+    secCardType: 'Card Type',
+    lblAuthor: 'Main Author',
+    lblTitle: 'Book Title',
+    lblSubtitle: 'Subtitle',
+    lblEdition: 'Edition',
+    lblPubPlace: 'Place of Publication',
+    lblPublisher: 'Publisher',
+    lblPubDate: 'Publication Year',
+    lblPages: 'Number of Pages',
+    lblSeries: 'Series',
+    lblClassification: 'Classification (Dewey)',
+    lblAuthorNumber: 'Author Number (Cutter)',
+    lblIsbn: 'ISBN',
+    lblLegalDeposit: 'Legal Deposit No.',
+    lblSubjects: 'Subjects (comma-separated)',
+    lblNotes: 'Notes',
+    typeAuthorLabel: 'Author Card',
+    typeTitleLabel: 'Title Card',
+    typeSubjectLabel: 'Subject Card',
+    addAuthorText: 'Add Co-author',
+    generateBtn: '✦   Generate Catalog Card   ✦',
+    tabCardLabel: 'Catalog Card',
+    btnWord: 'Export Word',
+    btnCopy: 'Copy Card',
+    btnReset: 'Clear All',
+    newCardBtn: '＋   New Card',
+  }
+};
+
+function changeLanguage() {
+  currentLang = document.getElementById('language').value;
+  const L = LABELS[currentLang];
+  const isAr = currentLang === 'ar';
+
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+  document.body.style.direction = isAr ? 'rtl' : 'ltr';
+
+  for (const [id, text] of Object.entries(L)) {
+    const el = document.getElementById(id);
+    if (el) {
+      if (el.tagName === 'BUTTON') el.textContent = text;
+      else el.textContent = text;
+    }
+  }
+
+  // Update author placeholder
+  document.getElementById('author').placeholder = isAr ? 'مثال: أحمد محمد عبدالله' : 'e.g. John Michael Smith';
+}
+
+/* Init tab visibility */
+switchTab('card');
+</script>
+
+</body>
+</html>
