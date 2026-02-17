@@ -350,13 +350,29 @@
   .catalog-card-inner {
     padding: 16px 20px 20px;
     min-height: 160px;
-    direction: rtl;
   }
+
+  /* RTL card (Arabic) */
+  .catalog-card.dir-rtl .catalog-card-inner { direction: rtl; }
+  .catalog-card.dir-rtl .call-number  { left: 12px; right: auto; }
+  .catalog-card.dir-rtl .corner-mark  { left: 12px; right: auto; }
+  .catalog-card.dir-rtl .main-entry   { padding-left: 70px; padding-right: 0; }
+  .catalog-card.dir-rtl .description-area { padding-right: 28px; padding-left: 70px; }
+  .catalog-card.dir-rtl .tracing      { direction: rtl; }
+  .catalog-card.dir-rtl .tracing-item { margin-left: 16px; margin-right: 0; }
+
+  /* LTR card (English) */
+  .catalog-card.dir-ltr .catalog-card-inner { direction: ltr; }
+  .catalog-card.dir-ltr .call-number  { right: 12px; left: auto; }
+  .catalog-card.dir-ltr .corner-mark  { right: 12px; left: auto; }
+  .catalog-card.dir-ltr .main-entry   { padding-right: 70px; padding-left: 0; }
+  .catalog-card.dir-ltr .description-area { padding-left: 28px; padding-right: 70px; }
+  .catalog-card.dir-ltr .tracing      { direction: ltr; }
+  .catalog-card.dir-ltr .tracing-item { margin-right: 16px; margin-left: 0; }
 
   .catalog-card .call-number {
     position: absolute;
     top: 8px;
-    left: 12px;
     text-align: center;
     font-size: 0.9rem;
     font-weight: 700;
@@ -372,14 +388,10 @@
     font-size: 1.05rem;
     font-weight: 700;
     margin-bottom: 4px;
-    padding-right: 0;
-    padding-left: 70px;
     line-height: 1.5;
   }
 
   .catalog-card .description-area {
-    padding-right: 28px;
-    padding-left: 70px;
     font-size: 0.95rem;
     line-height: 1.75;
   }
@@ -394,19 +406,16 @@
     padding-top: 10px;
     font-size: 0.82rem;
     color: var(--muted);
-    direction: rtl;
   }
 
   .catalog-card .tracing-item {
     display: inline-block;
-    margin-left: 16px;
     margin-bottom: 3px;
   }
 
   .catalog-card .corner-mark {
     position: absolute;
     bottom: 8px;
-    left: 12px;
     font-size: 0.75rem;
     font-family: 'Cairo', sans-serif;
     color: var(--muted);
@@ -599,7 +608,7 @@
 
     <div class="field-row single field-group" style="margin-bottom:12px;">
       <label id="lblAuthor" for="author">المؤلف الرئيسي</label>
-      <input type="text" id="author"/>
+      <input type="text" id="author" placeholder="مثال: طلال ناظم الزهيري"/> 
     </div>
 
     <div id="additionalAuthors"></div>
@@ -747,7 +756,7 @@
 
     <!-- Card view -->
     <div class="card-view active" id="view-card">
-      <div class="catalog-card" id="catalogCard">
+      <div class="catalog-card dir-rtl" id="catalogCard">
         <div class="call-number" id="cardCallNumber"></div>
         <div class="catalog-card-inner">
           <div class="main-entry" id="cardMainEntry"></div>
@@ -781,15 +790,15 @@
       </button>
       <button class="export-btn btn-marc" onclick="exportMARC()">
         <span class="btn-icon">🏷</span>
-        <span>تصدير MARC</span>
+        <span id="btnMarc">تصدير MARC</span>
       </button>
       <button class="export-btn btn-rda" onclick="exportRDA()">
         <span class="btn-icon">📋</span>
-        <span>تصدير RDA</span>
+        <span id="btnRda">تصدير RDA</span>
       </button>
       <button class="export-btn btn-csv" onclick="exportCSV()">
         <span class="btn-icon">📊</span>
-        <span>تصدير CSV</span>
+        <span id="btnCsv">تصدير CSV</span>
       </button>
       <button class="export-btn btn-copy" onclick="copyCard()">
         <span class="btn-icon">📋</span>
@@ -977,22 +986,35 @@ function generateCard() {
    RENDER CATALOG CARD (visual)
 =========================== */
 function renderCatalogCard(d) {
+  const isAr = currentLang === 'ar';
+  const card = document.getElementById('catalogCard');
+
+  // Set direction class on card
+  card.classList.remove('dir-rtl', 'dir-ltr');
+  card.classList.add(isAr ? 'dir-rtl' : 'dir-ltr');
+
   document.getElementById('cardCallNumber').innerHTML =
     d.classification ? `<div>${d.classification}</div><div>${d.authorNumber}</div>` : '';
 
   document.getElementById('cardMainEntry').textContent = d.mainEntry;
 
+  // Localized labels
+  const isbnLabel    = isAr ? 'ردمك' : 'ISBN';
+  const depositLabel = isAr ? 'الإيداع' : 'Dep.No.';
+  const notesLabel   = isAr ? '' : '';
+
   let descHTML = '';
   const lines = d.desc.split('\n');
-  lines.forEach((line, i) => {
+  lines.forEach((line) => {
     descHTML += `<span class="desc-line">${line}</span>`;
   });
   if (d.notes) descHTML += `<span class="desc-line" style="margin-top:6px;">${d.notes}</span>`;
-  if (d.isbn) descHTML += `<span class="desc-line">ردمك: ${d.isbn}</span>`;
-  if (d.legalDeposit) descHTML += `<span class="desc-line">الإيداع: ${d.legalDeposit}</span>`;
+  if (d.isbn) descHTML += `<span class="desc-line">${isbnLabel}: ${d.isbn}</span>`;
+  if (d.legalDeposit) descHTML += `<span class="desc-line">${depositLabel}: ${d.legalDeposit}</span>`;
   document.getElementById('cardDescription').innerHTML = descHTML;
 
-  // Tracing
+  // Tracing — localized co-author prefix
+  const coLabel = isAr ? 'م' : 'co';
   let tracingHTML = '';
   if (d.subjects.length) {
     d.subjects.forEach((s, i) => {
@@ -1001,7 +1023,7 @@ function renderCatalogCard(d) {
   }
   if (d.authors.extras.length) {
     d.authors.extras.forEach(a => {
-      tracingHTML += `<span class="tracing-item">م: ${a}</span>`;
+      tracingHTML += `<span class="tracing-item">${coLabel}: ${a}</span>`;
     });
   }
   const tracingEl = document.getElementById('cardTracing');
@@ -1124,6 +1146,7 @@ function switchTab(tab) {
    EXPORT: WORD (proper .docx-compatible HTML)
 =========================== */
 function exportToWord() {
+  const isAr = currentLang === 'ar';
   const d = currentCardData;
   if (!d.title && !d.authors.main) {
     alert(currentLang === 'ar' ? 'يرجى توليد البطاقة أولاً.' : 'Please generate the card first.');
@@ -1172,7 +1195,7 @@ function exportToWord() {
   body {
     font-family: "Traditional Arabic", "Simplified Arabic", Arial, sans-serif;
     font-size: 12pt;
-    direction: rtl;
+    direction: ${isAr ? 'rtl' : 'ltr'};
     margin: 0;
     padding: 0;
   }
@@ -1191,7 +1214,7 @@ function exportToWord() {
     border: 2pt solid #000;
     font-family: "Traditional Arabic", Arial, sans-serif;
     font-size: 12pt;
-    direction: rtl;
+    direction: ${isAr ? 'rtl' : 'ltr'};
     margin-bottom: 18pt;
     page-break-inside: avoid;
   }
@@ -1252,7 +1275,7 @@ function exportToWord() {
 </head>
 <body>
 
-<div class="page-title">بطاقة الفهرسة الببليوغرافية</div>
+<div class="page-title">${isAr ? 'بطاقة الفهرسة الببليوغرافية' : 'Bibliographic Catalog Card'}</div>
 
 <!-- CATALOG CARD -->
 <table class="card-table">
@@ -1266,63 +1289,63 @@ function exportToWord() {
   <tr>
     <td class="desc-cell">
       ${d.notes ? '<div>' + d.notes + '</div>' : ''}
-      ${d.isbn ? '<div>ردمك: ' + d.isbn + '</div>' : ''}
-      ${d.legalDeposit ? '<div>الإيداع: ' + d.legalDeposit + '</div>' : ''}
+      ${d.isbn ? (isAr ? '<div>ردمك: ' : '<div>ISBN: ') + d.isbn + '</div>' : ''}
+      ${d.legalDeposit ? (isAr ? '<div>الإيداع: ' : '<div>Dep.No.: ') + d.legalDeposit + '</div>' : ''}
     </td>
   </tr>
   ${tracingHTML}
 </table>
 
 <!-- DETAILED BIBLIOGRAPHIC DATA -->
-<div class="section-heading">البيانات الببليوغرافية التفصيلية</div>
+<div class="section-heading">${isAr ? 'البيانات الببليوغرافية التفصيلية' : 'Detailed Bibliographic Data'}</div>
 
-<table style="width:100%; border-collapse:collapse; font-size:11pt; direction:rtl;">
+<table style="width:100%; border-collapse:collapse; font-size:11pt; direction:${isAr ? "rtl" : "ltr"};">
   <tr>
-    <td style="width:40%; padding:5pt 8pt; font-weight:bold; color:#333;">المؤلف الرئيسي</td>
+    <td style="width:40%; padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'المؤلف الرئيسي' : 'Main Author'}</td>
     <td style="padding:5pt 8pt;">${d.authors.main || '—'}</td>
   </tr>
   ${d.authors.extras.map((a, i) => `
   <tr>
-    <td style="width:40%; padding:5pt 8pt; font-weight:bold; color:#333;">المؤلف المشارك ${i+2}</td>
+    <td style="width:40%; padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'المؤلف المشارك' : 'Co-author'} ${i+2}</td>
     <td style="padding:5pt 8pt;">${a}</td>
   </tr>`).join('')}
   <tr style="background:#f5f0e8;">
     <td style="padding:5pt 8pt; font-weight:bold; color:#333;">العنوان</td>
     <td style="padding:5pt 8pt;">${d.title}</td>
   </tr>
-  ${d.subtitle ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">العنوان الفرعي</td><td style="padding:5pt 8pt;">${d.subtitle}</td></tr>` : ''}
-  ${d.edition ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">الطبعة</td><td style="padding:5pt 8pt;">${d.edition}</td></tr>` : ''}
+  ${d.subtitle ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'العنوان الفرعي' : 'Subtitle'}</td><td style="padding:5pt 8pt;">${d.subtitle}</td></tr>` : ''}
+  ${d.edition ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'الطبعة' : 'Edition'}</td><td style="padding:5pt 8pt;">${d.edition}</td></tr>` : ''}
   <tr style="background:#f5f0e8;">
-    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">مكان النشر</td>
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'مكان النشر' : 'Place of Publication'}</td>
     <td style="padding:5pt 8pt;">${d.pubPlace || '—'}</td>
   </tr>
   <tr>
-    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">الناشر</td>
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'الناشر' : 'Publisher'}</td>
     <td style="padding:5pt 8pt;">${d.publisher || '—'}</td>
   </tr>
   <tr style="background:#f5f0e8;">
-    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">سنة النشر</td>
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'سنة النشر' : 'Publication Year'}</td>
     <td style="padding:5pt 8pt;">${d.pubDate || '—'}</td>
   </tr>
-  ${d.pages ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">عدد الصفحات</td><td style="padding:5pt 8pt;">${d.pages} ص.</td></tr>` : ''}
-  ${d.series ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333;">السلسلة</td><td style="padding:5pt 8pt;">${d.series}</td></tr>` : ''}
+  ${d.pages ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">عدد الصفحات</td><td style="padding:5pt 8pt;">${d.pages} ${isAr ? 'ص.' : 'p.'}</td></tr>` : ''}
+  ${d.series ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'السلسلة' : 'Series'}</td><td style="padding:5pt 8pt;">${d.series}</td></tr>` : ''}
   <tr>
-    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">رقم التصنيف (ديوي)</td>
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'رقم التصنيف (ديوي)' : 'Dewey Classification'}</td>
     <td style="padding:5pt 8pt;">${d.classification || '—'}</td>
   </tr>
   <tr style="background:#f5f0e8;">
-    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">رمز المؤلف (كتر)</td>
+    <td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'رمز المؤلف (كتر)' : 'Cutter Number'}</td>
     <td style="padding:5pt 8pt;">${d.authorNumber || '—'}</td>
   </tr>
-  ${d.isbn ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">ردمك (ISBN)</td><td style="padding:5pt 8pt;">${d.isbn}</td></tr>` : ''}
-  ${d.legalDeposit ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333;">رقم الإيداع</td><td style="padding:5pt 8pt;">${d.legalDeposit}</td></tr>` : ''}
-  ${d.subjects.length ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333; vertical-align:top;">الموضوعات</td><td style="padding:5pt 8pt;">${d.subjects.join('<br/>')}</td></tr>` : ''}
-  ${d.notes ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333; vertical-align:top;">ملاحظات</td><td style="padding:5pt 8pt;">${d.notes}</td></tr>` : ''}
+  ${d.isbn ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'ردمك (ISBN)' : 'ISBN'}</td><td style="padding:5pt 8pt;">${d.isbn}</td></tr>` : ''}
+  ${d.legalDeposit ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333;">${isAr ? 'رقم الإيداع' : 'Legal Deposit No.'}</td><td style="padding:5pt 8pt;">${d.legalDeposit}</td></tr>` : ''}
+  ${d.subjects.length ? `<tr><td style="padding:5pt 8pt; font-weight:bold; color:#333; vertical-align:top;">${isAr ? 'الموضوعات' : 'Subjects'}</td><td style="padding:5pt 8pt;">${d.subjects.join('<br/>')}</td></tr>` : ''}
+  ${d.notes ? `<tr style="background:#f5f0e8;"><td style="padding:5pt 8pt; font-weight:bold; color:#333; vertical-align:top;">${isAr ? 'ملاحظات' : 'Notes'}</td><td style="padding:5pt 8pt;">${d.notes}</td></tr>` : ''}
 </table>
 
 <br/>
 <p style="font-size:9pt; color:#888; text-align:center; border-top:1pt solid #ddd; padding-top:8pt;">
-  أُعدّت هذه البطاقة بأداة الفهرسة الببليوغرافية &nbsp;·&nbsp; د. طلال ناظم الزهيري &nbsp;·&nbsp; ${new Date().getFullYear()}
+  ${isAr ? 'أُعدّت هذه البطاقة بأداة الفهرسة الببليوغرافية' : 'Generated by Bibliographic Catalog Card Tool'} &nbsp;·&nbsp; د. طلال ناظم الزهيري &nbsp;·&nbsp; ${new Date().getFullYear()}
 </p>
 
 </body>
@@ -1469,6 +1492,9 @@ const LABELS = {
     btnCopy: 'نسخ البطاقة',
     btnReset: 'مسح الكل',
     newCardBtn: '＋   إنشاء بطاقة جديدة',
+    btnMarc: 'تصدير MARC',
+    btnRda: 'تصدير RDA',
+    btnCsv: 'تصدير CSV',
   },
   en: {
     pageTitle: 'Bibliographic Catalog Card Tool',
@@ -1503,6 +1529,9 @@ const LABELS = {
     btnCopy: 'Copy Card',
     btnReset: 'Clear All',
     newCardBtn: '＋   New Card',
+    btnMarc: 'Export MARC',
+    btnRda: 'Export RDA',
+    btnCsv: 'Export CSV',
   }
 };
 
@@ -1524,7 +1553,14 @@ function changeLanguage() {
   }
 
   // Update author placeholder
-  document.getElementById('author').placeholder = isAr ? 'مثال: أحمد محمد عبدالله' : 'e.g. John Michael Smith';
+  document.getElementById('author').placeholder = isAr ? 'طلال نظم الزهيري' : 'e.g. John Michael Smith';
+
+  // Re-render card with new language direction if card is already shown
+  if (Object.keys(currentCardData).length > 0) {
+    renderCatalogCard(currentCardData);
+    renderMARC(currentCardData);
+    renderRDA(currentCardData);
+  }
 }
 
 /* Init tab visibility */
