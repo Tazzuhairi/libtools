@@ -2,667 +2,1875 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>مولّد الاستشهاد المرجعي المتطور</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مولّد الاستشهادات المرجعية | د. طلال ناظم الزهيري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700;900&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --ink: #1a1209;
+      --parchment: #faf6ef;
+      --gold: #c9952a;
+      --gold-light: #e8c97a;
+      --gold-pale: #f7edd0;
+      --rust: #8b3a1a;
+      --teal: #1a5c6b;
+      --teal-light: #2a8fa8;
+      --border: #d4b896;
+      --border-soft: #e8d8c0;
+      --shadow: rgba(26,18,9,0.15);
+      --text-muted: #7a6a54;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f8ff;
-      padding: 20px;
+      font-family: 'Cairo', sans-serif;
+      background-color: #f0e8d8;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(201,149,42,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(26,92,107,0.07) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9952a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      min-height: 100vh;
+      padding: 30px 20px;
     }
-    .container {
-      max-width: 850px;
-      margin: auto;
-      background: white;
-      padding: 20px;
+
+    .page-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ---- HEADER ---- */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .header-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .ornament-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to var(--dir-end, left), transparent, var(--gold));
+      max-width: 180px;
+    }
+
+    [dir="rtl"] .ornament-line:first-child { background: linear-gradient(to left, transparent, var(--gold)); }
+    [dir="rtl"] .ornament-line:last-child { background: linear-gradient(to right, transparent, var(--gold)); }
+    [dir="ltr"] .ornament-line:first-child { background: linear-gradient(to right, transparent, var(--gold)); }
+    [dir="ltr"] .ornament-line:last-child { background: linear-gradient(to left, transparent, var(--gold)); }
+
+    .ornament-diamond {
+      width: 10px; height: 10px;
+      background: var(--gold);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    .header h1 {
+      font-family: 'Amiri', serif;
+      font-size: clamp(24px, 5vw, 38px);
+      color: var(--ink);
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+
+    .header h1 span { color: var(--gold); }
+
+    .header-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 300;
+    }
+
+    /* ---- CARDS ---- */
+    .card {
+      background: var(--parchment);
+      border: 1px solid var(--border-soft);
       border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 16px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.8);
+      position: relative;
+      overflow: hidden;
     }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(to right, var(--gold), var(--teal), var(--gold));
+    }
+
+    .card-title {
+      font-family: 'Amiri', serif;
+      font-size: 18px;
+      color: var(--ink);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title svg { color: var(--gold); flex-shrink: 0; }
+
+    /* ---- CONTROLS ROW ---- */
+    .controls-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media(max-width: 620px) {
+      .controls-row { grid-template-columns: 1fr; }
+    }
+
+    /* ---- LABELS & INPUTS ---- */
     label {
       display: block;
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 16px;
-      color: #333;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      margin-bottom: 5px;
+      letter-spacing: 0.3px;
     }
-    input, select {
+
+    input[type="text"], input[type="number"], select, textarea {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      font-weight: bold;
-      background-color: #fafafa;
-      transition: border 0.3s;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      background: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
     }
-    input:focus, select:focus {
-      border: 1px solid #0078d7;
+
+    input:focus, select:focus, textarea:focus {
       outline: none;
-      background-color: #fff;
+      border-color: var(--teal-light);
+      box-shadow: 0 0 0 3px rgba(26,92,107,0.1);
     }
-    button {
-      margin-top: 15px;
-      margin-left: 5px;
-      padding: 12px 20px;
-      background-color: #0078d7;
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a6a54' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 12px center;
+      padding-left: 36px;
+    }
+
+    [dir="ltr"] select {
+      background-position: right 12px center;
+      padding-left: 14px;
+      padding-right: 36px;
+    }
+
+    .field-group { margin-bottom: 14px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media(max-width: 500px) { .field-row { grid-template-columns: 1fr; } }
+
+    /* ---- AUTHOR SECTION ---- */
+    .author-block {
+      background: rgba(26,92,107,0.04);
+      border: 1px solid rgba(26,92,107,0.15);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .author-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--teal);
+    }
+
+    .author-number {
+      background: var(--teal);
       color: white;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .btn-remove-author {
+      background: none; border: none; cursor: pointer;
+      color: var(--rust); font-size: 18px; line-height: 1;
+      padding: 0 4px; transition: opacity 0.2s;
+    }
+
+    .btn-remove-author:hover { opacity: 0.7; }
+
+    /* ---- BUTTONS ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
       border: none;
       border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      transition: background-color 0.3s, transform 0.2s;
+      transition: all 0.2s;
     }
-    button:hover {
-      background-color: #005fa3;
-      transform: scale(1.05);
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      color: white;
+      box-shadow: 0 3px 10px rgba(26,92,107,0.3);
     }
-    .output-box {
-      margin-top: 20px;
-      background-color: #eef6ff;
-      padding: 15px;
-      border-radius: 6px;
-      border: 1px dashed #0078d7;
-      font-size: 16px;
-      line-height: 1.6;
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(26,92,107,0.4); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), #e8a832);
+      color: white;
+      box-shadow: 0 3px 10px rgba(201,149,42,0.3);
     }
+
+    .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(201,149,42,0.4); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-ghost:hover { background: var(--gold-pale); border-color: var(--gold); color: var(--ink); }
+
+    .btn-danger { background: #fee2e2; color: var(--rust); border: 1px solid #fca5a5; }
+    .btn-danger:hover { background: #fecaca; }
+
+    .btn-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .btn-success:hover { background: #a7f3d0; }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .btn-add-author {
+      width: 100%;
+      background: rgba(26,92,107,0.06);
+      border: 1.5px dashed rgba(26,92,107,0.3);
+      color: var(--teal);
+      border-radius: 8px;
+      padding: 9px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+
+    .btn-add-author:hover { background: rgba(26,92,107,0.12); border-style: solid; }
+
     .btn-group {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
+      margin-top: 6px;
     }
-    .saved-list {
-      margin-top: 30px;
-      background: #fffbe7;
-      padding: 15px;
-      border: 1px solid #e0c97d;
-      border-radius: 8px;
+
+    /* ---- SOURCE TYPE TABS ---- */
+    .type-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
     }
-    .saved-list h3 {
-      margin-bottom: 10px;
-      color: #5a4e00;
+
+    .type-tab {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
     }
-    .saved-list ul {
-      padding: 0;
-      list-style: none;
+
+    .type-tab .tab-icon { font-size: 20px; }
+    .type-tab:hover { border-color: var(--teal-light); color: var(--teal); }
+    .type-tab.active { border-color: var(--teal); background: var(--teal); color: white; box-shadow: 0 3px 10px rgba(26,92,107,0.25); }
+
+    /* ---- STYLE PILLS ---- */
+    .style-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .saved-list li {
-      margin-bottom: 12px;
-      padding: 10px;
-      border-bottom: 1px dashed #d0b95d;
+
+    .style-pill {
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      background: white;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .style-pill:hover { border-color: var(--gold); color: var(--gold); }
+    .style-pill.active { border-color: var(--gold); background: var(--gold); color: white; }
+    .style-pill .pill-desc { font-size: 10px; font-weight: 400; display: block; opacity: 0.8; }
+
+    /* ---- OUTPUT ---- */
+    .output-box {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      min-height: 70px;
+      font-family: 'Amiri', serif;
+      font-size: 17px;
+      line-height: 1.9;
+      color: var(--ink);
       position: relative;
     }
-    .saved-item-actions {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
+
+    .output-placeholder {
+      color: var(--border);
+      font-style: italic;
+      font-size: 15px;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .citation-badge {
+      display: inline-flex;
+      align-items: center;
       gap: 5px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      margin-bottom: 10px;
     }
-    .action-btn {
-      padding: 5px 10px;
-      font-size: 12px;
-      border-radius: 4px;
+
+    .badge-apa { background: #dbeafe; color: #1e40af; }
+    .badge-mla { background: #dcfce7; color: #166534; }
+    .badge-chicago { background: #fef9c3; color: #854d0e; }
+    .badge-harvard { background: #fce7f3; color: #9d174d; }
+    .badge-vancouver { background: #ede9fe; color: #5b21b6; }
+    .badge-iso690 { background: #fff7ed; color: #9a3412; }
+
+    /* ---- SAVED LIST ---- */
+    .saved-empty {
+      text-align: center;
+      color: var(--border);
+      padding: 30px;
+      font-size: 14px;
+    }
+
+    .saved-item {
+      padding: 14px 16px;
+      border-bottom: 1px dashed var(--border-soft);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+
+    .saved-item:hover { background: var(--gold-pale); border-radius: 8px; }
+    .saved-item:last-child { border-bottom: none; }
+
+    .saved-item-num {
+      background: var(--gold-pale);
+      color: var(--gold);
+      border: 1px solid var(--gold-light);
+      border-radius: 6px;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .saved-item-text {
+      flex: 1;
+      font-family: 'Amiri', serif;
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--ink);
+    }
+
+    .saved-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* ---- LANG TOGGLE ---- */
+    .lang-toggle {
+      display: flex;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .lang-btn {
+      flex: 1;
+      padding: 7px 14px;
       border: none;
+      background: none;
       cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s;
     }
-    .copy-btn {
-      background-color: #4CAF50;
-      color: white;
+
+    .lang-btn.active { background: var(--teal); color: white; }
+
+    /* ---- TOP BAR ---- */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
     }
-    .delete-btn {
-      background-color: #f44336;
+
+    /* ---- TOAST ---- */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink);
       color: white;
+      padding: 10px 22px;
+      border-radius: 100px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+      pointer-events: none;
     }
-    .clear-all-btn {
-      background-color: #f44336;
-      color: white;
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ---- SECTION HIDDEN ---- */
+    .form-section { display: none; }
+    .form-section.visible { display: block; }
+
+    /* ---- PROGRESS DOTS ---- */
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 24px;
+      padding: 0 4px;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      width: calc(100% - 30px);
+      height: 2px;
+      background: var(--border-soft);
+    }
+
+    [dir="rtl"] .step:not(:last-child)::after { right: calc(50% + 15px); }
+    [dir="ltr"] .step:not(:last-child)::after { left: calc(50% + 15px); }
+
+    .step.done::after { background: var(--teal); }
+
+    .step-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.3s;
+      z-index: 1;
+    }
+
+    .step.done .step-dot { background: var(--teal); border-color: var(--teal); color: white; }
+    .step.active .step-dot { border-color: var(--teal); color: var(--teal); box-shadow: 0 0 0 4px rgba(26,92,107,0.15); }
+
+    .step-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .step.done .step-label, .step.active .step-label { color: var(--teal); }
+
+    /* ---- URL FIELD ---- */
+    .url-fetch-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .url-fetch-row input { flex: 1; }
+
+    /* ---- DIVIDER ---- */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .section-divider span {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-soft);
+    }
+
+    /* ---- EXPORT BAR ---- */
+    .export-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .export-bar h3 { flex: 1; margin: 0; font-family: 'Amiri', serif; font-size: 17px; color: var(--ink); }
+
+    /* ---- ITALIC / BOLD in citations ---- */
+    i { font-style: italic; }
+
+    /* ---- FOOTNOTE FORMAT ---- */
+    .format-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
       margin-top: 10px;
     }
-    #formSection {
-      display: none;
-    }
-    .citation-type-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      background-color: #0078d7;
-      color: white;
-      border-radius: 4px;
+
+    .fmt-btn {
+      padding: 4px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      background: white;
+      font-family: 'Cairo', sans-serif;
       font-size: 12px;
-      margin-left: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .fmt-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .fmt-btn.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+    .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card { animation: fadeIn 0.3s ease both; }
+    .card:nth-child(2) { animation-delay: 0.05s; }
+    .card:nth-child(3) { animation-delay: 0.1s; }
+
+    .output-box .cite-result {
+      animation: fadeIn 0.25s ease both;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="appContainer">
-    <h2 id="mainTitle">📚 مولّد الاستشهاد المرجعي</h2>
-    <h3 id="developerCredit">تصميم وتطوير: د. طلال ناظم الزهيري</h3>
-    
-    <label for="langSelect" id="langLabel">🌐 اختر اللغة:</label>
-    <select id="langSelect" onchange="switchLanguage()">
-      <option value="ar">العربية</option>
-      <option value="en">English</option>
-    </select>
+<div class="page-wrap">
 
-    <label id="labelSourceType" for="sourceType">نوع المصدر:</label>
-    <select id="sourceType" onchange="checkShowForm(); toggleFields();">
-      <option value="">-- اختر نوع المصدر --</option>
-      <option value="book">📘 كتاب</option>
-      <option value="journal">📰 مقال في مجلة</option>
-      <option value="thesis">🎓 رسالة جامعية</option>
-    </select>
-
-    <label id="labelStyle" for="citationStyle">معيار الاستشهاد:</label>
-    <select id="citationStyle" onchange="checkShowForm()">
-      <option value="">-- اختر المعيار --</option>
-      <option value="apa">APA</option>
-      <option value="mla">MLA</option>
-      <option value="chicago">Chicago</option>
-    </select>
-
-    <div id="formSection">
-      <form onsubmit="generateCitation(event)">
-        <fieldset style="border: 2px solid #0078d7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-          <legend id="authorLegend" style="font-weight: bold; color: #0078d7;">👤 بيانات المؤلف</legend>
-          <label id="labelLastName">اللقب:</label>
-          <input type="text" id="lastName" required>
-
-          <label id="labelFirstName">الاسم الأول:</label>
-          <input type="text" id="firstName" required>
-        </fieldset>
-
-        <fieldset style="border: 2px solid #0078d7; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-          <legend id="sourceLegend" style="font-weight: bold; color: #0078d7;">📄 تفاصيل المصدر</legend>
-          <label id="labelTitle">عنوان المصدر:</label>
-          <input type="text" id="SourceTitle" required>
-
-          <div id="bookFields" style="display:none;">
-            <label id="labelPlace">مكان النشر:</label>
-            <input type="text" id="place">
-            <label id="labelPublisher">الناشر:</label>
-            <input type="text" id="publisher">
-          </div>
-
-          <div id="journalFields" style="display:none;">
-            <label id="labelJournal">اسم المجلة:</label>
-            <input type="text" id="journalName">
-            <label id="labelVolume">المجلد:</label>
-            <input type="text" id="volume">
-            <label id="labelIssue">العدد:</label>
-            <input type="text" id="issue">
-            <label id="labelPageStart">من صفحة:</label>
-            <input type="text" id="pageStart">
-            <label id="labelPageEnd">إلى صفحة:</label>
-            <input type="text" id="pageEnd">
-            <label id="doiLabel">معرف DOI:</label>
-            <input type="text" id="doi">
-          </div>
-
-          <div id="thesisFields" style="display:none;">
-            <label id="labelThesisType">نوع الرسالة:</label>
-            <select id="thesisType">
-              <option value="رسالة ماجستير">رسالة ماجستير</option>
-              <option value="أطروحة دكتوراه">أطروحة دكتوراه</option>
-            </select>
-            <label id="labelUniversity">اسم الجامعة:</label>
-            <input type="text" id="university">
-          </div>
-
-          <div id="pagesField" style="display:none;">
-            <label id="labelPages">عدد الصفحات:</label>
-            <input type="text" id="totalPages">
-          </div>
-
-          <label id="labelYear">سنة النشر:</label>
-          <input type="text" id="year" required>
-        </fieldset>
-
-        <div class="btn-group">
-          <button type="submit" id="generateBtn">🔄 إنشاء الاستشهاد</button>
-          <button type="button" onclick="resetForm()" id="resetBtn">🧹 إعادة التعيين</button>
-          <button type="button" onclick="saveCitation()" id="saveBtn">💾 حفظ</button>
-          <button type="button" onclick="exportToWord()" id="exportBtn">📄 تصدير Word</button>
-        </div>
-      </form>
-      <div id="output" class="output-box"></div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line"></div>
     </div>
-
-    <div class="saved-list">
-      <h3 id="savedListTitle">📚 السجل المحفوظ:</h3>
-      <ul id="savedList"></ul>
-      <button onclick="clearAllSavedCitations()" class="clear-all-btn" id="clearAllBtn" style="display:none;">🗑️ مسح الكل</button>
+    <h1 id="mainTitle">📚 مولّد <span>الاستشهادات المرجعية</span></h1>
+    <p class="header-subtitle" id="devCredit">تصميم وتطوير: <strong>د. طلال ناظم الزهيري</strong></p>
+    <div class="header-ornament" style="margin-top:8px">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line"></div>
     </div>
   </div>
 
-  <script>
-    let lang = "ar";
-    let savedCitations = [];
-    
-    const translations = {
-      ar: {
-        title: "مولّد الاستشهاد المرجعي",
-        developer: "تصميم وتطوير: د. طلال ناظم الزهيري",
-        selectLanguage: "🌐 اختر اللغة:",
-        sourceType: "نوع المصدر:",
-        citationStyle: "معيار الاستشهاد:",
-        authorData: "👤 بيانات المؤلف",
-        sourceDetails: "📄 تفاصيل المصدر",
-        lastName: "اللقب:",
-        firstName: "الاسم الأول:",
-        sourceTitle: "عنوان المصدر:",
-        place: "مكان النشر:",
-        publisher: "الناشر:",
-        journalName: "اسم المجلة:",
-        volume: "المجلد:",
-        issue: "العدد:",
-        pageStart: "من صفحة:",
-        pageEnd: "إلى صفحة:",
-        doi: "معرف DOI:",
-        thesisType: "نوع الرسالة:",
-        university: "اسم الجامعة:",
-        pages: "عدد الصفحات:",
-        year: "سنة النشر:",
-        generate: "🔄 إنشاء الاستشهاد",
-        reset: "🧹 إعادة التعيين",
-        save: "💾 حفظ",
-        export: "📄 تصدير Word",
-        savedList: "📚 السجل المحفوظ:",
-        noCitation: "يرجى إدخال بيانات صحيحة.",
-        noCitationToSave: "⚠️ لا يوجد استشهاد لحفظه.",
-        noSavedCitations: "⚠️ لا توجد استشهادات محفوظة.",
-        saveSuccess: "تم حفظ الاستشهاد بنجاح!",
-        copy: "نسخ",
-        delete: "حذف",
-        clearAll: "🗑️ مسح الكل",
-        confirmDelete: "هل تريد حذف هذا الاستشهاد؟",
-        confirmClearAll: "هل تريد مسح جميع الاستشهادات المحفوظة؟",
-        copied: "تم النسخ",
-        deleted: "تم الحذف",
-        cleared: "تم مسح الكل",
-        
-        citationStyles: {
-          apa: "APA",
-          mla: "MLA",
-          chicago: "Chicago"
-        },
-        sourceTypes: {
-          book: "📘 كتاب",
-          journal: "📰 مقال في مجلة",
-          thesis: "🎓 رسالة جامعية"
-        }
-      },
-      en: {
-        title: "📚 Citation Generator",
-        developer: "Designed and developed by Dr. Talal Nazim Al-Zuhairi",
-        selectLanguage: "🌐 Select Language:",
-        sourceType: "Source Type:",
-        citationStyle: "Citation Style:",
-        authorData: "👤 Author Data",
-        sourceDetails: "📄 Source Details",
-        lastName: "Last Name:",
-        firstName: "First Name:",
-        sourceTitle: "Source Title:",
-        place: "Place:",
-        publisher: "Publisher:",
-        journalName: "Journal Name:",
-        volume: "Volume:",
-        issue: "Issue:",
-        pageStart: "Page Start:",
-        pageEnd: "Page End:",
-        doi: "DOI:",
-        thesisType: "Thesis Type:",
-        university: "University:",
-        pages: "Number of Pages:",
-        year: "Year:",
-        generate: "🔄 Generate Citation",
-        reset: "🧹 Reset",
-        save: "💾 Save",
-        export: "📄 Export to Word",
-        savedList: "📚 Saved Citations",
-        noCitation: "Please enter valid data.",
-        noCitationToSave: "⚠️ No citation to save.",
-        noSavedCitations: "⚠️ No saved citations.",
-        saveSuccess: "Citation saved successfully!",
-        copy: "Copy",
-        delete: "Delete",
-        clearAll: "🗑️ Clear All",
-        confirmDelete: "Delete this citation?",
-        confirmClearAll: "Clear all saved citations?",
-        copied: "Copied",
-        deleted: "Deleted",
-        cleared: "All cleared",
-        citationStyles: {
-          apa: "APA (Social Sciences)",
-          mla: "MLA (Humanities)",
-          chicago: "Chicago (Multidisciplinary)"
-        },
-        sourceTypes: {
-          book: "📘 Book",
-          journal: "📰 Journal Article",
-          thesis: "🎓 Thesis"
-        }
-      }
-    };
+  <!-- TOP BAR: Language + Format -->
+  <div class="card" style="padding: 16px 22px;">
+    <div class="top-bar">
+      <div>
+        <label id="lbl-lang" style="margin-bottom:6px;">🌐 اللغة / Language</label>
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="langAr" onclick="setLang('ar')">العربية</button>
+          <button class="lang-btn" id="langEn" onclick="setLang('en')">English</button>
+        </div>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <label id="lbl-style">🎓 معيار الاستشهاد</label>
+        <div class="style-pills" id="stylePills">
+          <div class="style-pill active" data-val="apa" onclick="selectStyle('apa')">APA <span class="pill-desc">7th Ed.</span></div>
+          <div class="style-pill" data-val="mla" onclick="selectStyle('mla')">MLA <span class="pill-desc">9th Ed.</span></div>
+          <div class="style-pill" data-val="chicago" onclick="selectStyle('chicago')">Chicago <span class="pill-desc">17th Ed.</span></div>
+          <div class="style-pill" data-val="harvard" onclick="selectStyle('harvard')">Harvard</div>
+          <div class="style-pill" data-val="vancouver" onclick="selectStyle('vancouver')">Vancouver</div>
+          <div class="style-pill" data-val="iso690" onclick="selectStyle('iso690')">ISO 690</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    function updateUIText() {
-      const t = translations[lang];
-      
-      // Update all text elements
-      document.getElementById("mainTitle").textContent = t.title;
-      document.getElementById("developerCredit").textContent = t.developer;
-      document.getElementById("langLabel").textContent = t.selectLanguage;
-      document.getElementById("labelSourceType").textContent = t.sourceType;
-      document.getElementById("labelStyle").textContent = t.citationStyle;
-      document.getElementById("authorLegend").textContent = t.authorData;
-      document.getElementById("labelLastName").textContent = t.lastName;
-      document.getElementById("labelFirstName").textContent = t.firstName;
-      document.getElementById("sourceLegend").textContent = t.sourceDetails;
-      document.getElementById("labelTitle").textContent = t.sourceTitle;
-      document.getElementById("labelPlace").textContent = t.place;
-      document.getElementById("labelPublisher").textContent = t.publisher;
-      document.getElementById("labelJournal").textContent = t.journalName;
-      document.getElementById("labelVolume").textContent = t.volume;
-      document.getElementById("labelIssue").textContent = t.issue;
-      document.getElementById("labelPageStart").textContent = t.pageStart;
-      document.getElementById("labelPageEnd").textContent = t.pageEnd;
-      document.getElementById("doiLabel").textContent = t.doi;
-      document.getElementById("labelThesisType").textContent = t.thesisType;
-      document.getElementById("labelUniversity").textContent = t.university;
-      document.getElementById("labelPages").textContent = t.pages;
-      document.getElementById("labelYear").textContent = t.year;
-      document.getElementById("generateBtn").textContent = t.generate;
-      document.getElementById("resetBtn").textContent = t.reset;
-      document.getElementById("saveBtn").textContent = t.save;
-      document.getElementById("exportBtn").textContent = t.export;
-      document.getElementById("savedListTitle").textContent = t.savedList;
-      document.getElementById("clearAllBtn").textContent = t.clearAll;
+  <!-- SOURCE TYPE -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      <span id="lbl-srctype">نوع المصدر</span>
+    </div>
+    <div class="type-tabs" id="typeTabs">
+      <div class="type-tab active" data-val="book" onclick="selectType('book')">
+        <span class="tab-icon">📘</span>
+        <span id="tab-book">كتاب</span>
+      </div>
+      <div class="type-tab" data-val="journal" onclick="selectType('journal')">
+        <span class="tab-icon">📰</span>
+        <span id="tab-journal">مقال مجلة</span>
+      </div>
+      <div class="type-tab" data-val="thesis" onclick="selectType('thesis')">
+        <span class="tab-icon">🎓</span>
+        <span id="tab-thesis">رسالة جامعية</span>
+      </div>
+      <div class="type-tab" data-val="website" onclick="selectType('website')">
+        <span class="tab-icon">🌐</span>
+        <span id="tab-website">موقع إلكتروني</span>
+      </div>
+      <div class="type-tab" data-val="conference" onclick="selectType('conference')">
+        <span class="tab-icon">🎤</span>
+        <span id="tab-conference">مؤتمر</span>
+      </div>
+      <div class="type-tab" data-val="report" onclick="selectType('report')">
+        <span class="tab-icon">📋</span>
+        <span id="tab-report">تقرير</span>
+      </div>
+    </div>
+  </div>
 
-      // Update select options
-      document.getElementById("sourceType").innerHTML = `
-        <option value="">-- ${t.sourceType} --</option>
-        <option value="book">${t.sourceTypes.book}</option>
-        <option value="journal">${t.sourceTypes.journal}</option>
-        <option value="thesis">${t.sourceTypes.thesis}</option>
-      `;
+  <!-- FORM -->
+  <div class="card form-section visible" id="formCard">
 
-      document.getElementById("citationStyle").innerHTML = `
-        <option value="">-- ${t.citationStyle} --</option>
-        <option value="apa">${t.citationStyles.apa}</option>
-        <option value="mla">${t.citationStyles.mla}</option>
-        <option value="chicago">${t.citationStyles.chicago}</option>
-      `;
+    <!-- PROGRESS -->
+    <div class="progress-steps" id="progressSteps">
+      <div class="step done" id="st1">
+        <div class="step-dot">✓</div>
+        <div class="step-label" id="stl-1">نوع المصدر</div>
+      </div>
+      <div class="step done" id="st2">
+        <div class="step-dot">✓</div>
+        <div class="step-label" id="stl-2">المعيار</div>
+      </div>
+      <div class="step active" id="st3">
+        <div class="step-dot">3</div>
+        <div class="step-label" id="stl-3">البيانات</div>
+      </div>
+      <div class="step" id="st4">
+        <div class="step-dot">4</div>
+        <div class="step-label" id="stl-4">النتيجة</div>
+      </div>
+    </div>
 
-      document.getElementById("thesisType").innerHTML = `
-        <option value="${lang === 'ar' ? 'رسالة ماجستير' : 'Master\'s Thesis'}">
-          ${lang === 'ar' ? 'رسالة ماجستير' : 'Master\'s Thesis'}
-        </option>
-        <option value="${lang === 'ar' ? 'أطروحة دكتوراه' : 'PhD Dissertation'}">
-          ${lang === 'ar' ? 'أطروحة دكتوراه' : 'PhD Dissertation'}
-        </option>
-      `;
+    <!-- AUTHORS -->
+    <div class="card-title" style="margin-bottom:12px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span id="lbl-authors">المؤلفون</span>
+    </div>
+
+    <div id="authorsContainer"></div>
+
+    <button class="btn-add-author" onclick="addAuthor()" id="btnAddAuthor">+ إضافة مؤلف آخر</button>
+
+    <div class="section-divider"><span id="lbl-srcdetails">تفاصيل المصدر</span></div>
+
+    <!-- COMMON FIELDS -->
+    <div class="field-group">
+      <label id="lbl-title">عنوان المصدر *</label>
+      <input type="text" id="fTitle" placeholder="">
+    </div>
+
+    <div class="field-group">
+      <label id="lbl-year">سنة النشر *</label>
+      <input type="text" id="fYear" placeholder="" maxlength="4" style="max-width:140px;">
+    </div>
+
+    <!-- BOOK FIELDS -->
+    <div id="secBook" style="display:none;">
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-edition">الطبعة</label>
+          <input type="text" id="fEdition" placeholder="">
+        </div>
+        <div class="field-group">
+          <label id="lbl-volume">المجلد</label>
+          <input type="text" id="fBookVol" placeholder="">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-place">مكان النشر</label>
+          <input type="text" id="fPlace" placeholder="">
+        </div>
+        <div class="field-group">
+          <label id="lbl-publisher">الناشر</label>
+          <input type="text" id="fPublisher" placeholder="">
+        </div>
+      </div>
+      <div class="field-group">
+        <label id="lbl-pages">عدد الصفحات</label>
+        <input type="text" id="fTotalPages" placeholder="" style="max-width:140px;">
+      </div>
+      <div class="field-group">
+        <label id="lbl-isbn">ISBN</label>
+        <input type="text" id="fISBN" placeholder="">
+      </div>
+    </div>
+
+    <!-- JOURNAL FIELDS -->
+    <div id="secJournal" style="display:none;">
+      <div class="field-group">
+        <label id="lbl-journal">اسم المجلة</label>
+        <input type="text" id="fJournal" placeholder="">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-vol">المجلد</label>
+          <input type="text" id="fVolume" placeholder="">
+        </div>
+        <div class="field-group">
+          <label id="lbl-issue">العدد</label>
+          <input type="text" id="fIssue" placeholder="">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-pgstart">من صفحة</label>
+          <input type="text" id="fPgStart" placeholder="">
+        </div>
+        <div class="field-group">
+          <label id="lbl-pgend">إلى صفحة</label>
+          <input type="text" id="fPgEnd" placeholder="">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>DOI</label>
+        <input type="text" id="fDOI" placeholder="">
+      </div>
+      <div class="field-group">
+        <label id="lbl-issn">ISSN</label>
+        <input type="text" id="fISSN" placeholder="">
+      </div>
+    </div>
+
+    <!-- THESIS FIELDS -->
+    <div id="secThesis" style="display:none;">
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-thtype">نوع الرسالة</label>
+          <select id="fThType">
+            <option value="master_ar">رسالة ماجستير</option>
+            <option value="phd_ar">أطروحة دكتوراه</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label id="lbl-univ">الجامعة</label>
+          <input type="text" id="fUniv" placeholder="">
+        </div>
+      </div>
+      <div class="field-group">
+        <label id="lbl-country">البلد</label>
+        <input type="text" id="fThCountry" placeholder="">
+      </div>
+      <div class="field-group">
+        <label id="lbl-thpages">عدد الصفحات</label>
+        <input type="text" id="fThPages" style="max-width:140px;">
+      </div>
+      <div class="field-group">
+        <label id="lbl-supervisor">اسم المشرف</label>
+        <input type="text" id="fSupervisor" placeholder="">
+        <p class="hint" id="hint-supervisor">يُذكر في بعض أساليب التوثيق كـ ISO 690</p>
+      </div>
+    </div>
+
+    <!-- WEBSITE FIELDS -->
+    <div id="secWebsite" style="display:none;">
+      <div class="field-group">
+        <label id="lbl-sitename">اسم الموقع / المؤسسة</label>
+        <input type="text" id="fSiteName" placeholder="">
+      </div>
+      <div class="field-group">
+        <label id="lbl-url">رابط URL</label>
+        <input type="text" id="fURL" placeholder="">
+      </div>
+      <div class="field-group">
+        <label id="lbl-accessed">تاريخ الاطلاع</label>
+        <input type="text" id="fAccessed" placeholder="">
+      </div>
+    </div>
+
+    <!-- CONFERENCE FIELDS -->
+    <div id="secConference" style="display:none;">
+      <div class="field-group">
+        <label id="lbl-confname">اسم المؤتمر</label>
+        <input type="text" id="fConfName" placeholder="">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-confplace">المكان</label>
+          <input type="text" id="fConfPlace" placeholder="">
+        </div>
+        <div class="field-group">
+          <label id="lbl-confdate">التاريخ</label>
+          <input type="text" id="fConfDate" placeholder="">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-confpgstart">من صفحة</label>
+          <input type="text" id="fConfPgStart" placeholder="">
+        </div>
+        <div class="field-group">
+          <label id="lbl-confpgend">إلى صفحة</label>
+          <input type="text" id="fConfPgEnd" placeholder="">
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT FIELDS -->
+    <div id="secReport" style="display:none;">
+      <div class="field-group">
+        <label id="lbl-org">المنظمة / الجهة المصدِرة</label>
+        <input type="text" id="fOrg" placeholder="">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label id="lbl-rptnum">رقم التقرير</label>
+          <input type="text" id="fRptNum" placeholder="">
+        </div>
+        <div class="field-group">
+          <label id="lbl-rptplace">مكان النشر</label>
+          <input type="text" id="fRptPlace" placeholder="">
+        </div>
+      </div>
+      <div class="field-group">
+        <label id="lbl-rpturl">رابط URL</label>
+        <input type="text" id="fRptURL" placeholder="">
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="btn-group" style="margin-top: 20px;">
+      <button class="btn btn-primary" onclick="generateCitation()" id="btnGenerate">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span id="btnGenerateText">إنشاء الاستشهاد</span>
+      </button>
+      <button class="btn btn-ghost" onclick="resetForm()" id="btnReset">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+        <span id="btnResetText">إعادة تعيين</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT -->
+    <div style="margin-top: 20px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+        <label id="lbl-result" style="margin:0; font-size:14px;">الاستشهاد المُولَّد</label>
+        <div class="format-row" style="margin:0;">
+          <button class="fmt-btn active" id="fmt-footnote" onclick="setFormat('footnote')" data-fmt="footnote">حاشية</button>
+          <button class="fmt-btn" id="fmt-bibliography" onclick="setFormat('bibliography')" data-fmt="bibliography">قائمة مراجع</button>
+          <button class="fmt-btn" id="fmt-intext" onclick="setFormat('intext')" data-fmt="intext">في المتن</button>
+        </div>
+      </div>
+      <div class="output-box" id="output">
+        <span class="output-placeholder" id="outPlaceholder">سيظهر الاستشهاد هنا بعد إدخال البيانات...</span>
+      </div>
+      <div class="btn-group" style="margin-top:10px;">
+        <button class="btn btn-success btn-sm" onclick="copyCitation()" id="btnCopy">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span id="btnCopyText">نسخ</span>
+        </button>
+        <button class="btn btn-gold btn-sm" onclick="saveCitation()" id="btnSave">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          <span id="btnSaveText">حفظ في القائمة</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVED CITATIONS -->
+  <div class="card" id="savedCard">
+    <div class="export-bar">
+      <h3 id="lbl-savedlist">📋 قائمة الاستشهادات المحفوظة</h3>
+      <button class="btn btn-ghost btn-sm" onclick="exportWord()" id="btnExportWord">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        <span id="btnExpText">تصدير Word</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="exportTxt()" id="btnExportTxt">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span id="btnExpTxtText">تصدير TXT</span>
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="clearAll()" id="btnClearAll" style="display:none;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+        <span id="btnClearText">مسح الكل</span>
+      </button>
+    </div>
+    <div id="savedContainer" style="margin-top:16px;">
+      <div class="saved-empty" id="savedEmpty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom:8px; opacity:0.3;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        <p id="emptyText">لا توجد استشهادات محفوظة بعد</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======================================================
+   STATE
+====================================================== */
+let lang = 'ar';
+let currentStyle = 'apa';
+let currentType = 'book';
+let currentFormat = 'footnote';
+let authors = [];
+let savedCitations = [];
+let authorCounter = 0;
+
+/* ======================================================
+   TRANSLATIONS
+====================================================== */
+const T = {
+  ar: {
+    mainTitle: '📚 مولّد الاستشهادات المرجعية',
+    dev: 'تصميم وتطوير: <strong>د. طلال ناظم الزهيري</strong>',
+    lblLang: '🌐 اللغة / Language',
+    lblStyle: '🎓 معيار الاستشهاد',
+    lblSrctype: 'نوع المصدر',
+    tabBook: 'كتاب', tabJournal: 'مقال مجلة', tabThesis: 'رسالة جامعية',
+    tabWebsite: 'موقع إلكتروني', tabConference: 'مؤتمر', tabReport: 'تقرير',
+    lblAuthors: 'المؤلفون',
+    authorN: 'المؤلف',
+    lblLastName: 'اللقب / الاسم الأخير *', lblFirstName: 'الاسم الأول',
+    btnAddAuthor: '+ إضافة مؤلف آخر',
+    lblSrcdetails: 'تفاصيل المصدر',
+    lblTitle: 'عنوان المصدر *', lblYear: 'سنة النشر *',
+    lblEdition: 'الطبعة', lblVolume2: 'المجلد', lblPlace: 'مكان النشر', lblPublisher: 'الناشر',
+    lblPages: 'عدد الصفحات', lblISBN: 'ISBN',
+    lblJournal: 'اسم المجلة', lblVol: 'المجلد', lblIssue: 'العدد',
+    lblPgstart: 'من صفحة', lblPgend: 'إلى صفحة', lblISSN: 'ISSN',
+    lblThtype: 'نوع الرسالة', lblUniv: 'الجامعة', lblCountry: 'البلد', lblThpages: 'عدد الصفحات',
+    thMaster: 'رسالة ماجستير', thPhD: 'أطروحة دكتوراه',
+    lblSupervisor: 'اسم المشرف', hintSupervisor: 'يُذكر في بعض أساليب التوثيق كـ ISO 690',
+    lblSitename: 'اسم الموقع / المؤسسة', lblUrl: 'رابط URL', lblAccessed: 'تاريخ الاطلاع',
+    lblConfname: 'اسم المؤتمر', lblConfplace: 'المكان', lblConfdate: 'التاريخ',
+    lblConfpgstart: 'من صفحة', lblConfpgend: 'إلى صفحة',
+    lblOrg: 'المنظمة / الجهة المصدِرة', lblRptnum: 'رقم التقرير',
+    lblRptplace: 'مكان النشر', lblRpturl: 'رابط URL',
+    stl1: 'نوع المصدر', stl2: 'المعيار', stl3: 'البيانات', stl4: 'النتيجة',
+    btnGenerate: 'إنشاء الاستشهاد', btnReset: 'إعادة تعيين',
+    lblResult: 'الاستشهاد المُولَّد',
+    fmtFootnote: 'حاشية', fmtBibliography: 'قائمة مراجع', fmtIntext: 'في المتن',
+    btnCopy: 'نسخ', btnSave: 'حفظ في القائمة',
+    lblSavedlist: '📋 قائمة الاستشهادات المحفوظة',
+    btnExpWord: 'تصدير Word', btnExpTxt: 'تصدير TXT', btnClearAll: 'مسح الكل',
+    emptyText: 'لا توجد استشهادات محفوظة بعد',
+    outPlaceholder: 'سيظهر الاستشهاد هنا بعد إدخال البيانات...',
+    toastCopied: '✓ تم النسخ', toastSaved: '✓ تم الحفظ', toastDeleted: '✓ تم الحذف',
+    toastCleared: '✓ تم مسح القائمة', toastError: '⚠ يرجى ملء الحقول الإلزامية',
+    confirmClear: 'هل تريد مسح جميع الاستشهادات المحفوظة؟',
+    confirmDelete: 'هل تريد حذف هذا الاستشهاد؟',
+    copyBtn: 'نسخ', deleteBtn: 'حذف',
+    lblVolBook: 'المجلد',
+  },
+  en: {
+    mainTitle: '📚 Citation Generator',
+    dev: 'Designed & developed by <strong>Dr. Talal N Azzuhairi</strong>',
+    lblLang: '🌐 Language / اللغة',
+    lblStyle: '🎓 Citation Style',
+    lblSrctype: 'Source Type',
+    tabBook: 'Book', tabJournal: 'Journal Article', tabThesis: 'Thesis/Dissertation',
+    tabWebsite: 'Website', tabConference: 'Conference Paper', tabReport: 'Report',
+    lblAuthors: 'Authors',
+    authorN: 'Author',
+    lblLastName: 'Last Name *', lblFirstName: 'First Name',
+    btnAddAuthor: '+ Add Another Author',
+    lblSrcdetails: 'Source Details',
+    lblTitle: 'Source Title *', lblYear: 'Year *',
+    lblEdition: 'Edition', lblVolume2: 'Volume', lblPlace: 'Place of Publication', lblPublisher: 'Publisher',
+    lblPages: 'Total Pages', lblISBN: 'ISBN',
+    lblJournal: 'Journal Name', lblVol: 'Volume', lblIssue: 'Issue',
+    lblPgstart: 'Page Start', lblPgend: 'Page End', lblISSN: 'ISSN',
+    lblThtype: 'Thesis Type', lblUniv: 'University', lblCountry: 'Country', lblThpages: 'Total Pages',
+    thMaster: "Master's Thesis", thPhD: 'PhD Dissertation',
+    lblSupervisor: 'Supervisor Name', hintSupervisor: 'Included in some styles (e.g. ISO 690)',
+    lblSitename: 'Website / Organization Name', lblUrl: 'URL', lblAccessed: 'Access Date',
+    lblConfname: 'Conference Name', lblConfplace: 'Location', lblConfdate: 'Date',
+    lblConfpgstart: 'Page Start', lblConfpgend: 'Page End',
+    lblOrg: 'Organization / Issuing Body', lblRptnum: 'Report Number',
+    lblRptplace: 'Place of Publication', lblRpturl: 'URL',
+    stl1: 'Source Type', stl2: 'Style', stl3: 'Data', stl4: 'Result',
+    btnGenerate: 'Generate Citation', btnReset: 'Reset',
+    lblResult: 'Generated Citation',
+    fmtFootnote: 'Footnote', fmtBibliography: 'Bibliography', fmtIntext: 'In-Text',
+    btnCopy: 'Copy', btnSave: 'Save to List',
+    lblSavedlist: '📋 Saved Citations',
+    btnExpWord: 'Export Word', btnExpTxt: 'Export TXT', btnClearAll: 'Clear All',
+    emptyText: 'No citations saved yet',
+    outPlaceholder: 'Your citation will appear here after entering the data...',
+    toastCopied: '✓ Copied', toastSaved: '✓ Saved', toastDeleted: '✓ Deleted',
+    toastCleared: '✓ List cleared', toastError: '⚠ Please fill in required fields',
+    confirmClear: 'Clear all saved citations?',
+    confirmDelete: 'Delete this citation?',
+    copyBtn: 'Copy', deleteBtn: 'Delete',
+    lblVolBook: 'Volume',
+  }
+};
+
+function t(key) { return T[lang][key] || key; }
+
+/* ======================================================
+   LANGUAGE
+====================================================== */
+function setLang(l) {
+  lang = l;
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langAr').classList.toggle('active', l === 'ar');
+  document.getElementById('langEn').classList.toggle('active', l === 'en');
+  updateUIText();
+  renderSaved();
+  if (document.getElementById('output').querySelector('.cite-result')) generateCitation();
+}
+
+function updateUIText() {
+  const ids = [
+    ['mainTitle','mainTitle'],['devCredit','dev'],
+    ['lbl-lang','lblLang'],['lbl-style','lblStyle'],
+    ['lbl-srctype','lblSrctype'],
+    ['tab-book','tabBook'],['tab-journal','tabJournal'],['tab-thesis','tabThesis'],
+    ['tab-website','tabWebsite'],['tab-conference','tabConference'],['tab-report','tabReport'],
+    ['lbl-authors','lblAuthors'],['btnAddAuthor','btnAddAuthor'],
+    ['lbl-srcdetails','lblSrcdetails'],
+    ['lbl-title','lblTitle'],['lbl-year','lblYear'],
+    ['lbl-edition','lblEdition'],['lbl-volume','lblVolBook'],['lbl-place','lblPlace'],['lbl-publisher','lblPublisher'],
+    ['lbl-pages','lblPages'],['lbl-isbn','lblISBN'],
+    ['lbl-journal','lblJournal'],['lbl-vol','lblVol'],['lbl-issue','lblIssue'],
+    ['lbl-pgstart','lblPgstart'],['lbl-pgend','lblPgend'],['lbl-issn','lblISSN'],
+    ['lbl-thtype','lblThtype'],['lbl-univ','lblUniv'],['lbl-country','lblCountry'],['lbl-thpages','lblThpages'],
+    ['lbl-supervisor','lblSupervisor'],['hint-supervisor','hintSupervisor'],
+    ['lbl-sitename','lblSitename'],['lbl-url','lblUrl'],['lbl-accessed','lblAccessed'],
+    ['lbl-confname','lblConfname'],['lbl-confplace','lblConfplace'],['lbl-confdate','lblConfdate'],
+    ['lbl-confpgstart','lblConfpgstart'],['lbl-confpgend','lblConfpgend'],
+    ['lbl-org','lblOrg'],['lbl-rptnum','lblRptnum'],['lbl-rptplace','lblRptplace'],['lbl-rpturl','lblRpturl'],
+    ['stl-1','stl1'],['stl-2','stl2'],['stl-3','stl3'],['stl-4','stl4'],
+    ['btnGenerateText','btnGenerate'],['btnResetText','btnReset'],
+    ['lbl-result','lblResult'],
+    ['fmt-footnote','fmtFootnote'],['fmt-bibliography','fmtBibliography'],['fmt-intext','fmtIntext'],
+    ['btnCopyText','btnCopy'],['btnSaveText','btnSave'],
+    ['lbl-savedlist','lblSavedlist'],
+    ['btnExpText','btnExpWord'],['btnExpTxtText','btnExpTxt'],['btnClearText','btnClearAll'],
+    ['emptyText','emptyText'],['outPlaceholder','outPlaceholder']
+  ];
+  ids.forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (key === 'dev' || key === 'mainTitle') { el.innerHTML = t(key); }
+    else { el.textContent = t(key); }
+  });
+
+  // Thesis options
+  const tht = document.getElementById('fThType');
+  if (tht) {
+    tht.innerHTML = `<option value="master">${t('thMaster')}</option><option value="phd">${t('thPhD')}</option>`;
+  }
+
+  // Re-render author blocks labels
+  document.querySelectorAll('.author-block').forEach((b, i) => {
+    const lbl = b.querySelector('.author-label');
+    const lastLbl = b.querySelector('.author-lbl-last');
+    const firstLbl = b.querySelector('.author-lbl-first');
+    if (lbl) lbl.textContent = `${t('authorN')} ${i + 1}`;
+    if (lastLbl) lastLbl.textContent = t('lblLastName');
+    if (firstLbl) firstLbl.textContent = t('lblFirstName');
+  });
+}
+
+/* ======================================================
+   SOURCE TYPE
+====================================================== */
+function selectType(type) {
+  currentType = type;
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.toggle('active', t.dataset.val === type));
+  const secs = ['book','journal','thesis','website','conference','report'];
+  secs.forEach(s => { document.getElementById('sec'+s.charAt(0).toUpperCase()+s.slice(1)).style.display = s === type ? 'block' : 'none'; });
+  document.getElementById('output').innerHTML = `<span class="output-placeholder">${t('outPlaceholder')}</span>`;
+}
+
+/* ======================================================
+   CITATION STYLE
+====================================================== */
+function selectStyle(style) {
+  currentStyle = style;
+  document.querySelectorAll('.style-pill').forEach(p => p.classList.toggle('active', p.dataset.val === style));
+  if (document.getElementById('output').querySelector('.cite-result')) generateCitation();
+}
+
+/* ======================================================
+   FORMAT
+====================================================== */
+function setFormat(fmt) {
+  currentFormat = fmt;
+  document.querySelectorAll('.fmt-btn').forEach(b => b.classList.toggle('active', b.dataset.fmt === fmt));
+  if (document.getElementById('output').querySelector('.cite-result')) generateCitation();
+}
+
+/* ======================================================
+   AUTHORS
+====================================================== */
+function addAuthor() {
+  authorCounter++;
+  const id = authorCounter;
+  authors.push(id);
+
+  const div = document.createElement('div');
+  div.className = 'author-block';
+  div.id = `author-${id}`;
+  div.setAttribute('data-author-id', id);
+  renderAuthorBlock(div, id, authors.length);
+  document.getElementById('authorsContainer').appendChild(div);
+}
+
+function renderAuthorBlock(div, id, num) {
+  div.innerHTML = `
+    <div class="author-block-header">
+      <span style="display:flex;align-items:center;gap:8px;">
+        <span class="author-number">${num}</span>
+        <span class="author-label">${t('authorN')} ${num}</span>
+      </span>
+      ${num > 1 ? `<button class="btn-remove-author" onclick="removeAuthor(${id})" title="حذف">×</button>` : ''}
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label class="author-lbl-last">${t('lblLastName')}</label>
+        <input type="text" id="aLast-${id}" placeholder="">
+      </div>
+      <div class="field-group">
+        <label class="author-lbl-first">${t('lblFirstName')}</label>
+        <input type="text" id="aFirst-${id}" placeholder="">
+      </div>
+    </div>
+  `;
+}
+
+function removeAuthor(id) {
+  const idx = authors.indexOf(id);
+  if (idx !== -1) authors.splice(idx, 1);
+  const el = document.getElementById(`author-${id}`);
+  if (el) el.remove();
+  // renumber and refresh labels/buttons
+  document.querySelectorAll('.author-block').forEach((b, i) => {
+    const num = b.querySelector('.author-number');
+    const lbl = b.querySelector('.author-label');
+    const lastLbl = b.querySelector('.author-lbl-last');
+    const firstLbl = b.querySelector('.author-lbl-first');
+    if (num) num.textContent = i + 1;
+    if (lbl) lbl.textContent = `${t('authorN')} ${i + 1}`;
+    if (lastLbl) lastLbl.textContent = t('lblLastName');
+    if (firstLbl) firstLbl.textContent = t('lblFirstName');
+    // Show/hide remove button
+    const removeBtn = b.querySelector('.btn-remove-author');
+    if (i === 0 && removeBtn) removeBtn.remove();
+  });
+}
+
+/* ======================================================
+   CITATION ENGINE
+====================================================== */
+function getAuthors() {
+  return authors.map(id => ({
+    last: (document.getElementById(`aLast-${id}`)?.value || '').trim(),
+    first: (document.getElementById(`aFirst-${id}`)?.value || '').trim()
+  })).filter(a => a.last);
+}
+
+function v(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+// Returns true if the string contains Arabic characters
+function isArabic(str) {
+  return /[\u0600-\u06FF]/.test(str);
+}
+
+// Returns abbreviated initial(s) for Latin names, full name for Arabic names
+function abbrev(firstName) {
+  if (!firstName) return '';
+  if (isArabic(firstName)) return firstName;
+  return firstName.charAt(0) + '.';
+}
+
+// Vancouver-style initials: for Arabic keep full name, for Latin use initials
+function abbrevInitials(firstName) {
+  if (!firstName) return '';
+  if (isArabic(firstName)) return firstName;
+  return firstName.split(/\s+/).map(w => w.charAt(0)).join('');
+}
+
+function formatAuthorAPA(a, index, total) {
+  if (!a.last) return '';
+  const initial = abbrev(a.first);
+  return initial ? `${a.last}, ${initial}` : a.last;
+}
+
+function formatAuthorMLA(a, index, total) {
+  if (!a.last) return '';
+  if (index === 0) return a.first ? `${a.last}, ${a.first}` : a.last;
+  return a.first ? `${a.first} ${a.last}` : a.last;
+}
+
+function formatAuthorChicago(a, index, total) {
+  if (!a.last) return '';
+  if (index === 0) return a.first ? `${a.last}, ${a.first}` : a.last;
+  return a.first ? `${a.first} ${a.last}` : a.last;
+}
+
+function formatAuthorHarvard(a, index, total) {
+  if (!a.last) return '';
+  const initial = abbrev(a.first);
+  return initial ? `${a.last}, ${initial}` : a.last;
+}
+
+function formatAuthorVancouver(a, index) {
+  if (!a.last) return '';
+  const initials = abbrevInitials(a.first);
+  return initials ? `${a.last} ${initials}` : a.last;
+}
+
+function formatAuthorISO(a, index) {
+  if (!a.last) return '';
+  return a.first ? `${a.last.toUpperCase()}, ${a.first}` : a.last.toUpperCase();
+}
+
+function joinAuthors(auths, style) {
+  if (!auths.length) return '';
+  const fmt = { apa: formatAuthorAPA, mla: formatAuthorMLA, chicago: formatAuthorChicago, harvard: formatAuthorHarvard, vancouver: formatAuthorVancouver, iso690: formatAuthorISO };
+  const fn = fmt[style] || formatAuthorAPA;
+  const parts = auths.map((a, i) => fn(a, i, auths.length));
+  const et = lang === 'ar' ? 'وآخرون' : 'et al.';
+
+  if (style === 'apa' || style === 'harvard') {
+    if (auths.length === 1) return parts[0];
+    if (auths.length === 2) return parts.join(' & ');
+    if (auths.length > 20) return parts[0] + ', ...' + parts[parts.length-1];
+    return parts.slice(0, -1).join(', ') + ', & ' + parts[parts.length-1];
+  }
+  if (style === 'mla') {
+    if (auths.length === 1) return parts[0];
+    if (auths.length === 2) return `${parts[0]}, and ${parts[1]}`;
+    if (auths.length > 3) return parts[0] + (lang === 'ar' ? '، وآخرون.' : ', et al.');
+    return parts[0] + ', ' + parts.slice(1).join(', ');
+  }
+  if (style === 'chicago') {
+    if (auths.length === 1) return parts[0];
+    if (auths.length === 2) return parts.join(' and ');
+    if (auths.length > 10) return parts[0] + ' et al.';
+    return parts.slice(0, -1).join(', ') + ', and ' + parts[parts.length-1];
+  }
+  if (style === 'vancouver') {
+    if (auths.length <= 6) return parts.join(', ');
+    return parts.slice(0, 6).join(', ') + ' et al.';
+  }
+  return parts.join('; ');
+}
+
+function generateCitation() {
+  const auths = getAuthors();
+  const title = v('fTitle');
+  const year = v('fYear');
+
+  if (!title || !year) { showToast(t('toastError')); return; }
+
+  let html = '';
+  const style = currentStyle;
+  const type = currentType;
+  const fmt = currentFormat;
+
+  const authStr = joinAuthors(auths, style);
+  const firstAuth = auths[0] || { last: '', first: '' };
+  const inTextAuth = firstAuth.last || (auths.length ? auths[0].last : '');
+
+  // === IN-TEXT / FOOTNOTE ===
+  if (fmt === 'intext') {
+    html = buildIntext(style, auths, year, title, type, inTextAuth);
+  } else if (fmt === 'footnote') {
+    html = buildBiblio(style, authStr, auths, year, title, type, true);
+  } else {
+    html = buildBiblio(style, authStr, auths, year, title, type, false);
+  }
+
+  const badgeClass = `badge-${style}`;
+  document.getElementById('output').innerHTML = `<div class="cite-result"><span class="citation-badge ${badgeClass}">${style.toUpperCase()}</span><br>${html}</div>`;
+  updateProgress(4);
+}
+
+function buildIntext(style, auths, year, title, type, inTextAuth) {
+  const auth = inTextAuth || (lang === 'ar' ? 'مجهول' : 'Anonymous');
+  const et = auths.length > 1 ? (lang === 'ar' ? ' وآخرون' : ' et al.') : '';
+  const pg = v('fPgStart') ? (style === 'mla' ? ` ${v('fPgStart')}` : `, ${v('fPgStart')}`) : '';
+
+  if (style === 'apa' || style === 'harvard') return `(${auth}${et}, ${year}${pg})`;
+  if (style === 'mla') return `(${auth}${et}${pg})`;
+  if (style === 'chicago') return `(${auth}${et} ${year}${pg})`;
+  if (style === 'vancouver') {
+    return `<sup>[n]</sup> <span style="font-size:13px;color:#888;">(${lang === 'ar' ? 'رقم المرجع حسب الترتيب' : 'sequential number'})</span>`;
+  }
+  return `(${auth}${et}, ${year})`;
+}
+
+function buildBiblio(style, authStr, auths, year, title, type, footnote) {
+  const edition = v('fEdition');
+  const volume = v('fBookVol');
+  const place = v('fPlace');
+  const publisher = v('fPublisher');
+  const totalPages = v('fTotalPages');
+  const isbn = v('fISBN');
+
+  const journal = v('fJournal');
+  const vol = v('fVolume');
+  const issue = v('fIssue');
+  const pgStart = v('fPgStart');
+  const pgEnd = v('fPgEnd');
+  const doi = v('fDOI');
+  const issn = v('fISSN');
+
+  const thType = document.getElementById('fThType')?.value || 'master';
+  const thTypeLabel = thType === 'phd' ? t('thPhD') : t('thMaster');
+  const univ = v('fUniv');
+  const country = v('fThCountry');
+  const thPages = v('fThPages');
+  const supervisor = v('fSupervisor');
+
+  const siteName = v('fSiteName');
+  const url = v('fURL');
+  const accessed = v('fAccessed');
+
+  const confName = v('fConfName');
+  const confPlace = v('fConfPlace');
+  const confDate = v('fConfDate');
+  const confPgStart = v('fConfPgStart');
+  const confPgEnd = v('fConfPgEnd');
+
+  const org = v('fOrg');
+  const rptNum = v('fRptNum');
+  const rptPlace = v('fRptPlace');
+  const rptURL = v('fRptURL');
+
+  const ed = edition ? (lang === 'ar' ? ` (ط. ${edition})` : ` (${edition}${['st','nd','rd'][+edition-1]||'th'} ed.)`) : '';
+  const vol2 = volume ? (lang === 'ar' ? ` (مج. ${volume})` : ` (Vol. ${volume})`) : '';
+  const pages = pgStart && pgEnd ? `${pgStart}–${pgEnd}` : (pgStart || '');
+  const tpg = totalPages ? (lang === 'ar' ? ` (${totalPages} ص.)` : ` (${totalPages} pp.)`) : '';
+  const doiStr = doi ? ` https://doi.org/${doi}` : '';
+  const accessStr = accessed ? (lang === 'ar' ? ` تاريخ الاطلاع: ${accessed}.` : ` Accessed ${accessed}.`) : '';
+
+  const auth = authStr || (lang === 'ar' ? '[مؤلف غير محدد]' : '[No author]');
+
+  if (style === 'apa') {
+    if (type === 'book') {
+      let c = `${auth} (${year}). <i>${title}</i>${ed}${vol2}.`;
+      if (place && publisher) c += ` ${place}: ${publisher}.`;
+      else if (publisher) c += ` ${publisher}.`;
+      if (isbn) c += ` ISBN: ${isbn}.`;
+      return c;
     }
-
-    function switchLanguage() {
-      lang = document.getElementById("langSelect").value;
-      document.documentElement.lang = lang;
-      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-      updateUIText();
-      renderSavedCitations();
+    if (type === 'journal') {
+      let c = `${auth} (${year}). ${title}. <i>${journal}</i>, <i>${vol}</i>(${issue}), ${pages}.${doiStr}`;
+      return c;
     }
-
-    function checkShowForm() {
-      const source = document.getElementById('sourceType').value;
-      const style = document.getElementById('citationStyle').value;
-      const formSection = document.getElementById('formSection');
-      if (source && style) {
-        formSection.style.display = 'block';
-      } else {
-        formSection.style.display = 'none';
-      }
+    if (type === 'thesis') {
+      let c = `${auth} (${year}). <i>${title}</i> [${thTypeLabel}`;
+      if (univ) c += `, ${univ}`;
+      if (country) c += `, ${country}`;
+      c += `].`;
+      if (supervisor) c += (lang === 'ar' ? ` إشراف: ${supervisor}.` : ` Supervisor: ${supervisor}.`);
+      if (thPages) c += (lang === 'ar' ? ` (${thPages} ص.)` : ` (${thPages} pp.)`);
+      return c;
     }
-
-    function toggleFields() {
-      const type = document.getElementById("sourceType").value;
-      document.getElementById("bookFields").style.display = type === "book" ? "block" : "none";
-      document.getElementById("journalFields").style.display = type === "journal" ? "block" : "none";
-      document.getElementById("thesisFields").style.display = type === "thesis" ? "block" : "none";
-      document.getElementById("pagesField").style.display = (type === "book" || type === "thesis") ? "block" : "none";
+    if (type === 'website') {
+      let c = `${auth} (${year}). ${title}.`;
+      if (siteName) c += ` <i>${siteName}</i>.`;
+      if (url) c += ` ${url}`;
+      c += accessStr;
+      return c;
     }
-
-    // دالة لتحويل الأرقام العربية-الهندية إلى أرقام غربية
-    function convertToArabicToWestern(numStr) {
-      const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-      let westernNumStr = '';
-      for (let i = 0; i < numStr.length; i++) {
-        const char = numStr[i];
-        const index = arabicNumerals.indexOf(char);
-        if (index !== -1) {
-          westernNumStr += index;
-        } else {
-          westernNumStr += char; // Keep non-arabic numerals as is (e.g., western digits)
-        }
-      }
-      return westernNumStr;
+    if (type === 'conference') {
+      let c = `${auth} (${year}). ${title}.`;
+      if (confName) c += ` In <i>${confName}</i>`;
+      if (pages) c += ` (pp. ${pages})`;
+      if (confPlace) c += `. ${confPlace}`;
+      c += '.';
+      return c;
     }
-
-    function generateCitation(e) {
-      e.preventDefault();
-
-      const type = document.getElementById("sourceType").value;
-      const style = document.getElementById("citationStyle").value;
-      const lastName = document.getElementById("lastName").value.trim();
-      const firstName = document.getElementById("firstName").value.trim();
-      const title = document.getElementById("SourceTitle").value.trim();
-      
-      // تنظيف وتحويل سنة النشر
-      let yearInput = document.getElementById("year").value.trim();
-      let year = convertToArabicToWestern(yearInput); // تحويل الأرقام الهندية إلى غربية
-      year = year.replace(/\D/g, ''); // إزالة أي أحرف غير رقمية
-      
-      const totalPagesInput = document.getElementById("totalPages").value.trim();
-      const totalPages = convertToArabicToWestern(totalPagesInput).replace(/\D/g, ''); // تنظيف وتحويل الصفحات
-      let citation = "";
-
-      // التحقق من أن السنة رقمية مكونة من 4 أرقام
-      if (!/^\d{4}$/.test(year)) {
-        document.getElementById("output").innerHTML = translations[lang].noCitation + (lang === 'ar' ? " (يرجى إدخال سنة صحيحة من 4 أرقام)." : " (Please enter a valid 4-digit year).");
-        return;
-      }
-
-      function pageText(pages) {
-        return pages ? (lang === "ar" ? `(${pages} ص.)` : `(${pages} p.)`) : "";
-      }
-
-      if (style === "apa") {
-        if (type === "book") {
-          const place = document.getElementById("place").value.trim();
-          const publisher = document.getElementById("publisher").value.trim();
-          citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i>. ${publisher}.`;
-          if (place) citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i>. ${place}: ${publisher}.`;
-          if (totalPages) citation += ` ${pageText(totalPages)}`;
-        } else if (type === "journal") {
-          const journal = document.getElementById("journalName").value.trim();
-          const volume = convertToArabicToWestern(document.getElementById("volume").value.trim()).replace(/\D/g, '');
-          const issue = convertToArabicToWestern(document.getElementById("issue").value.trim()).replace(/\D/g, '');
-          const pageStart = convertToArabicToWestern(document.getElementById("pageStart").value.trim()).replace(/\D/g, '');
-          const pageEnd = convertToArabicToWestern(document.getElementById("pageEnd").value.trim()).replace(/\D/g, '');
-          const doi = document.getElementById("doi").value.trim();
-          citation = `${lastName}, ${firstName.charAt(0)}. (${year}). ${title}. <i>${journal}</i>, ${volume}(${issue}), ${pageStart}-${pageEnd}.`;
-          if (doi) citation += ` https://doi.org/${doi}`;
-        } else if (type === "thesis") {
-          const university = document.getElementById("university").value.trim();
-          const thesisType = document.getElementById("thesisType").value;
-          citation = `${lastName}, ${firstName.charAt(0)}. (${year}). <i>${title}</i> (${thesisType}). ${university}.`;
-          if (totalPages) citation += ` ${pageText(totalPages)}`;
-        }
-      } else if (style === "mla") {
-        if (type === "book") {
-          const publisher = document.getElementById("publisher").value.trim();
-          citation = `${lastName}, ${firstName}. <i>${title}</i>. ${publisher}, ${year}.`;
-          if (totalPages) citation += ` ${pageText(totalPages)}`;
-        } else if (type === "journal") {
-          const journal = document.getElementById("journalName").value.trim();
-          const volume = convertToArabicToWestern(document.getElementById("volume").value.trim()).replace(/\D/g, '');
-          const issue = convertToArabicToWestern(document.getElementById("issue").value.trim()).replace(/\D/g, '');
-          const pageStart = convertToArabicToWestern(document.getElementById("pageStart").value.trim()).replace(/\D/g, '');
-          const pageEnd = convertToArabicToWestern(document.getElementById("pageEnd").value.trim()).replace(/\D/g, '');
-          citation = `${lastName}, ${firstName}. "${title}." <i>${journal}</i>, vol. ${volume}, no. ${issue}, ${year}, pp. ${pageStart}-${pageEnd}.`;
-        } else if (type === "thesis") {
-          const university = document.getElementById("university").value.trim();
-          const thesisType = document.getElementById("thesisType").value;
-          citation = `${lastName}, ${firstName}. <i>${title}</i>. ${thesisType}, ${university}, ${year}.`;
-          if (totalPages) citation += ` ${pageText(totalPages)}`;
-        }
-      } else if (style === "chicago") {
-        if (type === "book") {
-          const place = document.getElementById("place").value.trim();
-          const publisher = document.getElementById("publisher").value.trim();
-          citation = `${lastName}, ${firstName}. ${year}. <i>${title}</i>. ${place}: ${publisher}.`;
-          if (totalPages) citation += ` ${pageText(totalPages)}`;
-        } else if (type === "journal") {
-          const journal = document.getElementById("journalName").value.trim();
-          const volume = convertToArabicToWestern(document.getElementById("volume").value.trim()).replace(/\D/g, '');
-          const issue = convertToArabicToWestern(document.getElementById("issue").value.trim()).replace(/\D/g, '');
-          const pageStart = convertToArabicToWestern(document.getElementById("pageStart").value.trim()).replace(/\D/g, '');
-          const pageEnd = convertToArabicToWestern(document.getElementById("pageEnd").value.trim()).replace(/\D/g, '');
-          const doi = document.getElementById("doi").value.trim();
-          citation = `${lastName}, ${firstName}. ${year}. "${title}." <i>${journal}</i> ${volume}, no. ${issue}: ${pageStart}-${pageEnd}.`;
-          if (doi) citation += ` https://doi.org/${doi}`;
-        } else if (type === "thesis") {
-          const university = document.getElementById("university").value.trim();
-          const thesisType = document.getElementById("thesisType").value;
-          citation = `${lastName}, ${firstName}. ${year}. "<i>${title}</i>." ${thesisType}, ${university}.`;
-          if (totalPages) citation += ` ${pageText(totalPages)}`;
-        }
-      }
-
-      const styleName = translations[lang].citationStyles[style] || style;
-      document.getElementById("output").innerHTML = citation ? 
-        `<div><span class="citation-type-badge">${styleName}</span> ${citation}</div>` : 
-        translations[lang].noCitation;
+    if (type === 'report') {
+      let c = `${auth} (${year}). <i>${title}</i>`;
+      if (rptNum) c += ` (${lang === 'ar' ? 'رقم التقرير' : 'Report No.'} ${rptNum})`;
+      if (org) c += `. ${org}`;
+      if (rptPlace) c += `, ${rptPlace}`;
+      c += '.';
+      if (rptURL) c += ` ${rptURL}`;
+      return c;
     }
+  }
 
-    function resetForm() {
-      document.querySelector("form").reset();
-      document.getElementById("output").innerHTML = "";
-      document.getElementById("formSection").style.display = 'none'; // إخفاء القسم عند إعادة التعيين
-      toggleFields();
+  if (style === 'mla') {
+    if (type === 'book') {
+      let c = `${auth} <i>${title}</i>${ed}.`;
+      if (publisher) c += ` ${publisher},`;
+      c += ` ${year}.`;
+      if (isbn) c += ` ISBN ${isbn}.`;
+      return c;
     }
-
-    function saveCitation() {
-      const citation = document.getElementById("output").innerHTML;
-      if (citation && citation !== translations[lang].noCitation && !citation.includes("Please enter a valid 4-digit year.")) {
-        savedCitations.push(citation);
-        saveToLocalStorage();
-        renderSavedCitations();
-        alert(translations[lang].saveSuccess);
-      } else {
-        alert(translations[lang].noCitationToSave);
-      }
+    if (type === 'journal') {
+      let c = `${auth} "${title}." <i>${journal}</i>`;
+      if (vol) c += `, vol. ${vol}`;
+      if (issue) c += `, no. ${issue}`;
+      c += `, ${year}`;
+      if (pages) c += `, pp. ${pages}`;
+      c += '.';
+      if (doi) c += ` doi:${doi}.`;
+      return c;
     }
-
-    function renderSavedCitations() {
-      const savedList = document.getElementById("savedList");
-      savedList.innerHTML = '';
-      
-      savedCitations.forEach((citation, index) => {
-        const li = document.createElement("li");
-        li.className = "saved-item";
-        li.innerHTML = `
-          ${citation}
-          <div class="saved-item-actions">
-            <button onclick="copySavedCitation(${index})" class="action-btn copy-btn">
-              ${translations[lang].copy}
-            </button>
-            <button onclick="deleteSavedCitation(${index})" class="action-btn delete-btn">
-              ${translations[lang].delete}
-            </button>
-          </div>
-        `;
-        savedList.appendChild(li);
-      });
-      
-      // Show/hide clear all button
-      document.getElementById("clearAllBtn").style.display = savedCitations.length > 0 ? "block" : "none";
+    if (type === 'thesis') {
+      let c = `${auth} <i>${title}</i>. ${thTypeLabel}`;
+      if (univ) c += `, ${univ}`;
+      c += `, ${year}.`;
+      if (supervisor) c += (lang === 'ar' ? ` إشراف: ${supervisor}.` : ` Supervisor: ${supervisor}.`);
+      return c;
     }
-
-    function copySavedCitation(index) {
-      const citation = savedCitations[index];
-      const textToCopy = citation.replace(/<[^>]*>/g, '');
-      navigator.clipboard.writeText(textToCopy)
-        .then(() => alert(translations[lang].copied))
-        .catch(err => console.error('Failed to copy: ', err));
+    if (type === 'website') {
+      let c = `${auth} "${title}."`;
+      if (siteName) c += ` <i>${siteName}</i>,`;
+      c += ` ${year}.`;
+      if (url) c += ` ${url}.`;
+      c += accessStr;
+      return c;
     }
-
-    function deleteSavedCitation(index) {
-      if (confirm(translations[lang].confirmDelete)) {
-        savedCitations.splice(index, 1);
-        saveToLocalStorage();
-        renderSavedCitations();
-        alert(translations[lang].deleted);
-      }
+    if (type === 'conference') {
+      let c = `${auth} "${title}." <i>${confName || (lang === 'ar' ? 'أعمال المؤتمر' : 'Conference Proceedings')}</i>`;
+      if (confDate) c += `, ${confDate}`;
+      if (confPlace) c += `, ${confPlace}`;
+      if (pages) c += `, pp. ${pages}`;
+      c += '.';
+      return c;
     }
-
-    function clearAllSavedCitations() {
-      if (confirm(translations[lang].confirmClearAll)) {
-        savedCitations = [];
-        saveToLocalStorage();
-        renderSavedCitations();
-        alert(translations[lang].cleared);
-      }
+    if (type === 'report') {
+      let c = `${auth} <i>${title}</i>.`;
+      if (org) c += ` ${org},`;
+      c += ` ${year}.`;
+      if (rptURL) c += ` ${rptURL}.`;
+      return c;
     }
+  }
 
-    function exportToWord() {
-      if (savedCitations.length === 0) {
-        alert(translations[lang].noSavedCitations);
-        return;
-      }
-
-      let content = `<html><head><meta charset='utf-8'></head><body dir="${lang === 'ar' ? 'rtl' : 'ltr'}"><h2>${translations[lang].savedList}:</h2>`;
-      savedCitations.forEach((c, index) => {
-        content += `<p>${index + 1}. ${c.replace(/<span class="citation-type-badge">.*?<\/span>/, '')}</p>`;
-      });
-      content += "</body></html>";
-
-      const blob = new Blob(['\ufeff', content], {
-        type: 'application/msword'
-      });
-
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = lang === 'ar' ? "الاستشهادات.doc" : "citations.doc";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  if (style === 'chicago') {
+    if (type === 'book') {
+      let c = `${auth} <i>${title}</i>${ed}.`;
+      if (place && publisher) c += ` ${place}: ${publisher},`;
+      else if (publisher) c += ` ${publisher},`;
+      c += ` ${year}.`;
+      return c;
     }
-
-    function saveToLocalStorage() {
-      localStorage.setItem('citations', JSON.stringify(savedCitations));
-      localStorage.setItem('lang', lang);
+    if (type === 'journal') {
+      let c = `${auth} "${title}." <i>${journal}</i> ${vol}`;
+      if (issue) c += `, no. ${issue}`;
+      c += ` (${year}): ${pages}.${doiStr}`;
+      return c;
     }
-
-    function loadFromLocalStorage() {
-      const saved = localStorage.getItem('citations');
-      if (saved) {
-        savedCitations = JSON.parse(saved);
-      }
-      const savedLang = localStorage.getItem('lang');
-      if (savedLang) {
-        lang = savedLang;
-        document.getElementById("langSelect").value = lang;
-      }
+    if (type === 'thesis') {
+      let c = `${auth} "${title}." ${thTypeLabel}`;
+      if (univ) c += `, ${univ}`;
+      c += `, ${year}.`;
+      if (supervisor) c += (lang === 'ar' ? ` إشراف: ${supervisor}.` : ` Supervisor: ${supervisor}.`);
+      return c;
     }
+    if (type === 'website') {
+      let c = `${auth} "${title}."`;
+      if (siteName) c += ` ${siteName}.`;
+      if (year) c += ` Last modified ${year}.`;
+      if (url) c += ` ${url}.`;
+      c += accessStr;
+      return c;
+    }
+    if (type === 'conference') {
+      let c = `${auth} "${title}." ${lang === 'ar' ? 'ورقة مقدمة في' : 'Paper presented at'} ${confName || ''}`;
+      if (confPlace) c += `, ${confPlace}`;
+      if (confDate) c += `, ${confDate}`;
+      c += '.';
+      return c;
+    }
+    if (type === 'report') {
+      let c = `${auth} <i>${title}</i>.`;
+      if (rptNum) c += ` ${lang === 'ar' ? 'رقم التقرير' : 'Report'} ${rptNum}.`;
+      if (org) c += ` ${org}`;
+      if (rptPlace) c += `, ${rptPlace}`;
+      c += `, ${year}.`;
+      return c;
+    }
+  }
 
-    window.onload = function() {
-      loadFromLocalStorage();
-      switchLanguage();
-      checkShowForm(); // استدعاء checkShowForm عند التحميل لضمان ظهور النموذج إذا كانت القيم محددة
-      toggleFields();
-      renderSavedCitations();
-    };
-  </script>
+  if (style === 'harvard') {
+    if (type === 'book') {
+      let c = `${auth} (${year}) <i>${title}</i>${ed}.`;
+      if (place && publisher) c += ` ${place}: ${publisher}.`;
+      else if (publisher) c += ` ${publisher}.`;
+      return c;
+    }
+    if (type === 'journal') {
+      let c = `${auth} (${year}) '${title}', <i>${journal}</i>, ${vol}(${issue}), pp. ${pages}.${doiStr}`;
+      return c;
+    }
+    if (type === 'thesis') {
+      let c = `${auth} (${year}) <i>${title}</i>. ${thTypeLabel}`;
+      if (univ) c += `, ${univ}`;
+      c += '.';
+      if (supervisor) c += (lang === 'ar' ? ` إشراف: ${supervisor}.` : ` Supervisor: ${supervisor}.`);
+      return c;
+    }
+    if (type === 'website') {
+      let c = `${auth} (${year}) <i>${title}</i> [Online].`;
+      if (siteName) c += ` ${siteName}.`;
+      if (url) c += ` Available at: ${url}.`;
+      c += accessStr;
+      return c;
+    }
+    if (type === 'conference') {
+      let c = `${auth} (${year}) '${title}'`;
+      if (confName) c += `, in <i>${confName}</i>`;
+      if (confPlace) c += `, ${confPlace}`;
+      if (pages) c += `, pp. ${pages}`;
+      c += '.';
+      return c;
+    }
+    if (type === 'report') {
+      let c = `${auth} (${year}) <i>${title}</i>.`;
+      if (rptNum) c += ` Report no. ${rptNum}.`;
+      if (org) c += ` ${org}.`;
+      return c;
+    }
+  }
+
+  if (style === 'vancouver') {
+    const authVan = auths.map((a, i) => {
+      const initials = a.first ? a.first.split(/\s+/).map(w => w.charAt(0)).join('') : '';
+      return `${a.last} ${initials}`;
+    }).filter(Boolean);
+    const authStr2 = authVan.length <= 6 ? authVan.join(', ') : authVan.slice(0, 6).join(', ') + ' et al.';
+
+    if (type === 'book') {
+      let c = `${authStr2}. ${title}${ed}. ${place || ''}: ${publisher || ''}; ${year}.`;
+      return c.replace(/\s+/g, ' ').replace(/:\s*;/, ';');
+    }
+    if (type === 'journal') {
+      let c = `${authStr2}. ${title}. ${journal}. ${year};${vol}(${issue}):${pages}.${doiStr}`;
+      return c;
+    }
+    if (type === 'thesis') {
+      let c = `${authStr2}. ${title} [${thTypeLabel}]. ${univ || ''}; ${year}.`;
+      if (supervisor) c += (lang === 'ar' ? ` إشراف: ${supervisor}.` : ` Supervisor: ${supervisor}.`);
+      return c;
+    }
+    if (type === 'website') {
+      let c = `${authStr2}. ${title} [Internet].${accessed ? ` [cited ${accessed}]` : ''} Available from: ${url}`;
+      return c;
+    }
+    if (type === 'conference') {
+      let c = `${authStr2}. ${title}.`;
+      if (confName) c += ` In: ${confName};`;
+      if (confDate) c += ` ${confDate};`;
+      if (confPlace) c += ` ${confPlace};`;
+      if (pages) c += ` p. ${pages}.`;
+      return c;
+    }
+    if (type === 'report') {
+      let c = `${authStr2}. ${title}.`;
+      if (rptNum) c += ` Report No.: ${rptNum}.`;
+      if (org) c += ` ${org};`;
+      c += ` ${year}.`;
+      if (rptURL) c += ` Available from: ${rptURL}`;
+      return c;
+    }
+    return `${authStr2}. ${title}. ${year}.`;
+  }
+
+  if (style === 'iso690') {
+    const authISO = auths.map(a => a.first ? `${a.last.toUpperCase()}, ${a.first}` : a.last.toUpperCase()).join(' ; ');
+    if (type === 'book') {
+      let c = `${authISO}. <i>${title}</i>${ed}. ${place || ''} : ${publisher || ''}, ${year}.`;
+      return c;
+    }
+    if (type === 'journal') {
+      let c = `${authISO}. ${title}. <i>${journal}</i>, ${year}, vol. ${vol}, n° ${issue}, p. ${pages}.`;
+      if (doi) c += ` DOI: ${doi}.`;
+      return c;
+    }
+    if (type === 'thesis') {
+      let c = `${authISO}. <i>${title}</i>. ${thTypeLabel}. ${univ || ''}, ${year}.`;
+      if (supervisor) c += (lang === 'ar' ? ` إشراف: ${supervisor}.` : ` Dir. ${supervisor}.`);
+      return c;
+    }
+    if (type === 'website') {
+      let c = `${authISO}. ${title} [en ligne]. ${year}.`;
+      if (url) c += ` Disponible sur : ${url}.`;
+      c += accessStr;
+      return c;
+    }
+    if (type === 'conference') {
+      let c = `${authISO}. ${title}.`;
+      if (confName) c += ` In : <i>${confName}</i>.`;
+      if (confPlace) c += ` ${confPlace},`;
+      c += ` ${year}.`;
+      if (pages) c += ` p. ${pages}.`;
+      return c;
+    }
+    if (type === 'report') {
+      let c = `${authISO}. <i>${title}</i>.`;
+      if (rptNum) c += ` Rapport n° ${rptNum}.`;
+      if (org) c += ` ${org},`;
+      c += ` ${year}.`;
+      if (rptURL) c += ` Disponible sur : ${rptURL}.`;
+      return c;
+    }
+    return `${authISO}. <i>${title}</i>. ${year}.`;
+  }
+
+  return `${auth} (${year}). <i>${title}</i>.`;
+}
+
+function updateProgress(step) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById(`st${i}`);
+    if (!el) continue;
+    el.classList.remove('done', 'active');
+    if (i < step) el.classList.add('done');
+    else if (i === step) el.classList.add('active');
+  }
+}
+
+/* ======================================================
+   COPY
+====================================================== */
+function copyCitation() {
+  const box = document.getElementById('output');
+  const plain = box.innerText || box.textContent;
+  if (!plain || plain === t('outPlaceholder')) return;
+  navigator.clipboard.writeText(plain).then(() => showToast(t('toastCopied')));
+}
+
+/* ======================================================
+   SAVE
+====================================================== */
+function saveCitation() {
+  const box = document.getElementById('output');
+  if (!box.querySelector('.cite-result')) { showToast(t('toastError')); return; }
+  const html = box.innerHTML;
+  savedCitations.push({ html, style: currentStyle, type: currentType, date: new Date().toLocaleDateString(lang === 'ar' ? 'ar-IQ' : 'en-GB') });
+  saveLS();
+  renderSaved();
+  showToast(t('toastSaved'));
+}
+
+function renderSaved() {
+  const container = document.getElementById('savedContainer');
+  const empty = document.getElementById('savedEmpty');
+  const clearBtn = document.getElementById('btnClearAll');
+
+  if (!savedCitations.length) {
+    container.innerHTML = '';
+    container.appendChild(empty);
+    empty.style.display = 'block';
+    clearBtn.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  clearBtn.style.display = '';
+  container.innerHTML = '';
+
+  savedCitations.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'saved-item';
+    div.innerHTML = `
+      <div class="saved-item-num">${i + 1}</div>
+      <div class="saved-item-text">${c.html}</div>
+      <div class="saved-item-actions">
+        <button class="btn btn-success btn-sm" onclick="copySaved(${i})">${t('copyBtn')}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSaved(${i})">${t('deleteBtn')}</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function copySaved(i) {
+  const el = document.createElement('div');
+  el.innerHTML = savedCitations[i].html;
+  navigator.clipboard.writeText(el.innerText || el.textContent).then(() => showToast(t('toastCopied')));
+}
+
+function deleteSaved(i) {
+  if (!confirm(t('confirmDelete'))) return;
+  savedCitations.splice(i, 1);
+  saveLS();
+  renderSaved();
+  showToast(t('toastDeleted'));
+}
+
+function clearAll() {
+  if (!confirm(t('confirmClear'))) return;
+  savedCitations = [];
+  saveLS();
+  renderSaved();
+  showToast(t('toastCleared'));
+}
+
+/* ======================================================
+   EXPORT
+====================================================== */
+function exportWord() {
+  if (!savedCitations.length) return;
+  const dir = lang === 'ar' ? 'rtl' : 'ltr';
+  const title = lang === 'ar' ? 'قائمة الاستشهادات المرجعية' : 'Reference List';
+  let content = `<html><head><meta charset="utf-8">
+    <style>body{font-family:'Times New Roman',serif;direction:${dir};padding:40px;}
+    h1{font-size:20pt;margin-bottom:20px;} p{font-size:12pt;margin-bottom:10px;line-height:1.8;text-align:justify;}
+    </style></head><body dir="${dir}"><h1>${title}</h1>`;
+  savedCitations.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.innerHTML = c.html.replace(/<span[^>]*>.*?<\/span>/g, '');
+    content += `<p>${i+1}. ${el.innerText || el.textContent}</p>`;
+  });
+  content += '</body></html>';
+  const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = lang === 'ar' ? 'الاستشهادات.doc' : 'citations.doc';
+  a.click();
+}
+
+function exportTxt() {
+  if (!savedCitations.length) return;
+  const lines = savedCitations.map((c, i) => {
+    const el = document.createElement('div');
+    el.innerHTML = c.html;
+    return `${i+1}. ${(el.innerText || el.textContent).replace(/\n+/g, ' ').trim()}`;
+  });
+  const blob = new Blob([lines.join('\n\n')], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = lang === 'ar' ? 'الاستشهادات.txt' : 'citations.txt';
+  a.click();
+}
+
+/* ======================================================
+   RESET
+====================================================== */
+function resetForm() {
+  document.querySelectorAll('#formCard input, #formCard select').forEach(el => { el.value = ''; });
+  document.getElementById('output').innerHTML = `<span class="output-placeholder">${t('outPlaceholder')}</span>`;
+  updateProgress(3);
+}
+
+/* ======================================================
+   TOAST
+====================================================== */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ======================================================
+   STORAGE — in-memory only (localStorage not supported here)
+====================================================== */
+function saveLS() {
+  // Citations are kept in the in-memory savedCitations array.
+  // No localStorage needed; list persists for the session.
+}
+
+function loadLS() {
+  // Nothing to load on start; fresh session each time.
+}
+
+/* ======================================================
+   INIT
+====================================================== */
+window.addEventListener('DOMContentLoaded', () => {
+  loadLS();
+  addAuthor();
+  updateUIText();
+  selectType('book');
+  renderSaved();
+  updateProgress(3);
+});
+</script>
 </body>
 </html>
