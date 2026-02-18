@@ -1727,9 +1727,21 @@ function copyCitation() {
 ====================================================== */
 function saveCitation() {
   const box = document.getElementById('output');
-  if (!box.querySelector('.cite-result')) { showToast(t('toastError')); return; }
-  const html = box.innerHTML;
-  savedCitations.push({ html, style: currentStyle, type: currentType, date: new Date().toLocaleDateString(lang === 'ar' ? 'ar-IQ' : 'en-GB') });
+  const citeResult = box.querySelector('.cite-result');
+  if (!citeResult) { showToast(t('toastError')); return; }
+  
+  // Clone and extract only the citation content
+  const citeClone = citeResult.cloneNode(true);
+  const badge = citeClone.querySelector('.citation-badge');
+  if (badge) badge.remove();
+  const citationHTML = citeClone.innerHTML.replace(/^<br>/, '').trim();
+  
+  savedCitations.push({ 
+    html: `<span class="citation-badge badge-${currentStyle}">${currentStyle.toUpperCase()}</span><br>${citationHTML}`, 
+    style: currentStyle, 
+    type: currentType, 
+    date: new Date().toLocaleDateString(lang === 'ar' ? 'ar-IQ' : 'en-GB') 
+  });
   saveLS();
   renderSaved();
   showToast(t('toastSaved'));
@@ -1737,20 +1749,22 @@ function saveCitation() {
 
 function renderSaved() {
   const container = document.getElementById('savedContainer');
-  const empty = document.getElementById('savedEmpty');
   const clearBtn = document.getElementById('btnClearAll');
 
+  // Clear everything inside container
+  container.innerHTML = '';
+
   if (!savedCitations.length) {
-    container.innerHTML = '';
-    container.appendChild(empty);
-    empty.style.display = 'block';
+    container.innerHTML = `
+      <div class="saved-empty" id="savedEmpty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom:8px; opacity:0.3;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        <p id="emptyText">${t('emptyText')}</p>
+      </div>`;
     clearBtn.style.display = 'none';
     return;
   }
 
-  empty.style.display = 'none';
   clearBtn.style.display = '';
-  container.innerHTML = '';
 
   savedCitations.forEach((c, i) => {
     const div = document.createElement('div');
