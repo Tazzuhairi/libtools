@@ -803,24 +803,34 @@
       }
     }
 
-    // Courses average
+    // حساب معدل الكورسات — متوسط حسابي بسيط دائماً
     let coursesAvg = 0;
     if (course1Data.length > 0 && course2Data.length > 0) coursesAvg = (course1Avg + course2Avg) / 2;
     else if (course1Data.length > 0) coursesAvg = course1Avg;
     else if (course2Data.length > 0) coursesAvg = course2Avg;
 
-    // Formula by stage
+    // Formula by stage — تُطبق المعادلة الموزونة فقط إذا وُجدت الرسالة
     let formula = '';
     if (stage === 'phd') {
-      finalAvg = (coursesAvg * 0.3334) + (thesisExists ? thesisGrade * 0.6666 : 0);
-      formula  = thesisExists
-        ? `(معدل الكورسات ${coursesAvg.toFixed(2)} × 33.34%) + (درجة الأطروحة ${thesisGrade} × 66.66%)`
-        : `معدل الكورسات فقط (33.34%): ${coursesAvg.toFixed(2)} × 33.34%`;
+      if (thesisExists) {
+        // الدكتوراه مع أطروحة: الكورسات 33.34% + الأطروحة 66.66%
+        finalAvg = (coursesAvg * 0.3334) + (thesisGrade * 0.6666);
+        formula  = `(معدل الكورسات ${coursesAvg.toFixed(2)} × 33.34%) + (درجة الأطروحة ${thesisGrade} × 66.66%)`;
+      } else {
+        // بدون أطروحة: المعدل الحسابي للكورسات فقط
+        finalAvg = coursesAvg;
+        formula  = `معدل الكورسات فقط (بدون أطروحة) = ${coursesAvg.toFixed(2)}`;
+      }
     } else {
-      finalAvg = (coursesAvg * 0.6666) + (thesisExists ? thesisGrade * 0.3334 : 0);
-      formula  = thesisExists
-        ? `(معدل الكورسات ${coursesAvg.toFixed(2)} × 66.66%) + (درجة الرسالة ${thesisGrade} × 33.34%)`
-        : `معدل الكورسات فقط (66.66%): ${coursesAvg.toFixed(2)} × 66.66%`;
+      if (thesisExists) {
+        // ماجستير / دبلوم مع رسالة: الكورسات 66.66% + الرسالة 33.34%
+        finalAvg = (coursesAvg * 0.6666) + (thesisGrade * 0.3334);
+        formula  = `(معدل الكورسات ${coursesAvg.toFixed(2)} × 66.66%) + (درجة الرسالة ${thesisGrade} × 33.34%)`;
+      } else {
+        // بدون رسالة: المعدل الحسابي للكورسات فقط
+        finalAvg = coursesAvg;
+        formula  = `معدل الكورسات فقط (بدون رسالة) = ${coursesAvg.toFixed(2)}`;
+      }
     }
 
     // Show result
@@ -859,8 +869,7 @@
     const thesisGradeSaved = isNaN(thesisGradeVal) ? null : thesisGradeVal;
     const coursesAvgSaved = (course1Data.length > 0 && course2Data.length > 0)
       ? (course1Avg + course2Avg) / 2
-      : (course1Data.length > 0 ? course1Avg : course2Avg);
-    const record = {
+      : (course1Data.length > 0 ? course1Avg : course2Avg);    const record = {
       studentName, department, stage,
       course1Avg, course2HasData: course2Data.length > 0, course2Avg,
       coursesAvg: coursesAvgSaved, thesisGrade: thesisGradeSaved, finalAvg,
@@ -1052,31 +1061,103 @@
 
   // ── Download Records Word ─────────────────────────────────────
   async function downloadRecordsDOCX() {
-    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } = window.docx;
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+            BorderStyle, AlignmentType, WidthType, ShadingType } = window.docx;
     const list = JSON.parse(localStorage.getItem('studentRecords') || '[]');
     if (list.length === 0) { showToast('لا توجد سجلات لتصديرها', 'error'); return; }
-    const stageLabel = s => s === 'phd' ? 'دكتوراه' : s === 'master' ? 'ماجستير' : 'دبلوم';
-    const cell = text => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(text), font: 'Arial', size: 20 })], alignment: 'center' })] });
 
-    const doc = new Document({ sections: [{ properties: {}, children: [
-      new Paragraph({ children: [new TextRun({ text: 'سجلات الطلاب المحفوظة', bold: true, size: 36, font: 'Arial' })], alignment: 'center' }),
-      new Paragraph({ children: [new TextRun({ text: `تاريخ التصدير: ${new Date().toLocaleDateString('ar')}`, size: 22, font: 'Arial' })], alignment: 'center' }),
-      new Paragraph({ text: '' }),
-      new Table({ rows: [
-        new TableRow({ children: ['القسم','اسم الطالب','المرحلة','معدل الكورسات','درجة الرسالة','المعدل النهائي','التاريخ'].map(h =>
-          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, font: 'Arial', size: 22, color: 'FFFFFF' })], alignment: 'center' })] })
-        )}),
-        ...list.map((r) => new TableRow({ children: [
-          cell(r.department),
-          cell(r.studentName),
-          cell(stageLabel(r.stage)),
-          cell(r.coursesAvg != null ? r.coursesAvg.toFixed(2) : r.course1Avg.toFixed(2)),
-          cell(r.thesisGrade != null ? r.thesisGrade.toFixed(2) : '—'),
-          cell(r.finalAvg.toFixed(2)),
-          cell(new Date(r.timestamp).toLocaleDateString('ar'))
-        ]}))
-      ]})
-    ]}]});
+    const stageLabel = s => s === 'phd' ? 'دكتوراه' : s === 'master' ? 'ماجستير' : 'دبلوم';
+
+    const borders = {
+      top:    { style: BorderStyle.SINGLE, size: 4, color: '5b52e8' },
+      bottom: { style: BorderStyle.SINGLE, size: 4, color: '5b52e8' },
+      left:   { style: BorderStyle.SINGLE, size: 4, color: '5b52e8' },
+      right:  { style: BorderStyle.SINGLE, size: 4, color: '5b52e8' },
+    };
+
+    // Header cell — بنفسجي داكن + نص أبيض عريض
+    const hCell = text => new TableCell({
+      borders,
+      shading: { type: ShadingType.SOLID, color: '5b52e8' },
+      children: [new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text, bold: true, color: 'FFFFFF', size: 28, font: 'Arial' })]
+      })]
+    });
+
+    // Data cell — خلفية بيضاء / رمادية فاتحة بالتناوب
+    const dCell = (text, shade = false) => new TableCell({
+      borders,
+      shading: shade ? { type: ShadingType.SOLID, color: 'F4F5FF' } : undefined,
+      children: [new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: String(text), size: 28, font: 'Arial' })]
+      })]
+    });
+
+    // Final avg cell — بنفسجي فاتح + نص عريض
+    const fCell = (text, shade = false) => new TableCell({
+      borders,
+      shading: { type: ShadingType.SOLID, color: shade ? 'EDE9FF' : 'E0E7FF' },
+      children: [new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: String(text), bold: true, size: 28, font: 'Arial', color: '5b52e8' })]
+      })]
+    });
+
+    // الأعمدة من اليمين إلى اليسار
+    const headers = ['القسم', 'اسم الطالب', 'المرحلة', 'معدل الكورسات', 'درجة الرسالة', 'المعدل النهائي', 'التاريخ'];
+
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 100 },
+            children: [new TextRun({ text: 'سجلات طلاب الدراسات العليا', bold: true, size: 36, font: 'Arial', color: '5b52e8' })]
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 300 },
+            children: [new TextRun({ text: `تاريخ التصدير: ${new Date().toLocaleDateString('ar-IQ')}   |   عدد السجلات: ${list.length}`, size: 28, font: 'Arial', color: '6b7280' })]
+          }),
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            bidi: true,
+            rows: [
+              // رأس الجدول — من اليمين: القسم، الاسم، المرحلة، معدل الكورسات، درجة الرسالة، المعدل النهائي، التاريخ
+              new TableRow({
+                tableHeader: true,
+                children: [...headers].reverse().map(h => hCell(h))
+              }),
+              // صفوف البيانات مع تلوين متناوب — نفس ترتيب الرأس معكوساً
+              ...list.map((r, i) => {
+                const shade = i % 2 === 1;
+                const coursesAvgDisplay = r.coursesAvg != null
+                  ? r.coursesAvg.toFixed(2)
+                  : r.course1Avg.toFixed(2);
+                const cells = [
+                  dCell(r.department, shade),
+                  dCell(r.studentName, shade),
+                  dCell(stageLabel(r.stage), shade),
+                  dCell(coursesAvgDisplay, shade),
+                  dCell(r.thesisGrade != null ? r.thesisGrade.toFixed(2) : '—', shade),
+                  fCell(r.finalAvg.toFixed(2), shade),
+                  dCell(new Date(r.timestamp).toLocaleDateString('ar-IQ'), shade),
+                ];
+                return new TableRow({ children: [...cells].reverse() });
+              })
+            ]
+          }),
+          new Paragraph({
+            spacing: { before: 300 },
+            alignment: AlignmentType.CENTER,
+            children: [new TextRun({ text: 'حقوق النشر © د. طلال ناظم الزهيري و د. علي عبد الصمد — 2025', size: 16, font: 'Arial', color: '9ca3af' })]
+          })
+        ]
+      }]
+    });
 
     const blob = await Packer.toBlob(doc);
     const a = document.createElement('a');
@@ -1190,15 +1271,19 @@
     }
     r.thesisGrade = thesisGrade;
 
-    // Recalculate coursesAvg
+    // Recalculate coursesAvg — متوسط حسابي بسيط دائماً
     const hasC2 = r.course2Subjects && r.course2Subjects.length > 0;
     r.coursesAvg = hasC2 ? (r.course1Avg + r.course2Avg) / 2 : r.course1Avg;
 
-    // Recalculate finalAvg
+    // Recalculate finalAvg — المعادلة الموزونة فقط عند وجود الرسالة
     if (r.stage === 'phd') {
-      r.finalAvg = (r.coursesAvg * 0.3334) + (thesisGrade != null ? thesisGrade * 0.6666 : 0);
+      r.finalAvg = thesisGrade != null
+        ? (r.coursesAvg * 0.3334) + (thesisGrade * 0.6666)
+        : r.coursesAvg;
     } else {
-      r.finalAvg = (r.coursesAvg * 0.6666) + (thesisGrade != null ? thesisGrade * 0.3334 : 0);
+      r.finalAvg = thesisGrade != null
+        ? (r.coursesAvg * 0.6666) + (thesisGrade * 0.3334)
+        : r.coursesAvg;
     }
 
     list[index] = r;
