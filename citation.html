@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مولًد الاستشهاد المرجعي العراقي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════════ */
+:root {
+  --ink:        #0F1923;
+  --paper:      #F5F1EA;
+  --cream:      #EDE7DA;
+  --navy:       #1B3A5C;
+  --navy-mid:   #245080;
+  --navy-lt:    #D6E4F0;
+  --ruby:       #7C1D30;
+  --ruby-lt:    #F9EEF1;
+  --gold:       #9A6B00;
+  --gold-lt:    #FFF8E7;
+  --sage:       #3D6B4F;
+  --sage-lt:    #EBF5EF;
+  --border:     #D5CBBA;
+  --muted:      #7A7065;
+  --shadow-sm:  0 2px 8px rgba(15,25,35,.08);
+  --shadow-md:  0 6px 24px rgba(15,25,35,.12);
+  --radius:     10px;
+  --transition: .18s cubic-bezier(.4,0,.2,1);
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  direction: rtl;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════ */
+.site-header {
+  background: var(--navy);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,.25);
+}
+
+.header-band {
+  background: var(--ruby);
+  height: 4px;
+}
+
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 24px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-title h1 {
+  font-family: 'Amiri', serif;
+  font-size: 1.55rem;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.2;
+}
+
+.header-title p {
+  font-size: .78rem;
+  color: rgba(255,255,255,.6);
+  margin-top: 3px;
+  font-weight: 300;
+}
+
+.equity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(156,107,0,.25);
+  border: 1px solid rgba(156,107,0,.5);
+  color: #F0C44A;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: .04em;
+}
+
+/* ═══════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════ */
+.app-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* ═══════════════════════════════════════════════════
+   CARD
+═══════════════════════════════════════════════════ */
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 14px 22px;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-head h2 {
+  font-family: 'Amiri', serif;
+  font-size: 1.05rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.card-body { padding: 24px 22px; }
+
+/* ═══════════════════════════════════════════════════
+   SOURCE TYPE TABS
+═══════════════════════════════════════════════════ */
+.type-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 18px 22px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+  padding: 7px 15px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  user-select: none;
+}
+
+.tab-btn:hover {
+  border-color: var(--navy-mid);
+  color: var(--navy);
+  background: var(--navy-lt);
+}
+
+.tab-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(27,58,92,.25);
+}
+
+/* ═══════════════════════════════════════════════════
+   FORM GRID
+═══════════════════════════════════════════════════ */
+.fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+@media (max-width: 540px) {
+  .fields-grid { grid-template-columns: 1fr; }
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.span2 { grid-column: 1 / -1; }
+
+.field label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.req { color: var(--ruby); font-size: .9rem; line-height: 1; }
+
+.field input, .field textarea {
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .9rem;
+  color: var(--ink);
+  background: var(--paper);
+  direction: rtl;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  outline: none;
+  resize: none;
+}
+
+.field input:focus, .field textarea:focus {
+  border-color: var(--navy-mid);
+  box-shadow: 0 0 0 3px rgba(36,80,128,.12);
+  background: #fff;
+}
+
+.field input::placeholder { color: #B0A898; }
+
+/* ── Gender icons in generate button ── */
+.btn-generate {
+  position: relative;
+}
+
+.gender-icons-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.gender-icon-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  transition: all var(--transition);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.gender-icon-btn svg {
+  width: 38px;
+  height: 46px;
+  transition: transform .2s ease;
+}
+
+.gender-icon-btn:hover svg { transform: scale(1.12); }
+
+.gender-icon-btn .g-label {
+  font-family: 'Tajawal', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--muted);
+  transition: color var(--transition);
+}
+
+/* male */
+.gender-icon-btn.male:hover {
+  border-color: var(--navy-mid);
+  background: #EDF3FB;
+}
+.gender-icon-btn.male.sel {
+  border-color: var(--navy);
+  background: #E0EBF8;
+  box-shadow: 0 0 0 3px rgba(27,58,92,.12), 0 4px 12px rgba(27,58,92,.15);
+}
+.gender-icon-btn.male.sel .g-label { color: var(--navy); }
+.gender-icon-btn.male.sel::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: .7rem;
+  color: var(--navy);
+  font-weight: 900;
+}
+
+/* female */
+.gender-icon-btn.female:hover {
+  border-color: var(--ruby);
+  background: var(--ruby-lt);
+}
+.gender-icon-btn.female.sel {
+  border-color: var(--ruby);
+  background: #F5E0E5;
+  box-shadow: 0 0 0 3px rgba(124,29,48,.12), 0 4px 12px rgba(124,29,48,.15);
+}
+.gender-icon-btn.female.sel .g-label { color: var(--ruby); }
+.gender-icon-btn.female.sel::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: .7rem;
+  color: var(--ruby);
+  font-weight: 900;
+}
+
+/* generate button — changes based on gender */
+.btn-generate {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px 20px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: .03em;
+  transition: background var(--transition), transform .1s, box-shadow var(--transition);
+  box-shadow: 0 3px 12px rgba(27,58,92,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-generate.gender-female {
+  background: linear-gradient(135deg, var(--ruby), #A0293F);
+  box-shadow: 0 3px 12px rgba(124,29,48,.35);
+}
+
+.btn-generate .btn-gender-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.btn-generate:hover { filter: brightness(1.1); box-shadow: 0 5px 18px rgba(27,58,92,.4); }
+.btn-generate.gender-female:hover { box-shadow: 0 5px 18px rgba(124,29,48,.4); }
+.btn-generate:active { transform: scale(.99); }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Divider ── */
+.form-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: var(--cream);
+  margin: 4px 0;
+}
+
+/* generate button styles defined above in gender section */
+
+/* ═══════════════════════════════════════════════════
+   RESULTS
+═══════════════════════════════════════════════════ */
+.results-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeUp .3s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-block {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+}
+
+.result-head.intext    { background: var(--navy); }
+.result-head.footnote  { background: var(--sage); }
+.result-head.reference { background: var(--ruby); }
+
+.result-tag {
+  font-size: .72rem;
+  font-weight: 800;
+  color: rgba(255,255,255,.85);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.btn-copy {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 5px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.btn-copy:hover { background: rgba(255,255,255,.28); }
+.btn-copy.done  { background: rgba(255,255,255,.35); }
+
+.result-text {
+  padding: 16px 20px;
+  font-family: 'Amiri', serif;
+  font-size: 1.1rem;
+  line-height: 2;
+  color: var(--ink);
+  background: #fff;
+  direction: rtl;
+  text-align: right;
+  word-break: break-word;
+}
+
+.result-text mark {
+  background: #FFF176;
+  color: var(--ruby);
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* ── Equity note below results ── */
+.equity-banner {
+  background: linear-gradient(135deg, var(--ruby-lt), var(--gold-lt));
+  border: 1px solid rgba(124,29,48,.2);
+  border-right: 4px solid var(--ruby);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: .82rem;
+  color: #5A1428;
+  line-height: 1.8;
+  display: none;
+  animation: fadeUp .3s ease;
+}
+
+.equity-banner.show { display: block; }
+.equity-banner strong { color: var(--ruby); }
+
+/* ═══════════════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--muted);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  opacity: .6;
+}
+
+.empty-state p { font-size: .88rem; line-height: 1.9; }
+
+/* ═══════════════════════════════════════════════════
+   PRINCIPLE PANEL (collapsible)
+═══════════════════════════════════════════════════ */
+.principle-card {
+  border: 1px solid rgba(124,29,48,.25);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.principle-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, var(--ruby), #9B3A50);
+  border: none;
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  color: #fff;
+  font-size: .88rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-align: right;
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  transition: transform .3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-icon.open { transform: rotate(180deg); }
+
+.principle-body {
+  display: none;
+  padding: 20px 22px;
+  font-size: .84rem;
+  line-height: 1.9;
+  color: var(--ink);
+  border-top: 1px solid rgba(124,29,48,.15);
+}
+
+.principle-body.open { display: block; animation: fadeUp .25s ease; }
+
+.principle-body h3 {
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--ruby);
+  margin: 14px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.principle-body h3:first-child { margin-top: 0; }
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: .8rem;
+}
+
+.compare-table th {
+  background: var(--navy);
+  color: #fff;
+  padding: 8px 12px;
+  text-align: right;
+  font-weight: 700;
+}
+
+.compare-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--cream);
+  text-align: right;
+}
+
+.compare-table tr:nth-child(even) td { background: var(--cream); }
+
+/* ═══════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════ */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: .82rem;
+  font-weight: 600;
+  z-index: 9999;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════ */
+.site-footer {
+  text-align: center;
+  padding: 28px 20px;
+  font-size: .74rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: var(--cream);
+  line-height: 2;
+}
+
+.site-footer em {
+  display: block;
+  font-style: italic;
+  color: var(--ruby);
+  font-family: 'Amiri', serif;
+  font-size: .88rem;
+  margin-top: 6px;
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .header-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .equity-pill { font-size: .67rem; }
+  .header-title h1 { font-size: 1.25rem; }
+  .tab-btn { font-size: .74rem; padding: 6px 11px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="site-header">
+  <div class="header-band"></div>
+  <div class="header-inner">
+    <div class="header-title">
+      <h1>مولد الاستشهاد المرجعي العراقي IQRC</h1>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="app-shell">
+<!-- بطاقة الإدخال -->
+  <div class="card">
+    <div class="type-tabs" id="type-tabs">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="card-body">
+      <div class="fields-grid" id="fields-grid">
+        <!-- filled by JS -->
+      </div>
+
+      <!-- Gender icons + Generate button -->
+      <div class="gender-icons-row" id="gender-icons-row">
+
+        <div class="gender-icon-btn male" id="btn-male" onclick="setGender('male')" title="ذكر">
+          <!-- Male restroom head: plain circle head + shoulders -->
+          <svg viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- head -->
+            <circle cx="24" cy="13" r="9" fill="#1B3A5C"/>
+            <!-- shoulders / body block -->
+            <path d="M6 50 C6 36 14 30 24 30 C34 30 42 36 42 50 Z" fill="#1B3A5C"/>
+          </svg>
+          <span class="g-label">ذكر</span>
+        </div>
+
+        <div class="gender-icon-btn female" id="btn-female" onclick="setGender('female')" title="أنثى">
+          <!-- Female restroom head: head with hair + dress silhouette -->
+          <svg viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- hair arc on top -->
+            <path d="M13 14 C11 4 37 4 35 14" fill="#7C1D30"/>
+            <!-- hair sides -->
+            <path d="M13 14 C10 14 9 20 10 24 C10 26 13 25 13 22 L13 14Z" fill="#7C1D30"/>
+            <path d="M35 14 C38 14 39 20 38 24 C38 26 35 25 35 22 L35 14Z" fill="#7C1D30"/>
+            <!-- head -->
+            <circle cx="24" cy="15" r="9" fill="#7C1D30"/>
+            <!-- dress / skirt triangle -->
+            <path d="M14 32 L34 32 L40 52 L8 52 Z" fill="#7C1D30"/>
+            <!-- neck + torso connector -->
+            <rect x="20" y="24" width="8" height="9" rx="2" fill="#7C1D30"/>
+          </svg>
+          <span class="g-label">أنثى</span>
+        </div>
+
+      </div>
+
+      <button class="btn-generate" id="btn-generate" onclick="generate()">
+        <span class="btn-gender-icon" id="btn-gender-icon">⬅</span>
+        <span id="btn-generate-label">اختر الجنس ثم ولِّد الاستشهاد</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- النتائج -->
+  <div id="results-area">
+    <div class="empty-state">
+      <div class="empty-icon">📖</div>
+      <p>اختر نوع المصدر، أدخل البيانات<br>ثم اضغط «توليد الاستشهاد»</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="site-footer">
+  مولِّد الاستشهاد المرجعي العربي الشامل
+  <em>تصميم وتطوير: د. طلال ناظم الزهيري &nbsp;©&nbsp;2026</em>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast">تم النسخ ✓</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATA — Source types & fields
+// ═══════════════════════════════════════════════════
+const SOURCE_TYPES = [
+  { id:'book',       label:'كتاب' },
+  { id:'journal',    label:'مقالة دورية' },
+  { id:'newspaper',  label:'مقالة صحيفة' },
+  { id:'thesis_m',   label:'رسالة ماجستير' },
+  { id:'thesis_d',   label:'أطروحة دكتوراه' },
+  { id:'chapter',    label:'فصل في كتاب' },
+  { id:'website',    label:'موقع إلكتروني' },
+  { id:'conference', label:'ورقة مؤتمر' },
+  { id:'law',        label:'قانون / تشريع' },
+  { id:'report',     label:'تقرير رسمي' },
+];
+
+const FIELDS = {
+  book: [
+    { id:'firstName', label:'الاسم الأول',         ph:'',  req:true,  span:false },
+    { id:'midName',   label:'اسم الأب / الجد',      ph:'',  req:false, span:false },
+    { id:'lastName',  label:'اسم العائلة',           ph:'',  req:true,  span:false },
+    { id:'year',      label:'سنة النشر',             ph:'',  req:true,  span:false },
+    { id:'GENDER',    label:'',                       ph:'',  req:true,  span:true  },
+    { id:'title',     label:'عنوان الكتاب',          ph:'',  req:true,  span:true  },
+    { id:'edition',   label:'الطبعة (إن وُجدت)',    ph:'',  req:false, span:false },
+    { id:'city',      label:'مدينة النشر',           ph:'',  req:true,  span:false },
+    { id:'publisher', label:'دار النشر',             ph:'',  req:true,  span:false },
+    { id:'pages',     label:'عدد الصفحات الكلي',    ph:'',  req:false, span:false },
+    { id:'pageRef',   label:'الصفحة المستشهَد بها', ph:'',  req:false, span:false },
+  ],
+  journal: [
+    { id:'firstName',  label:'الاسم الأول',         ph:'',  req:true,  span:false },
+    { id:'midName',    label:'اسم الأب / الجد',      ph:'',  req:false, span:false },
+    { id:'lastName',   label:'اسم العائلة',           ph:'',  req:true,  span:false },
+    { id:'year',       label:'سنة النشر',             ph:'',  req:true,  span:false },
+    { id:'GENDER',     label:'',                       ph:'',  req:true,  span:true  },
+    { id:'title',      label:'عنوان المقالة',         ph:'',  req:true,  span:true  },
+    { id:'journal',    label:'اسم المجلة',            ph:'',  req:true,  span:false },
+    { id:'volume',     label:'المجلد',                ph:'',  req:false, span:false },
+    { id:'issue',      label:'العدد',                 ph:'',  req:false, span:false },
+    { id:'pagesRange', label:'نطاق الصفحات',          ph:'',  req:false, span:false },
+    { id:'doi',        label:'DOI (إن وُجد)',         ph:'',  req:false, span:false },
+    { id:'pageRef',    label:'الصفحة المستشهَد بها', ph:'',  req:false, span:false },
+  ],
+  newspaper: [
+    { id:'firstName',  label:'الاسم الأول',         ph:'',  req:true,  span:false },
+    { id:'midName',    label:'اسم الأب / الجد',      ph:'',  req:false, span:false },
+    { id:'lastName',   label:'اسم العائلة',           ph:'',  req:true,  span:false },
+    { id:'year',       label:'السنة',                 ph:'',  req:true,  span:false },
+    { id:'GENDER',     label:'',                       ph:'',  req:true,  span:true  },
+    { id:'date',       label:'التاريخ الكامل',        ph:'',  req:false, span:false },
+    { id:'title',      label:'عنوان المقال',          ph:'',  req:true,  span:true  },
+    { id:'newspaper',  label:'اسم الصحيفة',          ph:'',  req:true,  span:false },
+    { id:'pageRef',    label:'رقم الصفحة',            ph:'',  req:false, span:false },
+  ],
+  thesis_m: [
+    { id:'firstName',  label:'الاسم الأول',         ph:'',  req:true,  span:false },
+    { id:'midName',    label:'اسم الأب / الجد',      ph:'',  req:false, span:false },
+    { id:'lastName',   label:'اسم العائلة',           ph:'',  req:true,  span:false },
+    { id:'year',       label:'سنة النشر',             ph:'',  req:true,  span:false },
+    { id:'GENDER',     label:'',                       ph:'',  req:true,  span:true  },
+    { id:'title',      label:'عنوان الرسالة',         ph:'',  req:true,  span:true  },
+    { id:'faculty',    label:'الكلية',                ph:'',  req:false, span:false },
+    { id:'university', label:'الجامعة',               ph:'',  req:true,  span:false },
+    { id:'pages',      label:'عدد الصفحات',          ph:'',  req:false, span:false },
+    { id:'pageRef',    label:'الصفحة المستشهَد بها', ph:'',  req:false, span:false },
+  ],
+  thesis_d: [
+    { id:'firstName',  label:'الاسم الأول',         ph:'',  req:true,  span:false },
+    { id:'midName',    label:'اسم الأب / الجد',      ph:'',  req:false, span:false },
+    { id:'lastName',   label:'اسم العائلة',           ph:'',  req:true,  span:false },
+    { id:'year',       label:'سنة النشر',             ph:'',  req:true,  span:false },
+    { id:'GENDER',     label:'',                       ph:'',  req:true,  span:true  },
+    { id:'title',      label:'عنوان الأطروحة',       ph:'',  req:true,  span:true  },
+    { id:'faculty',    label:'الكلية',                ph:'',  req:false, span:false },
+    { id:'university', label:'الجامعة',               ph:'',  req:true,  span:false },
+    { id:'pages',      label:'عدد الصفحات',          ph:'',  req:false, span:false },
+    { id:'pageRef',    label:'الصفحة المستشهَد بها', ph:'',  req:false, span:false },
+  ],
+  chapter: [
+    { id:'firstName',   label:'الاسم الأول (صاحب الفصل)',   ph:'',  req:true,  span:false },
+    { id:'midName',     label:'اسم الأب / الجد',             ph:'',  req:false, span:false },
+    { id:'lastName',    label:'اسم العائلة',                  ph:'',  req:true,  span:false },
+    { id:'year',        label:'سنة النشر',                   ph:'',  req:true,  span:false },
+    { id:'GENDER',      label:'',                             ph:'',  req:true,  span:true  },
+    { id:'title',       label:'عنوان الفصل',                 ph:'',  req:true,  span:true  },
+    { id:'editorName',  label:'اسم المحرِّر كاملاً',        ph:'',  req:true,  span:true  },
+    { id:'bookTitle',   label:'عنوان الكتاب المحرَّر',      ph:'',  req:true,  span:true  },
+    { id:'city',        label:'مدينة النشر',                 ph:'',  req:true,  span:false },
+    { id:'publisher',   label:'دار النشر',                   ph:'',  req:true,  span:false },
+    { id:'pagesRange',  label:'صفحات الفصل',                ph:'',  req:false, span:false },
+    { id:'pageRef',     label:'الصفحة المستشهَد بها',       ph:'',  req:false, span:false },
+  ],
+  website: [
+    { id:'firstName',   label:'الاسم الأول أو اسم الجهة',  ph:'',  req:true,  span:false },
+    { id:'midName',     label:'اسم الأب / الجد (إن وُجد)', ph:'',  req:false, span:false },
+    { id:'lastName',    label:'اسم العائلة (إن وُجد)',      ph:'',  req:false, span:false },
+    { id:'year',        label:'سنة النشر / التحديث',        ph:'',  req:true,  span:false },
+    { id:'GENDER',      label:'',                             ph:'',  req:true,  span:true  },
+    { id:'title',       label:'عنوان الصفحة',               ph:'',  req:true,  span:true  },
+    { id:'accessDate',  label:'تاريخ الاسترجاع',            ph:'',  req:false, span:false },
+    { id:'url',         label:'الرابط الإلكتروني',          ph:'',  req:true,  span:true  },
+  ],
+  conference: [
+    { id:'firstName',  label:'الاسم الأول',         ph:'',  req:true,  span:false },
+    { id:'midName',    label:'اسم الأب / الجد',      ph:'',  req:false, span:false },
+    { id:'lastName',   label:'اسم العائلة',           ph:'',  req:true,  span:false },
+    { id:'year',       label:'سنة المؤتمر',           ph:'',  req:true,  span:false },
+    { id:'GENDER',     label:'',                       ph:'',  req:true,  span:true  },
+    { id:'title',      label:'عنوان الورقة',          ph:'',  req:true,  span:true  },
+    { id:'confName',   label:'اسم المؤتمر',           ph:'',  req:true,  span:true  },
+    { id:'confPlace',  label:'مكان المؤتمر',          ph:'',  req:false, span:false },
+    { id:'confDate',   label:'تاريخ المؤتمر',         ph:'',  req:false, span:false },
+    { id:'pagesRange', label:'الصفحات (إن نُشرت)',   ph:'',  req:false, span:false },
+    { id:'pageRef',    label:'الصفحة المستشهَد بها', ph:'',  req:false, span:false },
+  ],
+  law: [
+    { id:'firstName',  label:'اسم القانون',           ph:'',  req:true,  span:true  },
+    { id:'lastName',   label:'رقم القانون',            ph:'',  req:false, span:false },
+    { id:'year',       label:'سنة الإصدار',           ph:'',  req:true,  span:false },
+    { id:'GENDER',     label:'',                        ph:'',  req:false, span:true  },
+    { id:'article',    label:'رقم المادة / الفصل',   ph:'',  req:false, span:false },
+    { id:'lawJournal', label:'اسم الجريدة الرسمية',  ph:'',  req:false, span:false },
+    { id:'issue',      label:'رقم العدد',             ph:'',  req:false, span:false },
+  ],
+  report: [
+    { id:'firstName',  label:'اسم الجهة أو المؤلف',  ph:'',  req:true,  span:false },
+    { id:'midName',    label:'اسم الأب / الجد',        ph:'',  req:false, span:false },
+    { id:'lastName',   label:'اسم العائلة',             ph:'',  req:false, span:false },
+    { id:'year',       label:'سنة التقرير',            ph:'',  req:true,  span:false },
+    { id:'GENDER',     label:'',                         ph:'',  req:true,  span:true  },
+    { id:'title',      label:'عنوان التقرير',          ph:'',  req:true,  span:true  },
+    { id:'city',       label:'مدينة النشر',            ph:'',  req:false, span:false },
+    { id:'publisher',  label:'الجهة الناشرة',          ph:'',  req:false, span:false },
+    { id:'pages',      label:'عدد الصفحات',           ph:'',  req:false, span:false },
+    { id:'pageRef',    label:'الصفحة المستشهَد بها',  ph:'',  req:false, span:false },
+  ],
+};
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let state = {
+  type:   'book',
+  gender: '',
+  fields: {}
+};
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+function init() {
+  renderTabs();
+  renderFields();
+}
+
+// ═══════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════
+function renderTabs() {
+  const el = document.getElementById('type-tabs');
+  el.innerHTML = SOURCE_TYPES.map(t =>
+    `<button class="tab-btn ${t.id===state.type?'active':''}"
+      onclick="selectType('${t.id}')">${t.label}</button>`
+  ).join('');
+}
+
+function selectType(id) {
+  state.type = id;
+  state.fields = {};
+  state.gender = '';
+  renderTabs();
+  renderFields();
+  // Reset gender icon buttons
+  document.getElementById('btn-male').classList.remove('sel');
+  document.getElementById('btn-female').classList.remove('sel');
+  const btn = document.getElementById('btn-generate');
+  btn.classList.remove('gender-female');
+  document.getElementById('btn-gender-icon').innerHTML = '⬅';
+  document.getElementById('btn-generate-label').textContent = 'اختر الجنس ثم ولِّد الاستشهاد';
+  document.getElementById('results-area').innerHTML = emptyHTML();
+}
+
+// ═══════════════════════════════════════════════════
+//  FIELDS
+// ═══════════════════════════════════════════════════
+function renderFields() {
+  const fields = FIELDS[state.type] || [];
+  const grid = document.getElementById('fields-grid');
+  grid.innerHTML = fields
+    .filter(f => f.id !== 'GENDER')   // gender is now external
+    .map(f => {
+      const span = f.span ? 'span2' : '';
+      const req  = f.req  ? '<span class="req">*</span>' : '';
+      const val  = state.fields[f.id] || '';
+      return `
+        <div class="field ${span}">
+          <label>${f.label} ${req}</label>
+          <input type="text" id="f_${f.id}"
+                 value="${esc(val)}"
+                 oninput="onInput('${f.id}', this.value)">
+        </div>`;
+    }).join('');
+}
+
+function genderHTML() {
+  // Gender is now handled externally via #gender-icons-row — no inline field needed
+  return '';
+}
+
+function setGender(v) {
+  state.gender = v;
+
+  // Update icon button states
+  document.getElementById('btn-male').classList.toggle('sel', v === 'male');
+  document.getElementById('btn-female').classList.toggle('sel', v === 'female');
+
+  // Update generate button appearance
+  const btn       = document.getElementById('btn-generate');
+  const iconSpan  = document.getElementById('btn-gender-icon');
+  const labelSpan = document.getElementById('btn-generate-label');
+
+  if (v === 'male') {
+    btn.classList.remove('gender-female');
+    iconSpan.innerHTML = `<svg width="22" height="26" viewBox="0 0 48 56" style="vertical-align:middle">
+      <circle cx="24" cy="13" r="9" fill="rgba(255,255,255,0.92)"/>
+      <path d="M6 50 C6 36 14 30 24 30 C34 30 42 36 42 50 Z" fill="rgba(255,255,255,0.92)"/>
+    </svg>`;
+    labelSpan.textContent = 'توليد الاستشهاد — ذكر';
+  } else if (v === 'female') {
+    btn.classList.add('gender-female');
+    iconSpan.innerHTML = `<svg width="22" height="26" viewBox="0 0 48 56" style="vertical-align:middle">
+      <path d="M13 14 C11 4 37 4 35 14" fill="rgba(255,255,255,0.92)"/>
+      <path d="M13 14 C10 14 9 20 10 24 C10 26 13 25 13 22 L13 14Z" fill="rgba(255,255,255,0.92)"/>
+      <path d="M35 14 C38 14 39 20 38 24 C38 26 35 25 35 22 L35 14Z" fill="rgba(255,255,255,0.92)"/>
+      <circle cx="24" cy="15" r="9" fill="rgba(255,255,255,0.92)"/>
+      <path d="M14 32 L34 32 L40 52 L8 52 Z" fill="rgba(255,255,255,0.92)"/>
+      <rect x="20" y="24" width="8" height="9" rx="2" fill="rgba(255,255,255,0.92)"/>
+    </svg>`;
+    labelSpan.textContent = 'توليد الاستشهاد — أنثى';
+  } else {
+    btn.classList.remove('gender-female');
+    iconSpan.innerHTML = '⬅';
+    labelSpan.textContent = 'اختر الجنس ثم ولِّد الاستشهاد';
+  }
+}
+
+function onInput(id, val) {
+  state.fields[id] = val;
+}
+
+// ═══════════════════════════════════════════════════
+//  CITATION BUILDER — core equity logic
+// ═══════════════════════════════════════════════════
+function getF() {
+  const out = { ...state.fields, gender: state.gender };
+  (FIELDS[state.type] || []).forEach(f => {
+    if (f.id === 'GENDER') return;
+    const el = document.getElementById('f_' + f.id);
+    if (el) out[f.id] = el.value.trim();
+  });
+  return out;
+}
+
+function fullName(f) {
+  return [f.firstName, f.midName, f.lastName].filter(Boolean).join(' ');
+}
+
+/* ◀ THE EQUITY RULE */
+function inTextName(f) {
+  if (!f.lastName) return f.firstName || '';
+  if (f.gender === 'female') return `${f.firstName} ${f.lastName}`.trim();
+  return f.lastName;
+}
+
+function listName(f) {
+  if (!f.lastName) return f.firstName || '';
+  return `${f.lastName}، ${[f.firstName, f.midName].filter(Boolean).join(' ')}`;
+}
+
+function buildCitation(type, f) {
+  const iname = inTextName(f);
+  const fname = fullName(f);
+  const lname = listName(f);
+  const yr    = f.year   || 'سنة';
+  const title = f.title  || 'عنوان المصدر';
+  const pg    = f.pageRef ? `، ص${f.pageRef}` : '';
+  const pgDot = f.pageRef ? `. ص${f.pageRef}.` : '.';
+
+  switch(type) {
+    case 'book': {
+      const ed  = f.edition ? `. ${f.edition}` : '';
+      const pub = [f.city, f.publisher].filter(Boolean).join(': ');
+      const tot = f.pages   ? `. ${f.pages} ص` : '';
+      return {
+        inText:    `[${iname}: ${yr}${pg}]`,
+        footnote:  `${fname}. ${yr}. ${title}${ed}. ${pub || '___'}${pgDot}`,
+        reference: `${lname} (${yr}). ${title}${ed}. ${pub || '___'}${tot}.`,
+      };
+    }
+    case 'journal': {
+      const parts = [
+        f.volume    ? `مج${f.volume}` : '',
+        f.issue     ? `ع${f.issue}`   : '',
+        f.pagesRange? `ص${f.pagesRange}` : '',
+      ].filter(Boolean).join('، ');
+      const doi = f.doi ? `. DOI: ${f.doi}` : '';
+      return {
+        inText:    `[${iname}: ${yr}${pg}]`,
+        footnote:  `${fname}. ${yr}. ${title}. ${f.journal||'___'}، ${parts}${pgDot}`,
+        reference: `${lname} (${yr}). ${title}. ${f.journal||'___'}، ${parts}${doi}.`,
+      };
+    }
+    case 'newspaper': {
+      const dt = f.date ? `، ${f.date}` : '';
+      return {
+        inText:    `[${iname}: ${yr}${pg}]`,
+        footnote:  `${fname}. ${yr}${dt}. ${title}. ${f.newspaper||'___'}${pgDot}`,
+        reference: `${lname} (${yr}${dt}). ${title}. ${f.newspaper||'___'}${f.pageRef?`، ص${f.pageRef}`:''}.`,
+      };
+    }
+    case 'thesis_m':
+    case 'thesis_d': {
+      const kind = type==='thesis_m' ? 'رسالة ماجستير غير منشورة' : 'أطروحة دكتوراه غير منشورة';
+      const inst = [f.faculty, f.university].filter(Boolean).join('، ');
+      const tot  = f.pages ? `. ${f.pages} ص` : '';
+      return {
+        inText:    `[${iname}: ${yr}${pg}]`,
+        footnote:  `${fname}. ${yr}. ${title}. ${kind}، ${inst||'___'}${pgDot}`,
+        reference: `${lname} (${yr}). ${title}. ${kind}، ${inst||'___'}${tot}.`,
+      };
+    }
+    case 'chapter': {
+      const pub  = [f.city, f.publisher].filter(Boolean).join(': ');
+      const pgs  = f.pagesRange ? `ص${f.pagesRange}` : '';
+      return {
+        inText:    `[${iname}: ${yr}${pg}]`,
+        footnote:  `${fname}. ${yr}. ${title}. في: ${f.editorName||'___'} (محرر). ${f.bookTitle||'___'}. ${pub||'___'}. ${pgs}${pgDot}`,
+        reference: `${lname} (${yr}). ${title}. في: ${f.editorName||'___'} (محرر). ${f.bookTitle||'___'}. ${pub||'___'}. ${pgs}.`,
+      };
+    }
+    case 'website': {
+      const acc = f.accessDate ? `استُرجع في ${f.accessDate} من: ` : 'استُرجع من: ';
+      return {
+        inText:    `[${iname}: ${yr}]`,
+        footnote:  `${fname}. ${yr}. ${title}. ${acc}${f.url||'___'}.`,
+        reference: `${lname} (${yr}). ${title}. ${acc}${f.url||'___'}.`,
+      };
+    }
+    case 'conference': {
+      const where = [f.confName, f.confPlace, f.confDate].filter(Boolean).join('، ');
+      const pgs   = f.pagesRange ? `ص${f.pagesRange}` : '';
+      return {
+        inText:    `[${iname}: ${yr}${pg}]`,
+        footnote:  `${fname}. ${yr}. ${title}. في: وقائع ${where||'___'}. ${pgs}${pgDot}`,
+        reference: `${lname} (${yr}). ${title}. في: وقائع ${where||'___'}. ${pgs}.`,
+      };
+    }
+    case 'law': {
+      const nm  = f.lastName ? `${f.firstName} ${f.lastName}` : f.firstName;
+      const art = f.article  ? `. ${f.article}` : '';
+      const jrn = f.lawJournal ? `. ${f.lawJournal}` : '';
+      const iss = f.issue    ? `، العدد ${f.issue}` : '';
+      return {
+        inText:    `[${nm}${f.article?'، '+f.article:''}: ${yr}]`,
+        footnote:  `${nm}. ${yr}${art}${jrn}${iss}.`,
+        reference: `${nm} (${yr})${art}${jrn}${iss}.`,
+      };
+    }
+    case 'report': {
+      const pub = [f.city, f.publisher].filter(Boolean).join(': ');
+      const tot = f.pages ? `. ${f.pages} ص` : '';
+      return {
+        inText:    `[${iname}: ${yr}${pg}]`,
+        footnote:  `${fname}. ${yr}. ${title}. ${pub||'___'}${pgDot}`,
+        reference: `${lname} (${yr}). ${title}. ${pub||'___'}${tot}.`,
+      };
+    }
+    default: return { inText:'—', footnote:'—', reference:'—' };
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  GENERATE
+// ═══════════════════════════════════════════════════
+function generate() {
+  const f   = getF();
+  const cit = buildCitation(state.type, f);
+  const iname = inTextName(f);
+
+  const blocks = [
+    { key:'inText',    label:'الإشارة داخل النص',  cls:'intext'    },
+    { key:'footnote',  label:'الحاشية السفلية',     cls:'footnote'  },
+    { key:'reference', label:'قائمة المراجع',       cls:'reference' },
+  ];
+
+  const equityNote = '';
+
+  document.getElementById('results-area').innerHTML = `
+    <div class="results-wrap">
+      ${blocks.map(b => {
+        const raw  = cit[b.key];
+        const highlighted = (b.key==='inText' && f.gender==='female' && iname)
+          ? raw.replace(iname, `<mark>${esc(iname)}</mark>`)
+          : esc(raw);
+        return `
+          <div class="result-block">
+            <div class="result-head ${b.cls}">
+              <span class="result-tag">${b.label}</span>
+              <button class="btn-copy" onclick="copyText(this, \`${escAttr(raw)}\`)">
+                نسخ ⎘
+              </button>
+            </div>
+            <div class="result-text">${highlighted}</div>
+          </div>`;
+      }).join('')}
+      ${equityNote}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function emptyHTML() {
+  return `<div class="empty-state">
+    <div class="empty-icon">📖</div>
+    <p>اختر نوع المصدر، أدخل البيانات<br>ثم اضغط «توليد الاستشهاد»</p>
+  </div>`;
+}
+
+function esc(s='') {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function escAttr(s='') {
+  return String(s)
+    .replace(/\\/g,'\\\\')
+    .replace(/`/g,'\\`')
+    .replace(/\$/g,'\\$');
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ تم النسخ';
+    btn.classList.add('done');
+    showToast('تم نسخ النص ✓');
+    setTimeout(() => {
+      btn.textContent = 'نسخ ⎘';
+      btn.classList.remove('done');
+    }, 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('تم نسخ النص ✓');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function togglePrinciple(btn) {
+  const body = document.getElementById('principle-body');
+  const icon = btn.querySelector('.toggle-icon');
+  body.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
