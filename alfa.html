@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اداة حساب معامل كرونباخ-الفا</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080e1a;
+  --surface:  #0e1729;
+  --card:     #111f35;
+  --card2:    #162540;
+  --border:   rgba(99,179,255,0.12);
+  --accent:   #3b82f6;
+  --accent2:  #60a5fa;
+  --glow:     rgba(59,130,246,0.25);
+  --gold:     #f59e0b;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --text:     #e2eaf5;
+  --muted:    #64748b;
+  --radius:   14px;
+  --font:     'Tajawal', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ─── BACKGROUND MESH ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(59,130,246,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(16,185,129,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; }
+
+/* ─── HEADER ─── */
+.header {
+  text-align: center;
+  padding: 50px 20px 40px;
+  animation: fadeDown .7s ease both;
+}
+.header-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.3);
+  color: var(--accent2);
+  font-size: .78em; font-weight: 700; letter-spacing: 2px;
+  padding: 5px 18px; border-radius: 50px; margin-bottom: 22px;
+}
+.header h1 {
+  font-size: clamp(1.9em, 4.5vw, 3em);
+  font-weight: 900; color: #fff;
+  line-height: 1.2; margin-bottom: 12px;
+}
+.header h1 span { color: var(--accent2); }
+.header p { color: var(--muted); font-size: 1em; max-width: 500px; margin: 0 auto; }
+
+/* ─── STEP CARDS ─── */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+  animation: fadeUp .6s .1s ease both;
+}
+.step-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  position: relative;
+  transition: border-color .25s, transform .25s;
+}
+.step-card:hover { border-color: rgba(99,179,255,0.3); transform: translateY(-2px); }
+.step-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 8px 24px var(--glow); }
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--card2);
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8em; font-weight: 900; color: var(--muted);
+  margin-bottom: 12px;
+  transition: background .25s, color .25s, border-color .25s;
+}
+.step-card.active .step-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 12px var(--glow);
+}
+.step-card h3 { font-size: .95em; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.step-card p { font-size: .82em; color: var(--muted); line-height: 1.5; }
+
+/* ─── SETUP PANEL ─── */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 30px;
+  margin-bottom: 22px;
+  animation: fadeUp .6s .2s ease both;
+}
+.panel-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1em; font-weight: 700; color: var(--accent2);
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-title .icon { font-size: 1.2em; }
+
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  font-size: .82em; font-weight: 700; color: var(--muted);
+  letter-spacing: .5px; margin-bottom: 8px;
+}
+.field input, .field select {
+  width: 100%;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: .95em;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+.field select option { background: var(--card2); }
+
+/* ─── BUTTONS ─── */
+.btn-row {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: center;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 24px;
+  border: none; border-radius: 10px;
+  font-family: var(--font); font-size: .9em; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 16px var(--glow);
+}
+.btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--accent2); color: var(--accent2); }
+.btn-success {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(16,185,129,0.25);
+}
+.btn-success:hover { background: #059669; transform: translateY(-1px); }
+.btn-ghost {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+/* file input hidden */
+#csvFile { display: none; }
+
+/* ─── DATA TABLE ─── */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  animation: fadeUp .4s ease both;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .88em;
+}
+thead th {
+  background: var(--card2);
+  color: var(--accent2);
+  font-weight: 700;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  text-align: center;
+}
+thead th:first-child { border-radius: var(--radius) 0 0 0; }
+thead th:last-child { border-radius: 0 var(--radius) 0 0; }
+tbody tr { transition: background .15s; }
+tbody tr:hover { background: rgba(59,130,246,0.04); }
+tbody td {
+  padding: 7px 6px;
+  border-bottom: 1px solid rgba(99,179,255,0.06);
+  text-align: center;
+}
+tbody td:first-child {
+  color: var(--muted);
+  font-size: .8em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  min-width: 70px;
+}
+.grade-input {
+  width: 52px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 4px;
+  text-align: center;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: .9em;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.grade-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--glow);
+}
+.grade-input.invalid { border-color: var(--red); background: rgba(239,68,68,0.07); }
+
+/* row sum badge */
+.row-sum {
+  display: inline-block;
+  min-width: 40px;
+  padding: 3px 10px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 50px;
+  color: var(--accent2);
+  font-weight: 700;
+  font-size: .85em;
+}
+
+/* ─── RESULT PANEL ─── */
+.result-panel {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  margin-top: 22px;
+  overflow: hidden;
+  animation: fadeUp .5s ease both;
+}
+.result-panel.show { display: block; }
+
+.result-header {
+  background: linear-gradient(135deg, var(--card2), var(--card));
+  padding: 24px 30px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+}
+.alpha-ring {
+  width: 80px; height: 80px; flex-shrink: 0;
+  position: relative;
+}
+.alpha-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.alpha-ring .bg-circle { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 6; }
+.alpha-ring .val-circle {
+  fill: none; stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1), stroke .4s;
+}
+.alpha-ring .center-text {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.alpha-ring .alpha-num {
+  font-size: 1.3em; font-weight: 900; color: #fff; line-height: 1;
+}
+.alpha-ring .alpha-lbl {
+  font-size: .55em; color: var(--muted); margin-top: 2px;
+}
+
+.result-meta { flex: 1; }
+.result-label {
+  font-size: .75em; font-weight: 700; color: var(--muted);
+  letter-spacing: 2px; margin-bottom: 4px;
+}
+.result-verdict {
+  font-size: 1.5em; font-weight: 900; color: #fff;
+}
+.result-desc { font-size: .88em; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+/* stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.stat-cell {
+  background: var(--card);
+  padding: 18px 16px;
+  text-align: center;
+}
+.stat-cell .sv { font-size: 1.3em; font-weight: 900; color: var(--accent2); }
+.stat-cell .sl { font-size: .75em; color: var(--muted); margin-top: 3px; }
+
+/* item analysis table */
+.item-section { padding: 24px 30px; border-top: 1px solid var(--border); }
+.item-section h3 { font-size: .95em; color: var(--accent2); font-weight: 700; margin-bottom: 16px; }
+.item-table { width: 100%; border-collapse: collapse; font-size: .85em; }
+.item-table th {
+  background: var(--card2);
+  color: var(--muted);
+  font-size: .75em; font-weight: 700; letter-spacing: 1px;
+  padding: 10px 12px; text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.item-table td { padding: 10px 12px; text-align: center; border-bottom: 1px solid rgba(99,179,255,0.05); }
+.item-table tr:last-child td { border-bottom: none; }
+.bar-cell { min-width: 120px; }
+.mini-bar {
+  height: 6px; border-radius: 3px;
+  background: rgba(255,255,255,0.07);
+  overflow: hidden;
+  margin: 4px auto; max-width: 110px;
+}
+.mini-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: var(--accent);
+  transition: width .8s ease;
+}
+.badge-good  { display:inline-block; padding:2px 10px; border-radius:50px; background:rgba(16,185,129,0.12); color:var(--green); font-size:.78em; font-weight:700; }
+.badge-warn  { display:inline-block; padding:2px 10px; border-radius:50px; background:rgba(245,158,11,0.12); color:var(--gold); font-size:.78em; font-weight:700; }
+.badge-bad   { display:inline-block; padding:2px 10px; border-radius:50px; background:rgba(239,68,68,0.12); color:var(--red); font-size:.78em; font-weight:700; }
+
+/* verdict scale bar */
+.scale-section { padding: 20px 30px; border-top: 1px solid var(--border); }
+.scale-section h3 { font-size: .85em; color: var(--muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 14px; }
+.scale-bar {
+  height: 10px; border-radius: 5px;
+  background: linear-gradient(90deg, #ef4444 0%, #f59e0b 30%, #3b82f6 55%, #10b981 75%, #6366f1 100%);
+  position: relative; margin-bottom: 6px;
+}
+.scale-marker {
+  position: absolute; top: -3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 8px rgba(0,0,0,0.4);
+  transform: translateX(-50%);
+  transition: left 1s cubic-bezier(.4,0,.2,1);
+}
+.scale-labels {
+  display: flex; justify-content: space-between;
+  font-size: .72em; color: var(--muted); margin-top: 8px;
+}
+
+/* ─── EXPORT ─── */
+.export-row {
+  padding: 20px 30px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 50px; padding: 12px 28px;
+  color: var(--text); font-size: .9em; font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s;
+  opacity: 0; z-index: 999;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+
+/* ─── STATISTICAL REPORT ─── */
+.stats-report {
+  display: none;
+  border-top: 2px solid rgba(59,130,246,0.18);
+  padding: 28px 30px 20px;
+  animation: fadeUp .4s ease both;
+}
+.stats-report.show { display: block; }
+
+.sr-title {
+  font-size: .9em; font-weight: 700; color: var(--accent2);
+  letter-spacing: 1px; margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+}
+.sr-copy-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3);
+  color: var(--accent2); border-radius: 50px; padding: 6px 18px;
+  font-size: .8em; font-weight: 700; cursor: pointer;
+  font-family: var(--font); transition: all .2s;
+}
+.sr-copy-btn:hover { background: rgba(59,130,246,0.25); }
+.sr-note-top {
+  font-size: .82em; color: var(--muted);
+  background: rgba(255,255,255,0.03);
+  border-right: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px; margin-bottom: 16px; line-height: 1.7;
+}
+.sr-box {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px 32px;
+  direction: rtl; text-align: right;
+}
+
+/* ── wrapper ── */
+.srp-wrap { direction: rtl; }
+
+/* ── section ── */
+.srp-sec {
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(99,179,255,0.08);
+}
+.srp-sec:last-child { border-bottom: none; }
+
+.srp-heading {
+  font-size: 1em; font-weight: 700; color: #fff;
+  margin-bottom: 12px;
+}
+
+.srp-bullets {
+  list-style: disc; padding-right: 20px;
+  font-size: .9em; color: var(--text); line-height: 2.1;
+}
+.srp-note {
+  font-size: .85em; color: var(--muted); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  flex-direction: row-reverse; justify-content: flex-end;
+}
+.srp-note .math-inline { direction: ltr; }
+
+/* ── tables ── */
+.srp-tbl {
+  width: 100%; border-collapse: collapse;
+  font-size: .87em; margin: 10px 0;
+}
+.srp-tbl th {
+  background: rgba(59,130,246,0.12); color: var(--accent2);
+  padding: 9px 12px; text-align: center;
+  border: 1px solid rgba(99,179,255,0.12); font-weight: 700;
+}
+.srp-tbl td {
+  padding: 8px 12px; text-align: center;
+  border: 1px solid rgba(99,179,255,0.07);
+}
+.srp-tbl tbody tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+.srp-tbl tfoot td, .tr-sum td {
+  background: rgba(59,130,246,0.08);
+  font-weight: 700; border-top: 1px solid rgba(99,179,255,0.2);
+}
+.tc-bold  { font-weight: 700; color: var(--accent2); }
+.tc-accent{ color: var(--accent2); font-weight: 900; font-size: 1.05em; }
+.tc-formula { font-size: .8em; color: var(--muted); font-family: 'Georgia', serif; }
+
+/* ── equation blocks ── */
+.eq-block {
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(99,179,255,0.12);
+  border-radius: 10px; padding: 18px 22px;
+  margin: 10px 0; overflow-x: auto;
+  direction: ltr; text-align: left;
+}
+.eq-row {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; min-height: 48px;
+  direction: ltr;
+}
+.eq-label {
+  font-size: 1em; font-weight: 700; color: var(--text);
+  white-space: nowrap; min-width: 30px;
+  direction: ltr; font-family: 'Georgia', serif;
+}
+.eq-body {
+  display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap; font-size: .97em;
+  color: var(--text); font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.3; direction: ltr;
+}
+
+/* ── math fraction ── */
+.mfrac {
+  display: inline-flex; flex-direction: column;
+  align-items: center; gap: 1px;
+  vertical-align: middle; margin: 0 4px;
+}
+.mnum {
+  border-bottom: 2px solid var(--accent2);
+  padding: 0 6px 2px; color: var(--accent2);
+  font-size: .92em; text-align: center; white-space: nowrap;
+}
+.mden {
+  padding: 2px 6px 0; color: var(--text);
+  font-size: .92em; text-align: center; white-space: nowrap;
+}
+
+/* math inline */
+.math-inline {
+  display: inline-flex; align-items: center;
+  background: rgba(59,130,246,0.07);
+  border: 1px solid rgba(99,179,255,0.15);
+  border-radius: 6px; padding: 2px 8px;
+  direction: ltr;
+}
+.math-step { color: var(--gold); font-weight: 700; }
+.alpha-result { font-size: 1.2em; font-weight: 900; }
+
+/* ── final section ── */
+.srp-final { padding-top: 18px; }
+.srp-verdict-line {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 1em; color: var(--text); margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.srp-verdict-badge {
+  display: inline-block; padding: 3px 14px;
+  border-radius: 50px; font-size: .85em; font-weight: 700;
+}
+.srp-legend {
+  font-size: .82em; color: var(--muted);
+  margin-top: 10px; line-height: 2;
+}
+.srp-refs {
+  font-size: .8em; color: var(--muted);
+  border-right: 3px solid rgba(99,179,255,0.2);
+  padding-right: 10px; margin-top: 10px; line-height: 1.8;
+}
+.srp-credit {
+  text-align: center; font-size: .8em; color: var(--muted);
+  padding-top: 12px; margin-top: 12px;
+  border-top: 1px solid var(--border); line-height: 1.8;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeDown {
+  from { opacity:0; transform: translateY(-20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(16px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 720px) {
+  .steps { grid-template-columns: 1fr; }
+  .setup-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .result-header { flex-direction: column; text-align: center; }
+}
+@media (max-width: 480px) {
+  .setup-grid { grid-template-columns: 1fr; }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/9.0.2/docx.umd.min.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">📊 أداة قياس الثبات الداخلي</div>
+    <h1>حساب <span>كرونباخ ألفا</span></h1>
+    <p>أداة متقدمة لقياس ثبات الاستبيانات مع تحليل بند‑بند واستيراد CSV</p>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step-card active" id="s1">
+      <div class="step-num">١</div>
+      <h3>إعداد الاستبيان</h3>
+      <p>حدد عدد الأسئلة والمشاركين ونوع المقياس</p>
+    </div>
+    <div class="step-card" id="s2">
+      <div class="step-num">٢</div>
+      <h3>إدخال البيانات</h3>
+      <p>أدخل الدرجات يدوياً أو استورد ملف CSV</p>
+    </div>
+    <div class="step-card" id="s3">
+      <div class="step-num">٣</div>
+      <h3>تحليل النتائج</h3>
+      <p>اعرض معامل ألفا مع تحليل كل بند على حدة</p>
+    </div>
+  </div>
+
+  <!-- SETUP PANEL -->
+  <div class="panel">
+    <div class="panel-title"><span class="icon">⚙️</span> إعدادات الاستبيان</div>
+    <div class="setup-grid">
+      <div class="field">
+        <label>عدد الأسئلة / البنود</label>
+        <input type="number" id="numQ" value="5" min="2" max="100">
+      </div>
+      <div class="field">
+        <label>عدد المشاركين</label>
+        <input type="number" id="numP" value="10" min="3" max="500">
+      </div>
+      <div class="field">
+        <label>نوع مقياس الاستجابة</label>
+        <select id="scaleType">
+          <option value="2">ثنائي — (1-2)</option>
+          <option value="3">ثلاثي ليكرت — (1-3)</option>
+          <option value="4">رباعي — (1-4)</option>
+          <option value="5" selected>خماسي ليكرت — (1-5)</option>
+          <option value="7">سباعي — (1-7)</option>
+          <option value="10">عشري — (1-10)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="generateTable()">✦ إنشاء جدول البيانات</button>
+      <button class="btn btn-outline" onclick="fillRandom()">🎲 تعبئة عشوائية للتجربة</button>
+      <label class="btn btn-ghost" for="csvFile">📂 استيراد CSV
+        <input type="file" id="csvFile" accept=".csv" onchange="importCSV(this)">
+      </label>
+      <button class="btn btn-ghost" onclick="clearTable()">🗑 مسح البيانات</button>
+    </div>
+  </div>
+
+  <!-- TABLE CONTAINER -->
+  <div id="tableContainer"></div>
+
+  <!-- CALC BUTTON -->
+  <div id="calcRow" style="display:none; margin-top:18px;">
+    <div class="btn-row">
+      <button class="btn btn-success" style="font-size:1em; padding:14px 32px;" onclick="calculateAlpha()">
+        ⚡ احسب معامل كرونباخ ألفا
+      </button>
+      <button class="btn btn-ghost" onclick="exportCSV()">💾 تصدير CSV</button>
+    </div>
+  </div>
+
+  <!-- RESULT PANEL -->
+  <div class="result-panel" id="resultPanel">
+
+    <div class="result-header">
+      <div class="alpha-ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="bg-circle" cx="40" cy="40" r="35"/>
+          <circle class="val-circle" id="valCircle" cx="40" cy="40" r="35"/>
+        </svg>
+        <div class="center-text">
+          <div class="alpha-num" id="alphaNum">—</div>
+          <div class="alpha-lbl">α</div>
+        </div>
+      </div>
+      <div class="result-meta">
+        <div class="result-label">نتيجة التحليل</div>
+        <div class="result-verdict" id="verdict">—</div>
+        <div class="result-desc" id="verdictDesc">—</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-cell">
+        <div class="sv" id="statK">—</div>
+        <div class="sl">عدد البنود</div>
+      </div>
+      <div class="stat-cell">
+        <div class="sv" id="statN">—</div>
+        <div class="sl">عدد المشاركين</div>
+      </div>
+      <div class="stat-cell">
+        <div class="sv" id="statVarT">—</div>
+        <div class="sl">تباين المجموع</div>
+      </div>
+      <div class="stat-cell">
+        <div class="sv" id="statSumVar">—</div>
+        <div class="sl">مجموع تباين البنود</div>
+      </div>
+    </div>
+
+    <!-- SCALE BAR -->
+    <div class="scale-section">
+      <h3>موقع المعامل على مقياس الثبات</h3>
+      <div class="scale-bar">
+        <div class="scale-marker" id="scaleMarker" style="left:0%"></div>
+      </div>
+      <div class="scale-labels">
+        <span>0 — ضعيف جداً</span>
+        <span>0.6 — مقبول</span>
+        <span>0.7 — جيد</span>
+        <span>0.8 — جيد جداً</span>
+        <span>0.9 — ممتاز</span>
+        <span>1</span>
+      </div>
+    </div>
+
+    <!-- ITEM ANALYSIS -->
+    <div class="item-section">
+      <h3>📋 تحليل البنود — إذا حُذف البند</h3>
+      <div class="table-wrap">
+        <table class="item-table">
+          <thead>
+            <tr>
+              <th>البند</th>
+              <th>المتوسط</th>
+              <th>الانحراف المعياري</th>
+              <th>الارتباط بالمجموع</th>
+              <th>ألفا لو حُذف</th>
+              <th>التوصية</th>
+            </tr>
+          </thead>
+          <tbody id="itemTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="export-row">
+      <button class="btn btn-outline" onclick="toggleStatsReport()" id="toggleReportBtn" style="border-color:rgba(96,165,250,0.4);color:var(--accent2);">
+        📊 عرض المعالجة الإحصائية
+      </button>
+      <button class="btn btn-ghost" onclick="copyResult()">📋 نسخ النتيجة</button>
+      <button class="btn btn-ghost" onclick="exportCSV()">💾 تصدير CSV</button>
+    </div>
+
+    <!-- STATISTICAL REPORT -->
+    <div class="stats-report" id="statsReport">
+      <div class="sr-title">
+        <span>📄 المعالجة الإحصائية الكاملة — قابلة للنسخ واللصق في Word</span>
+        <button class="sr-copy-btn" onclick="copyStatsReport()">📋 نسخ الكل</button>
+      </div>
+      <div class="sr-note">
+        هذا النص منسَّق ويمكن نسخه ولصقه مباشرةً في Microsoft Word. يحتوي على جميع الخطوات الحسابية التفصيلية.
+      </div>
+      <div class="sr-box" id="statsReportBox"></div>
+    </div>
+
+  </div><!-- /result-panel -->
+
+</div><!-- /wrap -->
+
+<!-- CREDIT FOOTER -->
+<div style="text-align:center;padding:28px 20px;border-top:1px solid rgba(99,179,255,0.1);margin-top:40px;">
+  <p style="font-family:'Tajawal',sans-serif;font-size:0.85em;color:#475569;">
+    تصميم وتطوير
+    <span style="color:#60a5fa;font-weight:700;"> أ.د. طلال ناظم الزهيري</span>
+    — قسم المعلومات وتقنيات المعرفة — الجامعة المستنصرية
+    <span style="color:#475569;"> © 2026</span>
+  </p>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================
+   DATA & HELPERS
+   ========================================= */
+let tableData = { nQ: 0, nP: 0, scale: 5 };
+
+function mean(arr) { return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function variance(arr) {
+  const m = mean(arr);
+  return arr.reduce((a,b)=>a+(b-m)**2,0)/(arr.length-1);
+}
+function std(arr) { return Math.sqrt(variance(arr)); }
+
+function alphaFromData(matrix) {
+  const k = matrix[0].length;
+  const n = matrix.length;
+  const totals = matrix.map(r => r.reduce((a,b)=>a+b,0));
+  const sumVar = matrix[0].map((_,qi) => variance(matrix.map(r=>r[qi]))).reduce((a,b)=>a+b,0);
+  const varT = variance(totals);
+  return (k/(k-1)) * (1 - sumVar/varT);
+}
+
+function getMatrix() {
+  const rows = Array.from(document.querySelectorAll('#dataTable tbody tr'));
+  return rows.map(row => {
+    return Array.from(row.querySelectorAll('.grade-input')).map(inp => parseFloat(inp.value)||0);
+  });
+}
+
+/* =========================================
+   GENERATE TABLE
+   ========================================= */
+function generateTable() {
+  const nQ = parseInt(document.getElementById('numQ').value);
+  const nP = parseInt(document.getElementById('numP').value);
+  const scale = parseInt(document.getElementById('scaleType').value);
+  if(nQ<2||nP<3){ showToast('⚠ الحد الأدنى: سؤالان وثلاثة مشاركين'); return; }
+  tableData = {nQ,nP,scale};
+
+  let html = `<div class="panel" style="padding:0;"><div class="panel-title" style="padding:18px 24px 14px; border-bottom:1px solid var(--border); margin:0;">
+    <span class="icon">📝</span> جدول البيانات — المقياس: 1 إلى ${scale}
+    <span style="margin-right:auto;font-size:.8em;color:var(--muted);">${nP} مشارك × ${nQ} سؤال</span>
+  </div>`;
+  html += `<div class="table-wrap" style="border:none;border-radius:0;">
+  <table id="dataTable">
+    <thead><tr><th>المشارك</th>`;
+  for(let q=1;q<=nQ;q++) html += `<th>س${q}</th>`;
+  html += `<th>المجموع</th></tr></thead><tbody>`;
+  for(let p=1;p<=nP;p++){
+    html += `<tr><td>م${p}</td>`;
+    for(let q=1;q<=nQ;q++){
+      html += `<td><input type="number" class="grade-input" min="1" max="${scale}" value="1"
+        oninput="updateRowSum(this);validateInput(this,${scale})"></td>`;
+    }
+    html += `<td><span class="row-sum" id="rs${p}">${nQ}</span></td></tr>`;
+  }
+  html += `</tbody></table></div></div>`;
+  document.getElementById('tableContainer').innerHTML = html;
+  document.getElementById('calcRow').style.display = 'block';
+  document.getElementById('resultPanel').classList.remove('show');
+  setStep(2);
+  showToast('✅ تم إنشاء الجدول');
+}
+
+function updateRowSum(inp) {
+  const row = inp.closest('tr');
+  const vals = Array.from(row.querySelectorAll('.grade-input')).map(i=>parseFloat(i.value)||0);
+  const rowIdx = Array.from(row.parentNode.rows).indexOf(row)+1;
+  const el = document.getElementById('rs'+rowIdx);
+  if(el) el.textContent = vals.reduce((a,b)=>a+b,0);
+}
+
+function validateInput(inp, max) {
+  const v = parseFloat(inp.value);
+  inp.classList.toggle('invalid', isNaN(v)||v<1||v>max);
+}
+
+/* =========================================
+   FILL RANDOM
+   ========================================= */
+function fillRandom() {
+  const inputs = document.querySelectorAll('.grade-input');
+  if(!inputs.length){ showToast('أنشئ الجدول أولاً'); return; }
+  const scale = tableData.scale;
+  inputs.forEach(inp => {
+    inp.value = Math.floor(Math.random()*scale)+1;
+    inp.classList.remove('invalid');
+  });
+  // update row sums
+  document.querySelectorAll('#dataTable tbody tr').forEach((row,i) => {
+    const vals = Array.from(row.querySelectorAll('.grade-input')).map(inp=>parseFloat(inp.value)||0);
+    const el = document.getElementById('rs'+(i+1));
+    if(el) el.textContent = vals.reduce((a,b)=>a+b,0);
+  });
+  showToast('🎲 تم التعبئة العشوائية');
+}
+
+function clearTable() {
+  document.querySelectorAll('.grade-input').forEach(inp => { inp.value='1'; inp.classList.remove('invalid'); });
+  document.querySelectorAll('[id^="rs"]').forEach(el => {
+    el.textContent = tableData.nQ;
+  });
+  document.getElementById('resultPanel').classList.remove('show');
+  showToast('🗑 تم مسح البيانات');
+}
+
+/* =========================================
+   CALCULATE ALPHA
+   ========================================= */
+function calculateAlpha() {
+  const table = document.getElementById('dataTable');
+  if(!table){ showToast('أنشئ الجدول أولاً'); return; }
+
+  const matrix = getMatrix();
+  const nP = matrix.length;
+  const nQ = matrix[0].length;
+  if(nP<3||nQ<2){ showToast('⚠ بيانات غير كافية'); return; }
+
+  // Validate
+  let hasInvalid = false;
+  document.querySelectorAll('.grade-input.invalid').forEach(()=>hasInvalid=true);
+  if(hasInvalid){ showToast('⚠ يوجد قيم خارج النطاق المسموح'); return; }
+
+  const alpha = alphaFromData(matrix);
+  const totals = matrix.map(r => r.reduce((a,b)=>a+b,0));
+  const sumVar = matrix[0].map((_,qi) => variance(matrix.map(r=>r[qi]))).reduce((a,b)=>a+b,0);
+  const varT = variance(totals);
+
+  // Display main result
+  const alphaF = isNaN(alpha)||!isFinite(alpha) ? 0 : Math.max(0,Math.min(1,alpha));
+
+  // verdict
+  let verdict, verdictDesc, color;
+  if(alphaF < 0.5)      { verdict='ضعيف جداً';  verdictDesc='الاستبيان يفتقر إلى الاتساق الداخلي ويحتاج إلى مراجعة شاملة.'; color='#ef4444'; }
+  else if(alphaF < 0.6) { verdict='ضعيف';       verdictDesc='ثبات منخفض — يُنصح بمراجعة البنود وإعادة صياغة الأسئلة الضعيفة.'; color='#f97316'; }
+  else if(alphaF < 0.7) { verdict='مقبول';      verdictDesc='ثبات مقبول للدراسات الاستطلاعية، لكن يمكن تحسينه.'; color='#f59e0b'; }
+  else if(alphaF < 0.8) { verdict='جيد';        verdictDesc='ثبات جيد — مناسب لمعظم الأبحاث الأكاديمية.'; color='#3b82f6'; }
+  else if(alphaF < 0.9) { verdict='جيد جداً';   verdictDesc='ثبات عالٍ — يدل على اتساق داخلي ممتاز للمقياس.'; color='#10b981'; }
+  else                   { verdict='ممتاز';      verdictDesc='ثبات استثنائي — المقياس متسق تماماً وموثوق للغاية.'; color='#6366f1'; }
+
+  document.getElementById('alphaNum').textContent = alphaF.toFixed(3);
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('verdict').style.color = color;
+  document.getElementById('verdictDesc').textContent = verdictDesc;
+  document.getElementById('statK').textContent = nQ;
+  document.getElementById('statN').textContent = nP;
+  document.getElementById('statVarT').textContent = varT.toFixed(3);
+  document.getElementById('statSumVar').textContent = sumVar.toFixed(3);
+
+  // Animate ring
+  const circle = document.getElementById('valCircle');
+  const circumference = 220;
+  circle.style.stroke = color;
+  setTimeout(()=>{ circle.style.strokeDashoffset = circumference - (alphaF * circumference); }, 100);
+
+  // Animate scale marker
+  setTimeout(()=>{
+    document.getElementById('scaleMarker').style.left = (alphaF*100)+'%';
+  }, 200);
+
+  // Item analysis
+  const itemBody = document.getElementById('itemTableBody');
+  let itemHTML = '';
+  for(let qi=0;qi<nQ;qi++){
+    const itemScores = matrix.map(r=>r[qi]);
+    const m = mean(itemScores);
+    const s = std(itemScores);
+
+    // correlation with total-minus-item
+    const totalsMinusItem = matrix.map(r => r.reduce((a,b)=>a+b,0) - r[qi]);
+    const cor = pearsonR(itemScores, totalsMinusItem);
+
+    // alpha if deleted
+    const matrixWithout = matrix.map(r => r.filter((_,j)=>j!==qi));
+    let alphaIfDel = nQ>2 ? alphaFromData(matrixWithout) : 0;
+    alphaIfDel = isNaN(alphaIfDel)||!isFinite(alphaIfDel) ? 0 : Math.max(0, Math.min(1, alphaIfDel));
+
+    const corPct = Math.max(0,Math.min(100,(cor+1)/2*100));
+    let badge, rec;
+    if(cor >= 0.4)      { badge='<span class="badge-good">احتفظ به</span>'; rec='ارتباط قوي'; }
+    else if(cor >= 0.2) { badge='<span class="badge-warn">راجعه</span>';    rec='ارتباط متوسط'; }
+    else                { badge='<span class="badge-bad">احذفه</span>';     rec='ارتباط ضعيف'; }
+
+    const alphaChange = alphaIfDel - alphaF;
+    const changeStr = alphaChange>0.005 ? `<span style="color:var(--red)">▲${alphaChange.toFixed(3)}</span>`
+                    : alphaChange<-0.005 ? `<span style="color:var(--green)">▼${Math.abs(alphaChange).toFixed(3)}</span>`
+                    : `<span style="color:var(--muted)">${alphaIfDel.toFixed(3)}</span>`;
+
+    itemHTML += `<tr>
+      <td style="font-weight:700;color:var(--accent2)">س${qi+1}</td>
+      <td>${m.toFixed(2)}</td>
+      <td>${s.toFixed(2)}</td>
+      <td>
+        ${cor.toFixed(3)}
+        <div class="mini-bar"><div class="mini-bar-fill" style="width:${corPct}%"></div></div>
+      </td>
+      <td>${changeStr}</td>
+      <td>${badge}<br><small style="color:var(--muted);font-size:.75em">${rec}</small></td>
+    </tr>`;
+  }
+  itemBody.innerHTML = itemHTML;
+
+  document.getElementById('resultPanel').classList.add('show');
+  // hide stats report when recalculating
+  document.getElementById('statsReport').classList.remove('show');
+  document.getElementById('toggleReportBtn').textContent = '📊 عرض المعالجة الإحصائية';
+
+  // ── build stats report data ──
+  const _items = [];
+  for(let qi2=0;qi2<nQ;qi2++){
+    const iScores = matrix.map(r=>r[qi2]);
+    const iMean   = mean(iScores);
+    const iStd    = Math.sqrt(variance(iScores));
+    const iVar    = variance(iScores);
+    const iTotMin = matrix.map(r=>r.reduce((a,b)=>a+b,0)-r[qi2]);
+    const iCor    = pearsonR(iScores, iTotMin);
+    let iMatW     = matrix.map(r=>r.filter((_,j2)=>j2!==qi2));
+    let iAld      = nQ>2 ? alphaFromData(iMatW) : 0;
+    iAld = isNaN(iAld)||!isFinite(iAld)?0:Math.max(0,Math.min(1,iAld));
+    let iRec = iCor>=0.4?'احتفظ به':iCor>=0.2?'راجعه':'احذفه';
+    _items.push({
+      id:'س'+(qi2+1),
+      mean:iMean.toFixed(3),
+      std:iStd.toFixed(3),
+      varItem:iVar.toFixed(4),
+      cor:iCor.toFixed(3),
+      ald:iAld.toFixed(3),
+      rec:iRec
+    });
+  }
+  buildStatsReport({
+    alpha,
+    k: nQ,
+    n: matrix.length,
+    sumVar: sumVar,
+    varTotal: varT,
+    items: _items,
+    totals: totals,
+    scaleMax: tableData.scale,
+    dateStr: new Date().toLocaleDateString('ar-IQ')
+  });
+
+  setStep(3);
+  setTimeout(()=>document.getElementById('resultPanel').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  showToast('✅ تم الحساب بنجاح');
+}
+
+function pearsonR(x,y){
+  const n=x.length, mx=mean(x), my=mean(y);
+  const num=x.reduce((a,xi,i)=>a+(xi-mx)*(y[i]-my),0);
+  const den=Math.sqrt(x.reduce((a,xi)=>a+(xi-mx)**2,0)*y.reduce((a,yi)=>a+(yi-my)**2,0));
+  return den===0?0:num/den;
+}
+
+/* =========================================
+   IMPORT CSV
+   ========================================= */
+function importCSV(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split(/\r?\n/).filter(l=>l.trim());
+    if(!lines.length){ showToast('⚠ الملف فارغ'); return; }
+    const scale = parseInt(document.getElementById('scaleType').value);
+    const nQ = lines[0].split(',').length;
+    const nP = lines.length;
+    tableData = {nQ, nP, scale};
+
+    let html = `<div class="panel" style="padding:0;"><div class="panel-title" style="padding:18px 24px 14px;border-bottom:1px solid var(--border);margin:0;">
+      <span class="icon">📂</span> بيانات مستوردة من CSV
+      <span style="margin-right:auto;font-size:.8em;color:var(--muted);">${nP} صف × ${nQ} عمود</span>
+    </div>
+    <div class="table-wrap" style="border:none;border-radius:0;"><table id="dataTable">
+    <thead><tr><th>المشارك</th>`;
+    for(let i=1;i<=nQ;i++) html+=`<th>س${i}</th>`;
+    html+=`<th>المجموع</th></tr></thead><tbody>`;
+    lines.forEach((line,idx)=>{
+      const vals = line.split(',').map(v=>parseFloat(v.trim())||0);
+      const sum = vals.reduce((a,b)=>a+b,0);
+      html+=`<tr><td>م${idx+1}</td>`;
+      vals.forEach(v=>{ html+=`<td><input type="number" class="grade-input" min="1" max="${scale}" value="${v}"
+        oninput="updateRowSum(this);validateInput(this,${scale})"></td>`; });
+      html+=`<td><span class="row-sum">${sum}</span></td></tr>`;
+    });
+    html+=`</tbody></table></div></div>`;
+    document.getElementById('tableContainer').innerHTML = html;
+    document.getElementById('calcRow').style.display='block';
+    document.getElementById('resultPanel').classList.remove('show');
+    setStep(2);
+    showToast(`✅ تم استيراد ${nP} مشارك × ${nQ} سؤال`);
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+/* =========================================
+   EXPORT
+   ========================================= */
+function exportCSV(){
+  const table = document.getElementById('dataTable');
+  if(!table){ showToast('لا توجد بيانات'); return; }
+  const rows = Array.from(table.tBodies[0].rows);
+  const csv = rows.map(row=>
+    Array.from(row.querySelectorAll('.grade-input')).map(i=>i.value).join(',')
+  ).join('\n');
+  download('cronbach_data.csv','text/csv',csv);
+  showToast('💾 تم تصدير CSV');
+}
+
+async function exportWordReport(){
+  if(typeof docx==='undefined'){showToast('⚠ جارٍ تحميل المكتبة، أعد المحاولة بعد ثانية');return;}
+  const alphaVal = parseFloat(document.getElementById('alphaNum').textContent)||0;
+  const verdDesc = document.getElementById('verdictDesc').textContent;
+  const kVal = document.getElementById('statK').textContent;
+  const nVal = document.getElementById('statN').textContent;
+  const varT = document.getElementById('statVarT').textContent;
+  const sumV = document.getElementById('statSumVar').textContent;
+  const dateStr = new Date().toLocaleDateString('ar-IQ');
+  const itemRowsData = Array.from(document.querySelectorAll('#itemTableBody tr')).map(row=>{
+    const cells = Array.from(row.cells);
+    let ald = cells[4]?cells[4].textContent.trim():'';
+    ald = ald.replace(/[▲▼\+\-]/g,'').trim();
+    return { id:cells[0]?.textContent?.trim()||'', mean:cells[1]?.textContent?.trim()||'',
+             std:cells[2]?.textContent?.trim()||'', cor:cells[3]?.textContent?.trim()||'',
+             ald, rec:cells[5]?.textContent?.trim()||'' };
+  });
+
+  const { Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,
+          AlignmentType,BorderStyle,WidthType,ShadingType,VerticalAlign,
+          Header,Footer,PageNumber } = docx;
+
+  const C={navy:'0D2050',blue:'1565C0',accent:'3B82F6',accentL:'DBEAFE',
+           green:'065F46',greenL:'D1FAE5',gold:'92400E',goldL:'FEF3C7',
+           red:'991B1B',redL:'FEE2E2',
+           g2:'334155',g3:'64748B',g4:'CBD5E1',g5:'F1F5F9',w:'FFFFFF'};
+
+  const sb  = col => ({style:BorderStyle.SINGLE,size:4,color:col});
+  const NB  = {style:BorderStyle.NONE,size:0,color:'FFFFFF'};
+  const ab  = col => ({top:sb(col),bottom:sb(col),left:sb(col),right:sb(col)});
+  const NAB = {top:NB,bottom:NB,left:NB,right:NB};
+  const rtl = { bidirectional:true };
+
+  function mkC(text,bold,color,size,bg,align,borders){
+    return new TableCell({
+      borders: borders||ab(C.g4),
+      shading: {fill:bg||C.w, type:ShadingType.CLEAR},
+      margins: {top:100,bottom:100,left:140,right:140},
+      verticalAlign: VerticalAlign.CENTER,
+      children:[new Paragraph({
+        alignment: align||AlignmentType.CENTER, ...rtl,
+        children:[new TextRun({text:String(text),bold:bold||false,
+          color:color||C.g2,size:size||20,font:{name:'Arial'}})]
+      })]
+    });
+  }
+  function rPar(children,align,after){
+    return new Paragraph({alignment:align||AlignmentType.RIGHT,...rtl,
+      spacing:{after:after||0},children});
+  }
+  function tr2(text,bold,color,size){
+    return new TextRun({text,bold:bold||false,color:color||C.g2,
+      size:size||22,font:{name:'Arial'}});
+  }
+  function gap(n){return new Paragraph({spacing:{after:n||200},children:[],...rtl});}
+  function secT(text){return new Paragraph({...rtl,spacing:{before:0,after:180},
+    border:{bottom:{style:BorderStyle.SINGLE,size:6,color:C.accent,space:1}},
+    children:[tr2(text,true,C.navy,26)]});}
+
+  function vcol(a){
+    if(a<0.60)return{bg:C.redL,  text:C.red,  label:'ضعيف'};
+    if(a<0.70)return{bg:C.goldL, text:C.gold, label:'مقبول'};
+    if(a<0.80)return{bg:C.accentL,text:C.blue,label:'جيد'};
+    if(a<0.90)return{bg:C.greenL,text:C.green,label:'جيد جداً'};
+    return          {bg:C.greenL,text:C.green,label:'ممتاز'};
+  }
+  function rcol(r){
+    if(r==='احتفظ به')return{bg:C.greenL,text:C.green};
+    if(r==='راجعه')   return{bg:C.goldL, text:C.gold};
+    return                  {bg:C.redL,  text:C.red};
+  }
+
+  const vc = vcol(alphaVal);
+
+  /* HEADER */
+  const hdr = new Header({children:[new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[6400,3238],
+    borders:{top:NB,left:NB,right:NB,bottom:sb(C.accent)},
+    rows:[new TableRow({children:[
+      new TableCell({borders:NAB,margins:{top:60,bottom:60,left:0,right:0},
+        children:[rPar([tr2('تقرير تحليل ثبات الاستبيان — كرونباخ ألفا',true,C.navy,19)],AlignmentType.RIGHT)]}),
+      new TableCell({borders:NAB,margins:{top:60,bottom:60,left:0,right:0},
+        children:[rPar([tr2(dateStr,false,C.g3,17)],AlignmentType.LEFT)]})
+    ]})]
+  })]});
+
+  /* FOOTER */
+  const ftr = new Footer({children:[new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[6400,3238],
+    borders:{top:sb(C.g4),left:NB,right:NB,bottom:NB},
+    rows:[new TableRow({children:[
+      new TableCell({borders:NAB,margins:{top:60,bottom:60,left:0,right:0},
+        children:[rPar([tr2('تصميم وتطوير: أ.د. طلال ناظم الزهيري — 2026',false,C.g3,16)],AlignmentType.RIGHT)]}),
+      new TableCell({borders:NAB,margins:{top:60,bottom:60,left:0,right:0},
+        children:[new Paragraph({alignment:AlignmentType.LEFT,...rtl,children:[
+          tr2('صفحة ',false,C.g3,15),
+          new TextRun({children:[PageNumber.CURRENT],size:15,font:{name:'Arial'},color:C.g3}),
+          tr2(' من ',false,C.g3,15),
+          new TextRun({children:[PageNumber.TOTAL_PAGES],size:15,font:{name:'Arial'},color:C.g3})
+        ]})]})
+    ]})]
+  })]});
+
+  /* TITLE */
+  const titleTbl = new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[9638],
+    rows:[
+      new TableRow({children:[new TableCell({
+        shading:{fill:C.navy,type:ShadingType.CLEAR},borders:NAB,
+        margins:{top:320,bottom:300,left:300,right:300},
+        children:[
+          rPar([tr2('تقرير تحليل الثبات الداخلي',true,C.w,38)],AlignmentType.CENTER,80),
+          rPar([tr2("Cronbach's Alpha",false,'93C5FD',22)],AlignmentType.CENTER,80),
+          rPar([tr2('تصميم: أ.د. طلال ناظم الزهيري — 2026',false,'7DD3FC',18)],AlignmentType.CENTER)
+        ]
+      })]
+      }),
+      new TableRow({children:[new TableCell({
+        shading:{fill:C.accent,type:ShadingType.CLEAR},borders:NAB,
+        margins:{top:90,bottom:90,left:300,right:300},
+        children:[rPar([tr2('تاريخ التقرير: '+dateStr,false,'DBEAFE',18)],AlignmentType.CENTER)]
+      })]})
+    ]
+  });
+
+  /* MAIN RESULT */
+  const mainTbl = new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[2800,6838],
+    rows:[new TableRow({children:[
+      new TableCell({shading:{fill:C.navy,type:ShadingType.CLEAR},borders:NAB,
+        margins:{top:280,bottom:280,left:200,right:200},verticalAlign:VerticalAlign.CENTER,
+        children:[
+          rPar([tr2('α',true,'60A5FA',56)],AlignmentType.CENTER,0),
+          rPar([tr2(alphaVal.toFixed(3),true,C.w,72)],AlignmentType.CENTER,0),
+          rPar([tr2('معامل الثبات',false,'94A3B8',18)],AlignmentType.CENTER)
+        ]
+      }),
+      new TableCell({shading:{fill:C.g5,type:ShadingType.CLEAR},borders:NAB,
+        margins:{top:220,bottom:220,left:200,right:280},
+        children:[
+          rPar([tr2('التقييم:  ',false,C.g3,22),tr2(vc.label,true,vc.text,34)],AlignmentType.RIGHT,100),
+          rPar([tr2(verdDesc,false,C.g2,20)],AlignmentType.RIGHT,200),
+          new Table({width:{size:5800,type:WidthType.DXA},columnWidths:[2900,2900],rows:[
+            new TableRow({children:[mkC('عدد البنود',true,C.g3,18,C.w),mkC('عدد المشاركين',true,C.g3,18,C.w)]}),
+            new TableRow({children:[mkC(kVal,true,C.navy,30,C.accentL),mkC(nVal,true,C.navy,30,C.accentL)]})
+          ]})
+        ]
+      })
+    ]})]
+  });
+
+  /* STATS */
+  const statsTbl = new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[2409,2409,2410,2410],
+    rows:[
+      new TableRow({children:[mkC('المتغير',true,C.w,20,C.blue),mkC('معامل ألفا (α)',true,C.w,20,C.blue),mkC('تباين المجموع',true,C.w,20,C.blue),mkC('مجموع تباين البنود',true,C.w,20,C.blue)]}),
+      new TableRow({children:[mkC('القيمة',false,C.g3,20,C.g5),mkC(alphaVal.toFixed(3),true,vc.text,28,vc.bg),mkC(varT,false,C.navy,22,C.w),mkC(sumV,false,C.navy,22,C.w)]})
+    ]
+  });
+
+  /* SCALE */
+  const scaleD=[
+    ['أقل من 0.60','ضعيف',    C.redL,   C.red,  'يحتاج مراجعة شاملة وإعادة صياغة'],
+    ['0.60 – 0.69','مقبول',   C.goldL,  C.gold, 'مقبول للدراسات الاستطلاعية'],
+    ['0.70 – 0.79','جيد',     C.accentL,C.blue, 'مناسب لمعظم الأبحاث الأكاديمية'],
+    ['0.80 – 0.89','جيد جداً',C.greenL, C.green,'ثبات عالٍ واتساق داخلي ممتاز'],
+    ['0.90 فأكثر', 'ممتاز',   C.greenL, C.green,'ثبات استثنائي — مقياس موثوق تماماً']
+  ];
+  const scaleTbl = new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[2100,2000,5538],
+    rows:[
+      new TableRow({children:[mkC('نطاق المعامل',true,C.w,20,C.blue),mkC('التقييم',true,C.w,20,C.blue),mkC('التفسير والتوصية',true,C.w,20,C.blue)]}),
+      ...scaleD.map(sd=>new TableRow({children:[mkC(sd[0],false,C.g2,20,C.w),mkC(sd[1],true,sd[3],20,sd[2]),mkC(sd[4],false,C.g2,20,C.w,AlignmentType.RIGHT)]}))
+    ]
+  });
+
+  /* ITEMS */
+  const itemTbl = new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[900,1400,1700,2000,2000,1638],
+    rows:[
+      new TableRow({children:[
+        mkC('البند',true,C.w,18,C.navy),mkC('المتوسط',true,C.w,18,C.navy),
+        mkC('الانحراف المعياري',true,C.w,18,C.navy),mkC('الارتباط بالمجموع',true,C.w,18,C.navy),
+        mkC('ألفا لو حُذف',true,C.w,18,C.navy),mkC('التوصية',true,C.w,18,C.navy)
+      ]}),
+      ...itemRowsData.map((item,i)=>{
+        const rco=rcol(item.rec);
+        const ibg=i%2===0?C.g5:C.w;
+        const cc=parseFloat(item.cor)>=0.4?C.green:parseFloat(item.cor)>=0.2?C.gold:C.red;
+        return new TableRow({children:[
+          mkC(item.id,true,C.navy,20,ibg),mkC(item.mean,false,C.g2,20,ibg),
+          mkC(item.std,false,C.g2,20,ibg),mkC(item.cor,true,cc,20,ibg),
+          mkC(item.ald,false,C.blue,20,ibg),mkC(item.rec,true,rco.text,18,rco.bg)
+        ]});
+      })
+    ]
+  });
+
+  /* NOTE */
+  const noteTbl = new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[9638],
+    rows:[new TableRow({children:[new TableCell({
+      shading:{fill:C.g5,type:ShadingType.CLEAR},
+      borders:{top:sb(C.g4),bottom:sb(C.g4),left:NB,right:{style:BorderStyle.SINGLE,size:18,color:C.accent}},
+      margins:{top:160,bottom:160,left:240,right:240},
+      children:[rPar([tr2('ملاحظة منهجية: ',true,C.navy,20),tr2('يُعدّ معامل كرونباخ ألفا مقياساً للاتساق الداخلي وليس لاستقرار الأداة عبر الزمن. يُنصح بالإبلاغ عنه مع مؤشرات ثبات أخرى كالإعادة أو النصفية.',false,C.g2,18)],AlignmentType.RIGHT)]
+    })]})  ]
+  });
+
+  /* CREDIT */
+  const creditTbl = new Table({
+    width:{size:9638,type:WidthType.DXA},columnWidths:[9638],
+    rows:[new TableRow({children:[new TableCell({
+      shading:{fill:C.navy,type:ShadingType.CLEAR},borders:NAB,
+      margins:{top:160,bottom:160,left:200,right:200},
+      children:[rPar([tr2('تصميم وتطوير: أ.د. طلال ناظم الزهيري © 2026',true,C.w,20)],AlignmentType.CENTER)]
+    })]})  ]
+  });
+
+  /* DOCUMENT */
+  const doc = new Document({
+    styles:{default:{
+      document:{run:{font:{name:'Arial'},size:22,color:C.g2}},
+      paragraph:{paragraph:{bidirectional:true}}
+    }},
+    sections:[{
+      properties:{page:{size:{width:11906,height:16838},margin:{top:1134,bottom:1134,right:1134,left:1134}}},
+      headers:{default:hdr},
+      footers:{default:ftr},
+      children:[
+        titleTbl, gap(280),
+        secT('◆  النتيجة الرئيسية'), mainTbl, gap(240),
+        secT('◆  المؤشرات الإحصائية'), statsTbl, gap(240),
+        secT('◆  مرجع تفسير المعامل'), scaleTbl, gap(240),
+        secT('◆  تحليل البنود — إذا حُذف البند'), itemTbl, gap(280),
+        noteTbl, gap(200), creditTbl, gap(80)
+      ]
+    }]
+  });
+
+  showToast('⏳ جارٍ إنشاء ملف Word...');
+  try {
+    const blob = await Packer.toBlob(doc);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'cronbach_alpha_report.docx';
+    a.click();
+    showToast('✅ تم تنزيل تقرير Word بنجاح!');
+  } catch(err) {
+    console.error(err);
+    showToast('❌ خطأ في إنشاء الملف: '+err.message);
+  }
+}
+
+
+
+/* =========================================
+   STATISTICAL REPORT — EQUATIONS + STEPS
+   ========================================= */
+let _reportData = null;
+
+function buildStatsReport(data) {
+  _reportData = data;
+  const box = document.getElementById('statsReportBox');
+  box.innerHTML = renderStatReport(data);
+}
+
+function renderStatReport(d) {
+  const {alpha, k, n, sumVar, varTotal, items, scaleMax, dateStr, totals} = d;
+  const f4 = v => Number(v).toFixed(4);
+  const f3 = v => Number(v).toFixed(3);
+  const f2 = v => Number(v).toFixed(2);
+
+  /* ── verdict ── */
+  let verdict, verdColor;
+  if(alpha<0.60)      {verdict='ضعيف';           verdColor='#ef4444';}
+  else if(alpha<0.70) {verdict='مقبول';          verdColor='#f59e0b';}
+  else if(alpha<0.80) {verdict='جيد';            verdColor='#3b82f6';}
+  else if(alpha<0.90) {verdict='جيد جداً';       verdColor='#10b981';}
+  else                 {verdict='ممتاز';          verdColor='#6366f1';}
+
+  /* ── per-item details ── */
+  const itemMeans = items.map(it => parseFloat(it.mean));
+  const itemVars  = items.map(it => parseFloat(it.varItem));
+
+  /* ── totals details ── */
+  const totMean = totals.reduce((a,b)=>a+b,0) / totals.length;
+
+  /* ── step values ── */
+  const kFactor = k / (k-1);
+  const ratio   = sumVar / varTotal;
+  const bracket = 1 - ratio;
+
+  /* ════════════════════════════════════════════
+     BUILD HTML  — mirrors the image exactly
+  ════════════════════════════════════════════ */
+
+  /* helper: inline fraction */
+  const frac = (num, den) =>
+    `<span class="mfrac"><span class="mnum">${num}</span><span class="mden">${den}</span></span>`;
+
+  /* helper: boxed equation row */
+  const eqRow = (label, eq) =>
+    `<div class="eq-row"><span class="eq-label">${label}</span><span class="eq-body">${eq}</span></div>`;
+
+  /* ── Section 1: بيانات ── */
+  let s1 = `
+  <div class="srp-sec">
+    <div class="srp-heading">١. البيانات الأساسية</div>
+    <ul class="srp-bullets">
+      <li>عدد البنود (k) = <strong>${k}</strong></li>
+      <li>عدد المشاركين (N) = <strong>${n}</strong></li>
+      <li>نوع المقياس: 1 إلى ${scaleMax}</li>
+      <li>تاريخ التحليل: ${dateStr}</li>
+    </ul>
+  </div>`;
+
+  /* ── Section 2: تباين كل بند ── */
+  let varItemRows = '';
+  items.forEach((item, qi) => {
+    // show the actual values used
+    const mn = parseFloat(item.mean);
+    const vr = parseFloat(item.varItem);
+    varItemRows += `
+    <tr>
+      <td class="tc-bold">${item.id}</td>
+      <td>${f2(mn)}</td>
+      <td>${f4(vr)}</td>
+      <td class="tc-formula">σ² = Σ(x − ${f2(mn)})² ÷ ${n-1}</td>
+    </tr>`;
+  });
+
+  let s2 = `
+  <div class="srp-sec">
+    <div class="srp-heading">٢. تباين كل بند — تطبيق المعادلة</div>
+    <div class="srp-note">
+      معادلة التباين: &nbsp;
+      <span class="math-inline">${frac('Σ (xᵢ − x̄ᵢ)²', 'N − 1')}</span>
+    </div>
+    <table class="srp-tbl">
+      <thead><tr><th>البند</th><th>المتوسط (x̄)</th><th>التباين (σ²)</th><th>الصيغة</th></tr></thead>
+      <tbody>${varItemRows}</tbody>
+      <tfoot>
+        <tr class="tr-sum">
+          <td colspan="2">مجموع تباينات البنود  (Σσ²ᵢ)</td>
+          <td class="tc-accent" colspan="2">${f4(sumVar)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>`;
+
+  /* ── Section 3: تباين المجموع الكلي ── */
+  const totList = totals.map((t,i) => `م${i+1} = ${t}`).join(' ،  ');
+  const totDevNumer = totals.map(t => `(${t} − ${f2(totMean)})²`).join(' + ');
+  const totDevNumerCalc = totals.map(t => {
+    const d = t - totMean;
+    return `${d>=0?'':''}(${f2(d)})² = ${f4(d*d)}`;
+  }).join(' + ');
+  const totDevSum = totals.reduce((a,t) => a + (t-totMean)**2, 0);
+
+  let s3 = `
+  <div class="srp-sec">
+    <div class="srp-heading">٣. تباين المجموع الكلي (σ²ₜ)</div>
+    <ul class="srp-bullets">
+      <li>مجاميع المشاركين: &nbsp; ${totList}</li>
+      <li>المتوسط الكلي (T̄) = (${totals.join(' + ')}) ÷ ${n} = <strong>${f4(totMean)}</strong></li>
+    </ul>
+    <div class="eq-block">
+      ${eqRow('',
+        frac(totDevNumer, n-1) +
+        ` = ` + frac(totDevNumerCalc.replace(/ = /g,' = ').replace(/\+ \(/g,'+ ('), n-1) +
+        ` = ` + frac(f4(totDevSum), n-1) +
+        ` = <strong>${f4(varTotal)}</strong>`
+      )}
+    </div>
+  </div>`;
+
+  /* ── Section 4: تطبيق المعادلة ── */
+  let s4 = `
+  <div class="srp-sec">
+    <div class="srp-heading">٤. تطبيق صيغة كرونباخ ألفا</div>
+    <div class="eq-block">
+      ${eqRow('α =',
+        frac('k', 'k − 1') +
+        ` × (1 − ` + frac('Σσ²ᵢ', 'σ²ₜ') + `)` +
+        ` = ` + frac(k, k-1) +
+        ` × (1 − ` + frac(f4(sumVar), f4(varTotal)) + `)` +
+        ` = <span class="math-step">${f4(kFactor)}</span> × (1 − <span class="math-step">${f4(ratio)}</span>)` +
+        ` = <span class="math-step">${f4(kFactor)}</span> × <span class="math-step">${f4(bracket)}</span>` +
+        ` ≈ <strong class="alpha-result" style="color:${verdColor}">${f3(alpha)}</strong>`
+      )}
+    </div>
+  </div>`;
+
+  /* ── Section 5: تحليل البنود ── */
+  let itemAnRows = '';
+  items.forEach((item, qi) => {
+    const cor = parseFloat(item.cor);
+    const ald = parseFloat(item.ald);
+    const diff = ald - alpha;
+    const diffStr = diff > 0.002
+      ? `<span style="color:#ef4444;">↑ ${f3(ald)}</span>`
+      : diff < -0.002
+        ? `<span style="color:#10b981;">↓ ${f3(ald)}</span>`
+        : `<span style="color:var(--muted);">${f3(ald)}</span>`;
+    const recColor = item.rec==='احتفظ به'?'#10b981':item.rec==='راجعه'?'#f59e0b':'#ef4444';
+    const corColor = cor>=0.4?'#10b981':cor>=0.2?'#f59e0b':'#ef4444';
+    itemAnRows += `
+    <tr>
+      <td class="tc-bold">${item.id}</td>
+      <td>${item.mean}</td>
+      <td>${item.std}</td>
+      <td>${item.varItem}</td>
+      <td style="color:${corColor};font-weight:700;">${item.cor}</td>
+      <td>${diffStr}</td>
+      <td style="color:${recColor};font-weight:700;">${item.rec}</td>
+    </tr>`;
+  });
+
+  let s5 = `
+  <div class="srp-sec">
+    <div class="srp-heading">٥. تحليل البنود (Corrected Item-Total Correlation)</div>
+    <div class="srp-note">
+      يُظهر الجدول أثر حذف كل بند على قيمة المعامل، ويستند إلى معامل ارتباط بيرسون المُصحَّح بين درجة البند ومجموع بقية البنود.
+    </div>
+    <table class="srp-tbl">
+      <thead>
+        <tr>
+          <th>البند</th><th>المتوسط</th><th>الانحراف</th><th>التباين</th>
+          <th>r(i,t-i)</th><th>α لو حُذف</th><th>التوصية</th>
+        </tr>
+      </thead>
+      <tbody>${itemAnRows}</tbody>
+    </table>
+    <div class="srp-legend">
+      <span style="color:#10b981;">● r ≥ 0.40</span> — احتفظ بالبند &nbsp;&nbsp;
+      <span style="color:#f59e0b;">● 0.20 ≤ r &lt; 0.40</span> — راجع البند &nbsp;&nbsp;
+      <span style="color:#ef4444;">● r &lt; 0.20</span> — احذف البند
+    </div>
+  </div>`;
+
+  /* ── Section 6: نتيجة نهائية ── */
+  let s6 = `
+  <div class="srp-sec srp-final">
+    <div class="srp-verdict-line">
+      الناتج: &nbsp;
+      <span style="color:${verdColor}; font-size:1.3em; font-weight:900;">α ≈ ${f3(alpha)}</span>
+      &nbsp;
+      <span class="srp-verdict-badge" style="background:${verdColor}22; color:${verdColor}; border:1px solid ${verdColor}55;">${verdict}</span>
+    </div>
+    
+    <div class="srp-credit">
+      تصميم وتطوير: أ.د. طلال ناظم الزهيري &nbsp;©&nbsp; 2026 — الجامعة المستنصرية
+    </div>
+  </div>`;
+
+  return `<div class="srp-wrap">${s1}${s2}${s3}${s4}${s5}${s6}</div>`;
+}
+
+function toggleStatsReport() {
+  const panel = document.getElementById('statsReport');
+  const btn   = document.getElementById('toggleReportBtn');
+  const isShown = panel.classList.toggle('show');
+  btn.textContent = isShown ? '🔼 إخفاء المعالجة الإحصائية' : '📊 عرض المعالجة الإحصائية';
+  if(isShown) {
+    setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),120);
+  }
+}
+
+function copyStatsReport() {
+  const el = document.getElementById('statsReportBox');
+  // Use innerText for clean plain-text with line breaks
+  let txt = el.innerText || el.textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    showToast('✅ تم نسخ المعالجة الكاملة — الصقها في Word');
+    const btn = document.querySelector('.sr-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(()=>btn.textContent = orig, 2500);
+  }).catch(()=>showToast('❌ تعذّر النسخ، حاول يدوياً'));
+}
+
+function toggleStatsReport() {
+  const panel = document.getElementById('statsReport');
+  const btn   = document.getElementById('toggleReportBtn');
+  const isShown = panel.classList.toggle('show');
+  btn.textContent = isShown ? '🔼 إخفاء المعالجة الإحصائية' : '📊 عرض المعالجة الإحصائية';
+  if(isShown) {
+    setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),100);
+  }
+}
+
+function copyStatsReport() {
+  const box = document.getElementById('statsReportBox');
+  // Build plain text version for Word
+  let txt = box.innerText || box.textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    showToast('✅ تم نسخ المعالجة الإحصائية الكاملة');
+    const btn = document.querySelector('.sr-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(()=>btn.textContent = orig, 2200);
+  }).catch(()=>showToast('❌ تعذّر النسخ، حاول يدوياً'));
+}
+
+function copyResult(){
+  const a = document.getElementById('alphaNum').textContent;
+  const v = document.getElementById('verdict').textContent;
+  navigator.clipboard.writeText(`معامل كرونباخ ألفا = ${a} (${v})`);
+  showToast('📋 تم النسخ');
+}
+
+function download(name,type,content){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type}));
+  a.download = name;
+  a.click();
+}
+
+/* =========================================
+   STEP & TOAST
+   ========================================= */
+function setStep(n){
+  for(let i=1;i<=3;i++){
+    document.getElementById('s'+i).classList.toggle('active',i<=n);
+  }
+}
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
