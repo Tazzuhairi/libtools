@@ -1,634 +1,1142 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   أداة حساب المعدل
-  </title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&amp;display=swap" rel="stylesheet"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
-  </script>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المعدل التراكمي والتنافسي لطلبة البكالوريوس</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-   body {
+    :root {
+      --primary: #1a56db;
+      --primary-dark: #1240a8;
+      --primary-light: #e8f0fe;
+      --accent: #f59e0b;
+      --accent-dark: #d97706;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --shadow: 0 4px 24px rgba(26,86,219,0.10);
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to right, #e3f2fd, #fce4ec);
-      margin: 0;
-      padding: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: var(--bg);
       min-height: 100vh;
-      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 12px 40px;
+      color: var(--text-main);
     }
 
-    .gpa-container {
-      background: #f0faff;
-      border: 2px solid #2196f3;
-      padding: 30px 40px;
-      border-radius: 16px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    /* ===== HEADER ===== */
+    .app-header {
       width: 100%;
-      max-width: 800px;
-      animation: fadeIn 1s ease-in-out;
+      max-width: 720px;
+      text-align: center;
+      margin-bottom: 28px;
+      animation: slideDown 0.6s cubic-bezier(.22,1,.36,1) both;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
+    .app-header .logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 20px rgba(26,86,219,0.3);
+    }
+
+    .app-header .logo i {
+      color: white;
+      font-size: 28px;
+    }
+
+    .app-header h1 {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .app-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar-wrap {
+      width: 100%;
+      max-width: 720px;
+      margin-bottom: 24px;
+      animation: slideDown 0.6s 0.1s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      position: relative;
+    }
+
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 17px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--border);
+      z-index: 0;
+      transition: background 0.4s;
+    }
+
+    .step-item.completed:not(:last-child)::after {
+      background: var(--primary);
+    }
+
+    .step-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 3px solid var(--border);
+      background: white;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+      transition: all 0.4s;
+    }
+
+    .step-item.active .step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(26,86,219,0.15);
+    }
+
+    .step-item.completed .step-circle {
+      border-color: var(--success);
+      background: var(--success);
+      color: white;
+    }
+
+    .step-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .step-item.active .step-label { color: var(--primary); }
+    .step-item.completed .step-label { color: var(--success); }
+
+    /* ===== CARD ===== */
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      padding: 32px 36px;
+      animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 30px;
-    }
-    h3 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 30px;
-    }
-    label {
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 6px;
-      display: block;
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .input-group {
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
-      border: 2px solid #2196f3;
+      gap: 10px;
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 10px;
+    }
+
+    .section-title i {
+      background: var(--primary-light);
+      color: var(--primary);
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 20px;
-      background-color: #e3f2fd;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
     }
 
-    .input-group i {
-      color: #2196f3;
-      margin-left: 10px;
-      font-size: 1.2rem;
+    /* ===== FORM FIELDS ===== */
+    .field {
+      margin-bottom: 18px;
     }
 
-    .input-group input,
-    .input-group select {
+    .field label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: white;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+    }
+
+    .input-wrap.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+    }
+
+    .input-icon {
+      width: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 1rem;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border); /* RTL: border-left is visual right */
+    }
+
+    .input-wrap input,
+    .input-wrap select {
+      flex: 1;
       border: none;
       outline: none;
       background: transparent;
-      width: 100%;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-family: 'Cairo', sans-serif;
+      color: var(--text-main);
+      padding: 11px 12px;
     }
 
-    .material-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      align-items: center;
-    }
-
-    .material-row .input-group {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .material-header {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-    .material-header div {
-      flex: 1;
-      text-align: center;
-      color: #2c3e50;
-    }
-
-    button {
-      background-color: #6200ea;
-      color: #fff;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: 'Cairo', sans-serif;
+    .input-wrap select {
       cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
-    button:hover {
-      background-color: #3700b3;
-    }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    }
-
-    .hidden {
+    .field-error {
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-top: 5px;
       display: none;
     }
 
-    .action-buttons {
+    .field.has-error .field-error { display: block; }
+    .field.has-error .input-wrap { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,0.12); }
+
+    /* ===== TWO COLUMNS ===== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ===== MATERIAL TABLE ===== */
+    .materials-table-wrap {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .materials-table-head {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.2fr 40px;
+      gap: 0;
+      background: var(--primary-light);
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .material-row-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.2fr 40px;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .material-row-item:last-child { border-bottom: none; }
+    .material-row-item:hover { background: #f8fafc; }
+
+    .material-row-item .mini-input {
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 0.88rem;
+      font-family: 'Cairo', sans-serif;
+      outline: none;
+      background: white;
+      color: var(--text-main);
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+
+    .material-row-item .mini-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(26,86,219,0.10);
+    }
+
+    .material-row-item .mini-input.invalid {
+      border-color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    .row-num {
       display: flex;
-      gap: 10px;
-      margin-top: 20px;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* ===== RESULT BOX ===== */
+    .result-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: linear-gradient(135deg, var(--primary-light), #f0e8ff);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      margin-top: 18px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .result-box .result-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .result-box .result-icon i {
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .result-box .result-text { flex: 1; }
+    .result-box .result-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .result-box .result-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+
+    .result-box.success { background: var(--success-light); border-color: var(--success); }
+    .result-box.success .result-icon { background: var(--success); }
+    .result-box.success .result-value { color: var(--success); }
+
+    .result-box.accent { background: #fff8e7; border-color: var(--accent); }
+    .result-box.accent .result-icon { background: var(--accent); }
+    .result-box.accent .result-value { color: var(--accent-dark); }
+
+    /* Grade badge */
+    .grade-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    /* ===== STAGE INDICATOR ===== */
+    .stage-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
 
-    .action-buttons button {
-      flex: 1 1 auto;
+    .stage-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+      background: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
     }
 
-    button.reset-btn {
-      background-color: #f44336;
+    .stage-chip.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
     }
 
-    button.reset-btn:hover {
-      background-color: #d32f2f;
+    .stage-chip.done {
+      border-color: var(--success);
+      color: var(--success);
+      background: var(--success-light);
     }
 
-    button.export-btn {
-      background-color: #ff9800;
+    .stage-chip.done i { font-size: 0.75rem; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
     }
 
-    button.export-btn:hover {
-      background-color: #f57c00;
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(26,86,219,0.25);
     }
 
-    button.pdf-btn {
-      background-color: #d32f2f;
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(26,86,219,0.3);
     }
 
-    button.pdf-btn:hover {
-      background-color: #b71c1c;
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16,185,129,0.25);
     }
 
-    #stageGPAResult, #finalGPAResult, #competitiveGPAResult {
-      background: #e1f5fe;
-      border-left: 5px solid #039be5;
-      padding: 12px 16px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #0277bd;
-      border-radius: 8px;
-      margin-top: 15px;
+    .btn-success:hover { background: #059669; transform: translateY(-1px); }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 12px rgba(245,158,11,0.25);
     }
 
-    @media (max-width: 768px) {
-      .gpa-container {
-        padding: 20px;
+    .btn-accent:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+    }
+
+    .btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover { background: var(--primary-light); }
+
+    .btn-sm { padding: 8px 16px; font-size: 0.84rem; }
+    .btn-lg { padding: 14px 28px; font-size: 1rem; }
+    .btn-full { width: 100%; }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .btn-group .btn { flex: 1 1 auto; min-width: 130px; }
+
+    /* ===== NOTIFICATION TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--text-main);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(.22,1,.36,1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.danger { background: var(--danger); }
+    .toast.success { background: var(--success); }
+
+    /* ===== HIDDEN ===== */
+    .hidden { display: none !important; }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* ===== SUMMARY CARD ===== */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .summary-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .summary-item .s-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+    .summary-item .s-value { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-top: 2px; }
+
+    /* ===== WEIGHT TABLE ===== */
+    .weight-info {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .weight-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      border: 1px solid #c7d7f8;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .card { padding: 20px 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .materials-table-head,
+      .material-row-item {
+        grid-template-columns: 1.5fr 1fr 1fr 32px;
+        gap: 6px;
+        padding: 8px 8px;
+        font-size: 0.78rem;
       }
-
-      .material-row {
-        flex-direction: column;
-      }
-
-      .material-row .input-group {
-        width: 100%;
-      }
-
-      button {
-        width: 100%;
-        justify-content: center;
-      }
-
-      h2 {
-        font-size: 1.2rem;
-      }
+      .app-header h1 { font-size: 1.3rem; }
+      .btn-group .btn { min-width: unset; }
     }
+
+    /* ===== LOADING SPINNER ===== */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
- </head>
- <body>
-  <div class="gpa-container">
-   <h2>
-    أداة حساب المعدل التراكمي والتنافسي
-   </h2>
-   <h3>
-    تصميم وتطوير: د. طلال ناظم الزهيري
-   </h3>
-   <label for="department">
-    اختر القسم العلمي:
-   </label>
-   <div class="input-group">
-    <i class="fas fa-university">
-    </i>
-    <select id="department">
-     <option value="">
-      -- اختر القسم --
-     </option>
-     <option>
-      اللغة العربية
-     </option>
-     <option>
-      اللغة الانكليزية
-     </option>
-     <option>
-      الجغرافية ونظم المعلومات الجغرافية
-     </option>
-     <option>
-      المعلومات وتقنيات المعرفة
-     </option>
-     <option>
-      الفلسفة
-     </option>
-     <option>
-      الترجمة
-     </option>
-    </select>
-   </div>
-   <label for="studentName">
-    اسم الطالب:
-   </label>
-   <div class="input-group">
-    <i class="fas fa-user">
-    </i>
-    <input id="studentName" placeholder="اكتب اسم الطالب" type="text"/>
-   </div>
-   <label for="stage">
-    المرحلة الدراسية:
-   </label>
-   <div class="input-group">
-    <i class="fas fa-layer-group">
-    </i>
-    <input id="stage" placeholder="مثلاً: الأولى" type="text"/>
-   </div>
-   <div class="hidden" id="materialCountSection">
-    <label for="materialCount">
-     عدد المواد:
-    </label>
-    <div class="input-group">
-     <i class="fas fa-list-ol">
-     </i>
-     <input id="materialCount" min="1" oninput="generateMaterialTable()" type="number"/>
-    </div>
-   </div>
-   <div id="materialsTableSection">
-   </div>
-   <div class="hidden" id="stageGPASection">
-    <button class="hidden" id="calculateStageBtn" onclick="calculateStageGPA()">
-     <i class="fas fa-calculator">
-     </i>
-     احسب معدل المرحلة
-    </button>
-    <p id="stageGPAResult">
-    </p>
-    <button class="hidden" id="nextStageBtn" onclick="goToNextStage()">
-     <i class="fas fa-arrow-right">
-     </i>
-     الانتقال إلى المرحلة التالية
-    </button>
-   </div>
-   <div class="hidden" id="finalGPASection">
-    <p id="finalGPAResult"></p>
-    <button onclick="calculateCompetitiveGPA()">
-     <i class="fas fa-balance-scale"></i>
-     احسب المعدل التنافسي
-    </button>
-    <div class="hidden" id="competitiveInputSection">
-     <label for="topStudentGPA">
-      معدل الطالب الأول:
-     </label>
-     <div class="input-group">
-      <i class="fas fa-trophy">
-      </i>
-      <input id="topStudentGPA" step="0.01" type="number"/>
-     </div>
-     <button onclick="showCompetitiveResult()">
-      <i class="fas fa-equals">
-      </i>
-      احسب
-     </button>
-    </div>
-    <p id="competitiveGPAResult">
-    </p>
-   </div>
-   <div class="hidden action-buttons" id="actionButtons">
-    <button class="reset-btn" onclick="resetForm()">
-     <i class="fas fa-redo">
-     </i>
-     إعادة تعيين
-    </button>
-    <button class="export-btn" onclick="exportToWord()">
-     <i class="fas fa-file-word">
-     </i>
-     تصدير إلى Word
-    </button>
-   </div>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="logo"><i class="fas fa-graduation-cap"></i></div>
+    <h1>طلبة البكالوريوس: أداة حساب المعدل التراكمي والتنافسي</h1>
+    <p>تصميم وتطوير: د. طلال ناظم الزهيري</p>
   </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar-wrap">
+    <div class="progress-steps" id="progressSteps">
+      <div class="step-item active" id="step-info">
+        <div class="step-circle"><i class="fas fa-user"></i></div>
+        <span class="step-label">معلومات الطالب</span>
+      </div>
+      <div class="step-item" id="step-1">
+        <div class="step-circle">١</div>
+        <span class="step-label">المرحلة الأولى</span>
+      </div>
+      <div class="step-item" id="step-2">
+        <div class="step-circle">٢</div>
+        <span class="step-label">الثانية</span>
+      </div>
+      <div class="step-item" id="step-3">
+        <div class="step-circle">٣</div>
+        <span class="step-label">الثالثة</span>
+      </div>
+      <div class="step-item" id="step-4">
+        <div class="step-circle">٤</div>
+        <span class="step-label">الرابعة</span>
+      </div>
+      <div class="step-item" id="step-result">
+        <div class="step-circle"><i class="fas fa-chart-bar"></i></div>
+        <span class="step-label">النتيجة</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card" id="mainCard">
+
+    <!-- SECTION 1: Student Info -->
+    <div id="sectionInfo">
+      <div class="section-title">
+        <i class="fas fa-id-card"></i>
+        معلومات الطالب
+      </div>
+
+      <div class="form-grid">
+        <div class="field" id="field-dept">
+          <label for="department"><i class="fas fa-university"></i> القسم العلمي</label>
+          <div class="input-wrap">
+            <div class="input-icon"><i class="fas fa-university"></i></div>
+            <select id="department">
+              <option value="">-- اختر القسم --</option>
+              <option>اللغة العربية</option>
+              <option>اللغة الانكليزية</option>
+              <option>الجغرافية ونظم المعلومات الجغرافية</option>
+              <option>المعلومات وتقنيات المعرفة</option>
+              <option>الفلسفة</option>
+              <option>الترجمة</option>
+            </select>
+          </div>
+          <span class="field-error">الرجاء اختيار القسم</span>
+        </div>
+
+        <div class="field" id="field-name">
+          <label for="studentName"><i class="fas fa-user"></i> اسم الطالب</label>
+          <div class="input-wrap">
+            <div class="input-icon"><i class="fas fa-user"></i></div>
+            <input type="text" id="studentName" placeholder="اكتب الاسم الكامل">
+          </div>
+          <span class="field-error">الرجاء إدخال اسم الطالب</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="weight-info">
+        <span style="font-size:0.82rem; font-weight:700; color:var(--text-muted); align-self:center;">أوزان المراحل:</span>
+        <div class="weight-chip"><span>الأولى</span><strong>10%</strong></div>
+        <div class="weight-chip"><span>الثانية</span><strong>20%</strong></div>
+        <div class="weight-chip"><span>الثالثة</span><strong>30%</strong></div>
+        <div class="weight-chip"><span>الرابعة</span><strong>40%</strong></div>
+      </div>
+
+      <button class="btn btn-primary btn-lg btn-full" onclick="startStages()">
+        <i class="fas fa-arrow-left"></i>
+        ابدأ إدخال درجات المراحل
+      </button>
+    </div>
+
+    <!-- SECTION 2: Stage Entry -->
+    <div id="sectionStage" class="hidden">
+      <div class="section-title">
+        <i class="fas fa-layer-group"></i>
+        <span id="stageTitle">المرحلة الأولى</span>
+      </div>
+
+      <div class="stage-indicator" id="stageIndicator"></div>
+
+      <div class="field" id="field-count">
+        <label for="materialCount"><i class="fas fa-list-ol"></i> عدد المواد الدراسية</label>
+        <div class="input-wrap" style="max-width:200px">
+          <div class="input-icon"><i class="fas fa-hashtag"></i></div>
+          <input type="number" id="materialCount" min="1" max="20" placeholder="مثلاً: 6" oninput="generateMaterialTable()">
+        </div>
+        <span class="field-error">الرجاء إدخال عدد صحيح للمواد</span>
+      </div>
+
+      <div id="materialsTableSection"></div>
+
+      <div id="stageGPAResult" class="hidden"></div>
+
+      <div class="btn-group" id="stageBtns">
+        <button class="btn btn-primary" id="calculateStageBtn" onclick="calculateStageGPA()">
+          <i class="fas fa-calculator"></i> احسب معدل المرحلة
+        </button>
+        <button class="btn btn-success hidden" id="nextStageBtn" onclick="goToNextStage()">
+          <i class="fas fa-arrow-left"></i> المرحلة التالية
+        </button>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Final Results -->
+    <div id="sectionFinal" class="hidden">
+      <div class="section-title">
+        <i class="fas fa-chart-pie"></i>
+        النتائج النهائية
+      </div>
+
+      <div class="summary-grid" id="stageSummary"></div>
+
+      <div id="finalGPAResult" class="result-box success">
+        <div class="result-icon"><i class="fas fa-star"></i></div>
+        <div class="result-text">
+          <div class="result-label">المعدل التراكمي النهائي</div>
+          <div class="result-value" id="finalGPAValue">-</div>
+          <div id="finalGradeBadge" class="grade-badge"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title">
+        <i class="fas fa-trophy"></i>
+        المعدل التنافسي
+      </div>
+
+      <div class="field" id="field-topgpa">
+        <label for="topStudentGPA">معدل الطالب الأول في القسم</label>
+        <div class="input-wrap" style="max-width:260px">
+          <div class="input-icon"><i class="fas fa-trophy"></i></div>
+          <input type="number" step="0.01" min="0" max="100" id="topStudentGPA" placeholder="مثلاً: 87.50">
+        </div>
+        <span class="field-error">الرجاء إدخال معدل صحيح (1–100)</span>
+      </div>
+
+      <button class="btn btn-accent" onclick="showCompetitiveResult()">
+        <i class="fas fa-balance-scale"></i> احسب المعدل التنافسي
+      </button>
+
+      <div id="competitiveGPAResult" class="result-box accent hidden">
+        <div class="result-icon"><i class="fas fa-percentage"></i></div>
+        <div class="result-text">
+          <div class="result-label">المعدل التنافسي</div>
+          <div class="result-value" id="competitiveValue">-</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="btn-group">
+        <button class="btn btn-outline" onclick="resetForm()">
+          <i class="fas fa-redo"></i> بدء حساب جديد
+        </button>
+        <button class="btn btn-accent" onclick="exportToWord()">
+          <i class="fas fa-file-word"></i> تصدير Word
+        </button>
+        <button class="btn btn-danger" onclick="exportToPDF()">
+          <i class="fas fa-file-pdf"></i> تصدير PDF
+        </button>
+      </div>
+    </div>
+
+  </div><!-- end card -->
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
   <script>
-   window.addEventListener('DOMContentLoaded', function () {
-      const stageInput = document.getElementById('stage');
-      const materialCountSection = document.getElementById('materialCountSection');
-
-      stageInput.addEventListener('input', function () {
-        if (stageInput.value.trim() !== '') {
-          materialCountSection.classList.remove('hidden');
-        } else {
-          materialCountSection.classList.add('hidden');
-        }
-      });
-    });
-
+    // ===== STATE =====
     let currentStageIndex = 0;
     const stageNames = ['الأولى', 'الثانية', 'الثالثة', 'الرابعة'];
     const stageWeights = [0.1, 0.2, 0.3, 0.4];
     const stageGPAs = [];
-    let studentData = {
-      name: '',
-      department: '',
-      stages: []
-    };
+    let studentData = { name: '', department: '', stages: [] };
 
-    function generateMaterialTable() {
-      const countInput = document.getElementById("materialCount");
-      const count = parseInt(countInput.value);
-      
-      // التحقق من صحة المدخلات
-      if (isNaN(count) || count < 1) {
-        document.getElementById("materialsTableSection").innerHTML = '';
-        return;
-      }
-      
-      // بقية الدالة كما هي...
-      const container = document.getElementById("materialsTableSection");
-      container.innerHTML = '';
-      
-      // إضافة عناوين الأعمدة
-      container.innerHTML += `
-        <div class="material-header">
-          <div>اسم المادة</div>
-          <div>الدرجة</div>
-          <div>الوحدات المعتمدة</div>
-        </div>`;
-      
-      for (let i = 0; i < count; i++) {
-        container.innerHTML += `
-          <div class="material-row" id="material-row-${i}">
-            <div class="input-group"><i class="fas fa-book"></i><input type="text" placeholder="اسم المادة" id="material-name-${i}" required></div>
-            <div class="input-group"><i class="fas fa-star"></i><input type="number" min="0" max="100" placeholder="الدرجة" id="material-grade-${i}" required></div>
-            <div class="input-group"><i class="fas fa-clock"></i><input type="number" min="1" placeholder="الوحدات" id="material-credit-${i}" required></div>
-          </div>`;
-      }
-      
-      document.getElementById("stageGPASection").classList.remove("hidden");
-      document.getElementById("calculateStageBtn").classList.remove("hidden");
+    // ===== TOAST =====
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.className = 'toast ' + type;
+      t.innerHTML = `<i class="fas fa-${type === 'danger' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${msg}`;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
     }
 
+    // ===== GRADE LABEL =====
+    function getGradeLabel(gpa) {
+      if (gpa >= 90) return 'امتياز';
+      if (gpa >= 80) return 'جيد جداً';
+      if (gpa >= 70) return 'جيد';
+      if (gpa >= 60) return 'مقبول';
+      return 'راسب';
+    }
+
+    // ===== PROGRESS UPDATE =====
+    function updateProgress(activeStep) {
+      const steps = ['step-info', 'step-1', 'step-2', 'step-3', 'step-4', 'step-result'];
+      steps.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('active', 'completed');
+        if (id === activeStep) el.classList.add('active');
+        else if (steps.indexOf(id) < steps.indexOf(activeStep)) el.classList.add('completed');
+      });
+    }
+
+    // ===== STAGE INDICATOR =====
+    function renderStageIndicator() {
+      const wrap = document.getElementById('stageIndicator');
+      wrap.innerHTML = stageNames.map((name, i) => {
+        const isDone = i < currentStageIndex;
+        const isActive = i === currentStageIndex;
+        return `<div class="stage-chip ${isDone ? 'done' : isActive ? 'active' : ''}">
+          ${isDone ? '<i class="fas fa-check"></i>' : `<span style="font-size:0.75rem;font-weight:900;">${['١','٢','٣','٤'][i]}</span>`}
+          المرحلة ${name}
+          ${isDone ? `<span style="font-size:0.72rem;opacity:.8">(${stageGPAs[i].toFixed(1)})</span>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    // ===== VALIDATE INFO =====
+    function validateInfo() {
+      let ok = true;
+      const dept = document.getElementById('department').value;
+      const name = document.getElementById('studentName').value.trim();
+      const fdept = document.getElementById('field-dept');
+      const fname = document.getElementById('field-name');
+      fdept.classList.remove('has-error');
+      fname.classList.remove('has-error');
+      if (!dept) { fdept.classList.add('has-error'); ok = false; }
+      if (!name) { fname.classList.add('has-error'); ok = false; }
+      return ok;
+    }
+
+    // ===== START STAGES =====
+    function startStages() {
+      if (!validateInfo()) {
+        showToast('الرجاء تعبئة جميع الحقول المطلوبة', 'danger');
+        return;
+      }
+      studentData.name = document.getElementById('studentName').value.trim();
+      studentData.department = document.getElementById('department').value;
+
+      document.getElementById('sectionInfo').classList.add('hidden');
+      document.getElementById('sectionStage').classList.remove('hidden');
+      loadStage();
+      updateProgress('step-1');
+    }
+
+    // ===== LOAD STAGE =====
+    function loadStage() {
+      document.getElementById('stageTitle').textContent = `المرحلة ${stageNames[currentStageIndex]}`;
+      document.getElementById('materialCount').value = '';
+      document.getElementById('materialsTableSection').innerHTML = '';
+      document.getElementById('stageGPAResult').classList.add('hidden');
+      document.getElementById('nextStageBtn').classList.add('hidden');
+      document.getElementById('calculateStageBtn').classList.remove('hidden');
+      renderStageIndicator();
+    }
+
+    // ===== GENERATE TABLE =====
+    function generateMaterialTable() {
+      const val = parseInt(document.getElementById('materialCount').value);
+      const container = document.getElementById('materialsTableSection');
+      document.getElementById('stageGPAResult').classList.add('hidden');
+      document.getElementById('nextStageBtn').classList.add('hidden');
+      document.getElementById('calculateStageBtn').classList.remove('hidden');
+
+      if (isNaN(val) || val < 1) { container.innerHTML = ''; return; }
+      if (val > 20) { showToast('الحد الأقصى للمواد 20 مادة', 'danger'); return; }
+
+      container.innerHTML = `
+        <div class="materials-table-wrap">
+          <div class="materials-table-head">
+            <div>اسم المادة</div>
+            <div style="text-align:center">الدرجة /100</div>
+            <div style="text-align:center">الوحدات</div>
+            <div></div>
+          </div>
+          <div id="materialRows">
+            ${Array.from({length: val}, (_, i) => `
+              <div class="material-row-item" id="mrow-${i}">
+                <input class="mini-input" type="text" placeholder="اسم المادة" id="mname-${i}">
+                <input class="mini-input" type="number" min="0" max="100" placeholder="0-100" id="mgrade-${i}">
+                <input class="mini-input" type="number" min="1" placeholder="وحدات" id="mcredit-${i}">
+                <div class="row-num">${i+1}</div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    // ===== CALCULATE STAGE GPA =====
     function calculateStageGPA() {
-      const count = parseInt(document.getElementById("materialCount").value);
+      const count = parseInt(document.getElementById('materialCount').value);
+      if (isNaN(count) || count < 1) {
+        showToast('الرجاء إدخال عدد المواد أولاً', 'danger');
+        return;
+      }
+
       let totalWeighted = 0, totalCredits = 0;
-      const stageMaterials = [];
-      let allValid = true;
-      
-      // التحقق من صحة جميع المدخلات
+      const materials = [];
+      let valid = true;
+
       for (let i = 0; i < count; i++) {
-        const name = document.getElementById(`material-name-${i}`).value;
-        const grade = parseFloat(document.getElementById(`material-grade-${i}`).value);
-        const credit = parseFloat(document.getElementById(`material-credit-${i}`).value);
-        
-        if (!name || isNaN(grade) || isNaN(credit) || grade < 0 || grade > 100 || credit < 1) {
-          allValid = false;
-          // تظليل الحقل غير الصحيح
-          if (!name) document.getElementById(`material-name-${i}`).style.border = "1px solid red";
-          if (isNaN(grade) || grade < 0 || grade > 100) document.getElementById(`material-grade-${i}`).style.border = "1px solid red";
-          if (isNaN(credit) || credit < 1) document.getElementById(`material-credit-${i}`).style.border = "1px solid red";
-          break;
-        } else {
-          // إزالة التظليل إذا كان الحقل صحيحًا
-          document.getElementById(`material-name-${i}`).style.border = "";
-          document.getElementById(`material-grade-${i}`).style.border = "";
-          document.getElementById(`material-credit-${i}`).style.border = "";
+        const nameEl = document.getElementById(`mname-${i}`);
+        const gradeEl = document.getElementById(`mgrade-${i}`);
+        const creditEl = document.getElementById(`mcredit-${i}`);
+        const name = nameEl.value.trim();
+        const grade = parseFloat(gradeEl.value);
+        const credit = parseFloat(creditEl.value);
+
+        nameEl.classList.remove('invalid');
+        gradeEl.classList.remove('invalid');
+        creditEl.classList.remove('invalid');
+
+        if (!name) { nameEl.classList.add('invalid'); valid = false; }
+        if (isNaN(grade) || grade < 0 || grade > 100) { gradeEl.classList.add('invalid'); valid = false; }
+        if (isNaN(credit) || credit < 1) { creditEl.classList.add('invalid'); valid = false; }
+
+        if (valid) {
+          totalWeighted += grade * credit;
+          totalCredits += credit;
+          materials.push({ name, grade, credit });
         }
       }
-      
-      if (!allValid) {
-        alert("الرجاء إدخال بيانات صحيحة لجميع المواد");
+
+      if (!valid) {
+        showToast('تحقق من البيانات المظللة بالأحمر', 'danger');
         return;
       }
-      
-      // حساب المعدل إذا كانت جميع المدخلات صحيحة
-      for (let i = 0; i < count; i++) {
-        const name = document.getElementById(`material-name-${i}`).value;
-        const grade = parseFloat(document.getElementById(`material-grade-${i}`).value);
-        const credit = parseFloat(document.getElementById(`material-credit-${i}`).value);
-        
-        totalWeighted += grade * credit;
-        totalCredits += credit;
-        stageMaterials.push({
-          name: name,
-          grade: grade,
-          credit: credit
-        });
-      }
-      
+
       const gpa = totalWeighted / totalCredits;
       stageGPAs[currentStageIndex] = gpa;
-      
-      // حفظ بيانات المرحلة
       studentData.stages[currentStageIndex] = {
         name: stageNames[currentStageIndex],
-        gpa: gpa,
-        materials: stageMaterials
+        gpa,
+        materials
       };
-      
-      document.getElementById("stageGPAResult").innerText = `معدل المرحلة ${stageNames[currentStageIndex]}: ${gpa.toFixed(2)}`;
-      document.getElementById("nextStageBtn").classList.remove("hidden");
-      document.getElementById("calculateStageBtn").classList.add("hidden");
+
+      const resultEl = document.getElementById('stageGPAResult');
+      resultEl.classList.remove('hidden');
+      resultEl.innerHTML = `
+        <div class="result-box">
+          <div class="result-icon"><i class="fas fa-calculator"></i></div>
+          <div class="result-text">
+            <div class="result-label">معدل المرحلة ${stageNames[currentStageIndex]}</div>
+            <div class="result-value">${gpa.toFixed(2)}</div>
+            <div class="grade-badge">${getGradeLabel(gpa)}</div>
+          </div>
+        </div>`;
+
+      document.getElementById('calculateStageBtn').classList.add('hidden');
+      document.getElementById('nextStageBtn').classList.remove('hidden');
+      showToast('تم حساب معدل المرحلة بنجاح', 'success');
     }
 
+    // ===== NEXT STAGE =====
     function goToNextStage() {
       currentStageIndex++;
       if (currentStageIndex < stageNames.length) {
-        document.getElementById("stage").value = stageNames[currentStageIndex];
-        document.getElementById("materialCount").value = '';
-        document.getElementById("materialsTableSection").innerHTML = '';
-        document.getElementById("stageGPASection").classList.add("hidden");
-        document.getElementById("materialCountSection").classList.remove("hidden");
-        document.getElementById("stageGPAResult").innerText = '';
-        document.getElementById("nextStageBtn").classList.add("hidden");
-        document.getElementById("calculateStageBtn").classList.add("hidden");
+        loadStage();
+        updateProgress(`step-${currentStageIndex + 1}`);
       } else {
-        document.getElementById("finalGPASection").classList.remove("hidden");
+        document.getElementById('sectionStage').classList.add('hidden');
+        document.getElementById('sectionFinal').classList.remove('hidden');
+        updateProgress('step-result');
         calculateFinalGPA();
       }
     }
 
+    // ===== FINAL GPA =====
     function calculateFinalGPA() {
       let finalGPA = 0;
-      for (let i = 0; i < stageGPAs.length; i++) {
-        finalGPA += stageGPAs[i] * stageWeights[i];
-      }
-      document.getElementById("finalGPAResult").innerText = `المعدل التراكمي النهائي: ${finalGPA.toFixed(2)}`;
-      
-      // حفظ المعدل النهائي
+      stageGPAs.forEach((g, i) => finalGPA += g * stageWeights[i]);
       studentData.finalGPA = finalGPA;
-      
-      // إظهار أزرار الحفظ والتصدير
-      document.getElementById("actionButtons").classList.remove("hidden");
+
+      document.getElementById('finalGPAValue').textContent = finalGPA.toFixed(2);
+      document.getElementById('finalGradeBadge').textContent = getGradeLabel(finalGPA);
+
+      // Summary grid
+      const summaryEl = document.getElementById('stageSummary');
+      summaryEl.innerHTML = stageGPAs.map((g, i) => `
+        <div class="summary-item">
+          <div class="s-label">المرحلة ${stageNames[i]} (${stageWeights[i]*100}%)</div>
+          <div class="s-value">${g.toFixed(2)}</div>
+        </div>`).join('');
     }
 
-    function calculateCompetitiveGPA() {
-      document.getElementById("competitiveInputSection").classList.remove("hidden");
+    // ===== COMPETITIVE GPA =====
+    function showCompetitiveResult() {
+      const topGPA = parseFloat(document.getElementById('topStudentGPA').value);
+      const fieldEl = document.getElementById('field-topgpa');
+      fieldEl.classList.remove('has-error');
+
+      if (isNaN(topGPA) || topGPA <= 0 || topGPA > 100) {
+        fieldEl.classList.add('has-error');
+        showToast('الرجاء إدخال معدل صحيح للطالب الأول', 'danger');
+        return;
+      }
+
+      const finalGPA = studentData.finalGPA;
+      const part1 = (finalGPA / topGPA) * 100;
+      const part2 = finalGPA / 2;
+      const competitive = (part1 + part2) / 2;
+      studentData.competitiveGPA = competitive;
+      studentData.topStudentGPA = topGPA;
+
+      document.getElementById('competitiveValue').textContent = competitive.toFixed(2) + '%';
+      document.getElementById('competitiveGPAResult').classList.remove('hidden');
+      showToast('تم حساب المعدل التنافسي بنجاح', 'success');
     }
 
-function showCompetitiveResult() {
-  const finalGPA = parseFloat(document.getElementById("finalGPAResult").innerText.split(":")[1]);
-  const topGPA = parseFloat(document.getElementById("topStudentGPA").value);
-
-  if (!isNaN(finalGPA) && !isNaN(topGPA) && topGPA > 0) {
-    const part1 = (finalGPA / topGPA) * 100;
-    const part2 = finalGPA / 2;
-    const competitive = (part1 + part2) / 2;
-
-    document.getElementById("competitiveGPAResult").innerText = `المعدل التنافسي: ${competitive.toFixed(2)}`;
-
-    // حفظ المعدل التنافسي في بيانات الطالب
-    studentData.competitiveGPA = competitive;
-    studentData.topStudentGPA = topGPA;
-
-// عرض زر حساب معدل أساس المفاضلة بعد ظهور المعدل التنافسي
-if (!document.getElementById("baseScoreBtn")) {
-  const btn = document.createElement("button");
-  btn.id = "baseScoreBtn";
-  btn.innerHTML = '<i class="fas fa-percent"></i> احسب معدل أساس المفاضلة';
-  btn.onclick = showBaseScoreInput;
-  document.getElementById("competitiveInputSection").appendChild(btn);
-}
-
-  } else {
-    alert("الرجاء إدخال معدل الطالب الأول بشكل صحيح");
-  }
-}
-
+    // ===== RESET =====
     function resetForm() {
-      // إعادة تعيين جميع المتغيرات
+      if (!confirm('هل تريد بدء حساب جديد؟ سيتم مسح جميع البيانات.')) return;
       currentStageIndex = 0;
       stageGPAs.length = 0;
-      studentData = {
-        name: '',
-        department: '',
-        stages: []
+      studentData = { name: '', department: '', stages: [] };
+
+      document.getElementById('department').value = '';
+      document.getElementById('studentName').value = '';
+      document.getElementById('materialCount').value = '';
+      document.getElementById('topStudentGPA').value = '';
+      document.getElementById('materialsTableSection').innerHTML = '';
+      document.getElementById('competitiveGPAResult').classList.add('hidden');
+      document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+
+      document.getElementById('sectionFinal').classList.add('hidden');
+      document.getElementById('sectionStage').classList.add('hidden');
+      document.getElementById('sectionInfo').classList.remove('hidden');
+      updateProgress('step-info');
+    }
+
+    // ===== EXPORT WORD =====
+    function exportToWord() {
+      let stagesHTML = studentData.stages.map(stage => `
+        <h3>المرحلة ${stage.name} — المعدل: ${stage.gpa.toFixed(2)} (${getGradeLabel(stage.gpa)})</h3>
+        <table border="1" style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+          <thead style="background:#e8f0fe;">
+            <tr><th>المادة</th><th>الدرجة</th><th>الوحدات</th><th>المجموع</th></tr>
+          </thead>
+          <tbody>
+            ${stage.materials.map(m => `<tr>
+              <td>${m.name}</td><td>${m.grade}</td><td>${m.credit}</td><td>${(m.grade*m.credit).toFixed(1)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`).join('');
+
+      const html = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+        <style>body{font-family:Arial,sans-serif;margin:30px;color:#1e293b;}
+        h1{color:#1a56db;} h2{color:#334155;} h3{color:#475569;margin-top:20px;}
+        table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;text-align:center;}
+        .result{font-size:1.2em;font-weight:bold;margin:10px 0;color:#10b981;}</style>
+        </head><body>
+        <h1>بيانات المعدل التراكمي</h1>
+        <p><strong>الطالب:</strong> ${studentData.name}</p>
+        <p><strong>القسم:</strong> ${studentData.department}</p>
+        ${stagesHTML}
+        <div class="result">المعدل التراكمي النهائي: ${studentData.finalGPA?.toFixed(2) ?? '-'} — ${getGradeLabel(studentData.finalGPA)}</div>
+        ${studentData.competitiveGPA ? `<div class="result">المعدل التنافسي: ${studentData.competitiveGPA.toFixed(2)}%</div>` : ''}
+        <hr><p style="font-size:.8em;color:#94a3b8;">تصميم وتطوير: د. طلال ناظم الزهيري</p>
+        </body></html>`;
+
+      const blob = new Blob([html], { type: 'application/msword' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `معدل_${studentData.name}.doc`;
+      a.click();
+      showToast('تم تصدير الملف بنجاح', 'success');
+    }
+
+    // ===== EXPORT PDF =====
+    function exportToPDF() {
+      showToast('جاري إنشاء ملف PDF...', '');
+      const card = document.getElementById('sectionFinal');
+      const opt = {
+        margin: 10,
+        filename: `معدل_${studentData.name}.pdf`,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
-      
-      // إعادة تعيين النموذج
-      document.getElementById("department").value = "";
-      document.getElementById("studentName").value = "";
-      document.getElementById("stage").value = "";
-      document.getElementById("materialCount").value = "";
-      document.getElementById("materialsTableSection").innerHTML = "";
-      document.getElementById("stageGPAResult").innerText = "";
-      document.getElementById("finalGPAResult").innerText = "";
-      document.getElementById("competitiveGPAResult").innerText = "";
-      document.getElementById("topStudentGPA").value = "";
-      
-      // إخفاء الأقسام غير الضرورية
-      document.getElementById("materialCountSection").classList.add("hidden");
-      document.getElementById("stageGPASection").classList.add("hidden");
-      document.getElementById("finalGPASection").classList.add("hidden");
-      document.getElementById("competitiveInputSection").classList.add("hidden");
-      document.getElementById("actionButtons").classList.add("hidden");
-      document.getElementById("nextStageBtn").classList.add("hidden");
-      document.getElementById("calculateStageBtn").classList.add("hidden");
+      html2pdf().from(card).set(opt).save().then(() => showToast('تم تصدير PDF بنجاح', 'success'));
     }
-
-    
-function exportToWord() {
-  studentData.name = document.getElementById("studentName").value;
-  studentData.department = document.getElementById("department").value;
-
-  let htmlContent = `
-    <!DOCTYPE html>
-    <html dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <title>بيانات الطالب ${studentData.name}</title>
-      <style>
-        body { font-family: 'Cairo', sans-serif; margin: 20px; }
-        h1, h2 { color: #2c3e50; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; font-size: 1.1em; }
-        th { background-color: #f2f2f2; }
-      </style>
-    </head>
-    <body>
-      <h1>بيانات الطالب</h1>
-      <table>
-        <tr><th>الاسم</th><td>${studentData.name}</td></tr>
-        <tr><th>القسم</th><td>${studentData.department}</td></tr>
-        <tr><th>المعدل التراكمي</th><td>${studentData.finalGPA ? studentData.finalGPA.toFixed(2) : '-'}</td></tr>
-        <tr><th>معدل الطالب الأول</th><td>${studentData.topStudentGPA ? studentData.topStudentGPA : '-'}</td></tr>
-        <tr><th>المعدل التنافسي</th><td>${studentData.competitiveGPA ? studentData.competitiveGPA.toFixed(2) : '-'}</td></tr>
-        <tr><th>درجة الامتحان التنافسي</th><td>${studentData.examScore ? studentData.examScore : '-'}</td></tr>
-        <tr><th>معدل أساس المفاضلة</th><td>${studentData.baseScore ? studentData.baseScore.toFixed(2) : '-'}</td></tr>
-      </table>
-    </body>
-    </html>
-  `;
-
-  const blob = new Blob([htmlContent], { type: 'application/msword' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `بيانات_الطالب_${studentData.name}.doc`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-function showBaseScoreInput() {
-  if (!document.getElementById("competitiveExamScore")) {
-    const inputGroup = document.createElement("div");
-    inputGroup.className = "input-group";
-    inputGroup.innerHTML = `
-      <i class="fas fa-pen"></i>
-      <input type="number" step="0.01" id="competitiveExamScore" placeholder="درجة الامتحان التنافسي (من 100)">
-    `;
-    document.getElementById("competitiveInputSection").appendChild(inputGroup);
-  }
-
-  if (!document.getElementById("calculateBaseBtn")) {
-    const btn = document.createElement("button");
-    btn.id = "calculateBaseBtn";
-    btn.innerHTML = '<i class="fas fa-equals"></i> احسب معدل الأساس';
-    btn.onclick = calculateBaseScore;
-    document.getElementById("competitiveInputSection").appendChild(btn);
-  }
-}
-
-function calculateBaseScore() {
-  const examScore = parseFloat(document.getElementById("competitiveExamScore").value);
-  const competitive = studentData.competitiveGPA;
-
-  if (!isNaN(examScore) && !isNaN(competitive)) {
-    const baseScore = (competitive * 0.7) + (examScore * 0.3);
-    studentData.examScore = examScore;
-    studentData.baseScore = baseScore;
-
-    const existing = document.getElementById("baseScoreResult");
-    if (existing) {
-      existing.innerText = `معدل أساس المفاضلة: ${baseScore.toFixed(2)}`;
-    } else {
-      const resultDiv = document.createElement("p");
-      resultDiv.id = "baseScoreResult";
-      resultDiv.style.marginTop = "10px";
-      resultDiv.style.color = "#00796b";
-      resultDiv.style.fontWeight = "bold";
-      resultDiv.innerText = `معدل أساس المفاضلة: ${baseScore.toFixed(2)}`;
-      document.getElementById("competitiveInputSection").appendChild(resultDiv);
-    }
-  } else {
-    alert("يرجى إدخال درجة صحيحة للامتحان التنافسي.");
-  }
-}
   </script>
- </body>
+</body>
 </html>
