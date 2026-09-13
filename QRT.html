@@ -1,852 +1,978 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>مولد رمز QR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Pro Tool™ — مولد رموز QR الاحترافي</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔳</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    :root {
-      --bg: #eef0ff;
-      --surface: #ffffff;
-      --surface2: #f4f5ff;
-      --border: rgba(108,99,255,0.15);
-      --accent: #5b52e8;
-      --accent2: #ff6584;
-      --accent3: #1da462;
-      --text: #1e1b4b;
-      --text-dim: #6b7280;
-      --radius: 16px;
-      --glow: 0 4px 32px rgba(108,99,255,0.12);
-    }
+<!-- ====== محمّل مكتبة QR مع بدائل احتياطية ====== -->
+<script>
+(function(){
+  var SOURCES = [
+    { url:'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js' },
+    { url:'https://fastly.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js' },
+    { url:'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js' },
+    { url:'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js', shim:true }
+  ];
+  function nativeOK(){ return !!(window.QRCode && window.QRCode.toDataURL); }
 
-    body {
-      font-family: 'Tajawal', sans-serif;
-      background: linear-gradient(135deg, #dde3ff 0%, #eef0ff 40%, #e8f0fe 70%, #d8e9ff 100%);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
+  /* واجهة متوافقة مع node-qrcode فوق مكتبة qrcode-generator الاحتياطية */
+  function installShim(){
+    function buildModel(text, ec){
+      var data = unescape(encodeURIComponent(text)); /* دعم العربية UTF-8 */
+      for(var t=1; t<=40; t++){
+        try{ var q = window.qrcode(t, ec||'M'); q.addData(data); q.make(); return q; }
+        catch(e){ /* الحجم غير كافٍ — جرّب الأكبر */ }
+      }
+      return null;
     }
+    function parse(opts, cb){ if(typeof opts==='function'){ cb=opts; opts={}; } return [opts||{}, cb]; }
+    window.QRCode = {
+      toDataURL: function(text, opts, cb){
+        var a=parse(opts,cb); opts=a[0]; cb=a[1];
+        var q=buildModel(text, opts.errorCorrectionLevel);
+        if(!q) return cb && cb(new Error('too much data'));
+        var n=q.getModuleCount(), mg=(opts.margin===undefined?4:opts.margin),
+            size=opts.width||256,
+            dark=(opts.color&&opts.color.dark)||'#000000',
+            light=(opts.color&&opts.color.light)||'#ffffff',
+            m=n+mg*2;
+        var s=document.createElement('canvas'); s.width=m; s.height=m;
+        var sx=s.getContext('2d');
+        sx.fillStyle=light; sx.fillRect(0,0,m,m);
+        sx.fillStyle=dark;
+        for(var r=0;r<n;r++)for(var c=0;c<n;c++) if(q.isDark(r,c)) sx.fillRect(c+mg,r+mg,1,1);
+        var o=document.createElement('canvas'); o.width=size; o.height=size;
+        var ox=o.getContext('2d'); ox.imageSmoothingEnabled=false;
+        ox.drawImage(s,0,0,size,size);
+        cb && cb(null, o.toDataURL('image/png'));
+      },
+      toString: function(text, opts, cb){
+        var a=parse(opts,cb); opts=a[0]; cb=a[1];
+        var q=buildModel(text, opts.errorCorrectionLevel);
+        if(!q) return cb && cb(new Error('too much data'));
+        var n=q.getModuleCount(), mg=(opts.margin===undefined?4:opts.margin),
+            dark=(opts.color&&opts.color.dark)||'#000000',
+            light=(opts.color&&opts.color.light)||'#ffffff',
+            m=n+mg*2, rects='';
+        for(var r=0;r<n;r++)for(var c=0;c<n;c++)
+          if(q.isDark(r,c)) rects+='<rect x="'+(c+mg)+'" y="'+(r+mg)+'" width="1" height="1"/>';
+        var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+m+' '+m+'" shape-rendering="crispEdges">'
+          +'<rect width="'+m+'" height="'+m+'" fill="'+light+'"/><g fill="'+dark+'">'+rects+'</g></svg>';
+        cb && cb(null, svg);
+      }
+    };
+    console.info('[QR Pro] تم تفعيل المكتبة الاحتياطية (shim) بنجاح ✓');
+  }
 
-    /* Background pattern */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 70% 50% at 10% 0%, rgba(108,99,255,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at 90% 100%, rgba(59,130,246,0.14) 0%, transparent 55%),
-        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(167,139,250,0.08) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 0;
-    }
+  function loadScript(url, onOK, onBad){
+    var s=document.createElement('script');
+    s.src=url; s.async=true; s.onload=onOK; s.onerror=onBad;
+    document.head.appendChild(s);
+  }
 
-    .page {
-      position: relative;
-      z-index: 1;
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 40px 20px 80px;
-    }
+  window.loadQRLibrary = function(done, fail){
+    if(nativeOK()){ console.info('[QR Pro] المكتبة جاهزة ✓'); return done(); }
+    var i=0;
+    (function next(){
+      if(i>=SOURCES.length) return fail();
+      var src=SOURCES[i++];
+      var url=src.url+(src.url.indexOf('?')>-1?'&':'?')+'r='+Date.now();
+      console.info('[QR Pro] محاولة التحميل من: ' + url);
+      loadScript(url, function(){
+        if(src.shim){
+          if(window.qrcode){ installShim(); done(); } else next();
+        } else if(nativeOK()){ console.info('[QR Pro] تم تحميل المكتبة الأساسية ✓'); done(); }
+        else next();
+      }, next);
+    })();
+  };
+})();
+</script>
 
-    /* Header */
-    header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-    .logo-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 64px;
-      height: 64px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 18px;
-      font-size: 28px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 32px rgba(108,99,255,0.4);
-    }
-    h1 {
-      font-size: clamp(24px, 4vw, 34px);
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-    h1 span { color: var(--accent); }
-    .subtitle {
-      color: var(--text-dim);
-      margin-top: 8px;
-      font-size: 15px;
-    }
+<style>
+:root{
+  --bg:#EDF1F6; --panel:#FFFFFF; --panel-2:#F5F8FC;
+  --ink:#0E1B2C; --muted:#5C6C80; --faint:#8FA0B3;
+  --line:#DBE3EC; --line-strong:#C2CFDC;
+  --accent:#1F5EFF; --accent-strong:#144ACC; --accent-soft:#E7EEFF;
+  --ok:#0F9D58; --ok-soft:#E3F5EC; --warn:#D93025; --warn-soft:#FDECEA;
+  --shadow:0 10px 30px rgba(16,35,61,.08),0 2px 6px rgba(16,35,61,.05);
+  --decor:rgba(31,94,255,.10); --gridc:rgba(14,27,44,.05);
+}
+[data-theme="dark"]{
+  --bg:#0B111A; --panel:#121A26; --panel-2:#0E1520;
+  --ink:#E8EFF7; --muted:#9AA9BC; --faint:#67788D;
+  --line:#223044; --line-strong:#33465F;
+  --accent:#4D82FF; --accent-strong:#7AA2FF; --accent-soft:#182742;
+  --ok:#34C77B; --ok-soft:#0F2E1D; --warn:#FF6B5E; --warn-soft:#3A1512;
+  --shadow:0 12px 32px rgba(0,0,0,.45);
+  --decor:rgba(77,130,255,.13); --gridc:rgba(232,239,247,.045);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); min-height:100vh;
+  transition:background .35s,color .35s;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background-image:linear-gradient(var(--gridc) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--gridc) 1px,transparent 1px);
+  background-size:34px 34px;
+}
+::selection{background:var(--accent-soft)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+button{font-family:inherit}
 
-    /* Card */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 24px rgba(108,99,255,0.10), 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .card-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--accent);
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }
+.finder{position:fixed;z-index:-1;pointer-events:none;border:14px solid var(--decor);border-radius:20px;animation:floaty 11s ease-in-out infinite alternate}
+.finder::after{content:"";position:absolute;inset:20px;background:var(--decor);border-radius:10px}
+.f1{width:130px;height:130px;top:9%;left:4%}
+.f2{width:90px;height:90px;bottom:12%;right:5%;animation-duration:13s}
+.f3{width:60px;height:60px;top:55%;left:46%;animation-duration:9s;opacity:.7}
+@keyframes floaty{from{transform:translateY(0) rotate(0)}to{transform:translateY(-20px) rotate(4deg)}}
 
-    /* URL Input - hero */
-    .url-group {
-      position: relative;
-    }
-    .url-group input {
-      width: 100%;
-      background: var(--surface2);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 56px 18px 20px;
-      color: var(--text);
-      font-size: 15px;
-      font-family: 'Tajawal', sans-serif;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      direction: ltr;
-      text-align: left;
-    }
-    .url-group input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(108,99,255,0.15);
-    }
-    .url-group input.valid { border-color: var(--accent3); }
-    .url-group input.invalid { border-color: var(--accent2); }
-    .url-icon {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 20px;
-      pointer-events: none;
-    }
-    .url-status {
-      font-size: 12px;
-      margin-top: 6px;
-      min-height: 16px;
-      transition: color 0.2s;
-    }
-    .url-status.valid { color: var(--accent3); }
-    .url-status.invalid { color: var(--accent2); }
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:var(--bg);
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{max-width:1180px;margin-inline:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-mark{width:44px;height:44px;flex-shrink:0;border-radius:11px;background:var(--accent);display:grid;place-items:center;box-shadow:0 6px 16px rgba(31,94,255,.35)}
+.brand h1{font-family:'Changa';font-weight:800;font-size:1.3rem;line-height:1.1}
+.brand small{display:block;font-family:'IBM Plex Sans Arabic';font-weight:500;font-size:.72rem;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:10px}
+.ver-pill{font-family:'Changa';font-size:.72rem;font-weight:700;background:var(--accent-soft);color:var(--accent);padding:4px 12px;border-radius:99px}
+.icon-btn{width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:1.05rem;display:grid;place-items:center;transition:.2s}
+.icon-btn:hover{border-color:var(--accent);transform:translateY(-2px)}
 
-    /* Grid for settings */
-    .settings-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 480px) {
-      .settings-grid { grid-template-columns: 1fr; }
-    }
+.app-wrap{max-width:1180px;margin-inline:auto;padding:28px 22px 60px}
+.lib-error{
+  max-width:640px;margin:0 auto 22px;background:var(--warn-soft);
+  border:1px solid var(--warn);border-radius:14px;padding:24px;text-align:center;
+}
+.lib-error b{font-size:1.02rem;display:block;margin-bottom:7px}
+.lib-error p{font-size:.82rem;color:var(--muted);margin-bottom:15px;line-height:1.7}
 
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 8px;
-    }
+.app{display:grid;grid-template-columns:1.06fr .94fr;gap:26px;align-items:start}
+@media(min-width:981px){.preview-col{position:sticky;top:90px}}
+@media(max-width:980px){.app{grid-template-columns:1fr}}
 
-    select, input[type="text"] {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      color: var(--text);
-      font-size: 14px;
-      font-family: 'Tajawal', sans-serif;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    select:focus, input[type="text"]:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    select option { background: #1a1a26; }
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+.card+.card{margin-top:18px}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.step{width:36px;height:36px;flex-shrink:0;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:'Changa';font-weight:800;font-size:1.05rem}
+.card-title{font-family:'Changa';font-weight:700;font-size:1.04rem}
+.card-sub{font-size:.75rem;color:var(--muted)}
 
-    /* Color pickers */
-    .color-pair {
-      display: flex;
-      gap: 12px;
-    }
-    .color-field {
-      flex: 1;
-    }
-    .color-picker-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-    .color-picker-wrap:focus-within { border-color: var(--accent); }
-    input[type="color"] {
-      width: 28px;
-      height: 28px;
-      border: none;
-      border-radius: 6px;
-      padding: 0;
-      cursor: pointer;
-      background: none;
-    }
-    .color-hex {
-      font-size: 13px;
-      color: var(--text-dim);
-      font-family: monospace;
-      flex: 1;
-    }
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:var(--panel-2);color:var(--muted);padding:8px 13px;border-radius:10px;font-size:.82rem;font-weight:600;cursor:pointer;transition:.18s}
+.tab:hover{color:var(--ink);border-color:var(--line-strong);transform:translateY(-1px)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 5px 14px rgba(31,94,255,.35)}
+.pane{display:none;animation:fadeIn .3s}
+.pane.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    /* Logo upload */
-    .upload-area {
-      border: 2px dashed var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .upload-area:hover {
-      border-color: var(--accent);
-      background: rgba(108,99,255,0.05);
-    }
-    .upload-area input { display: none; }
-    .upload-icon { font-size: 22px; margin-bottom: 4px; }
-    .upload-text { font-size: 12px; color: var(--text-dim); }
-    .upload-name { font-size: 13px; color: var(--accent3); margin-top: 4px; display: none; }
+label{display:block;font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:6px}
+input[type=text],input[type=email],input[type=tel],input[type=password],textarea,select{
+  width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+  padding:11px 14px;font-family:inherit;font-size:.93rem;color:var(--ink);transition:.2s;
+}
+textarea{resize:vertical;min-height:74px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+.field+.field{margin-top:13px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint{font-size:.72rem;color:var(--faint);margin-top:6px}
 
-    /* Generate button */
-    .btn-generate {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, var(--accent), #9b8aff);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 17px;
-      font-weight: 700;
-      font-family: 'Tajawal', sans-serif;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-      box-shadow: 0 6px 24px rgba(108,99,255,0.4);
-      letter-spacing: 0.5px;
-    }
-    .btn-generate:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 32px rgba(108,99,255,0.55);
-    }
-    .btn-generate:active:not(:disabled) { transform: translateY(0); }
-    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+.seg{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg button{flex:1;border:none;background:transparent;color:var(--muted);padding:8px 4px;border-radius:9px;cursor:pointer;font-weight:700;font-size:.82rem;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:1px}
+.seg button i{font-style:normal;font-weight:500;font-size:.63rem;opacity:.75}
+.seg button:hover{color:var(--ink)}
+.seg button.active{background:var(--accent);color:#fff;box-shadow:0 4px 10px rgba(31,94,255,.35)}
+.seg-row{margin-bottom:16px}
+.seg-row>label{margin-bottom:8px}
+.ec-hint{font-size:.72rem;color:var(--faint);margin-top:7px;transition:.3s}
 
-    /* Loading spinner */
-    .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-left: 8px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+.colors{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.color-field{display:flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.color-field input[type=color]{width:38px;height:38px;border:none;border-radius:8px;cursor:pointer;background:none;padding:0}
+.color-field input[type=color]::-webkit-color-swatch{border-radius:8px;border:1px solid var(--line-strong)}
+.color-field input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.color-field .hex{border:none;background:transparent;width:100%;font-family:monospace;font-size:.85rem;direction:ltr;text-align:left;color:var(--ink);padding:4px 0}
+.color-field .hex:focus{box-shadow:none}
+.presets{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.presets>span{font-size:.72rem;color:var(--faint);font-weight:600}
+.preset{width:32px;height:32px;border-radius:50%;border:2px solid var(--line-strong);cursor:pointer;transition:.18s;padding:0}
+.preset:hover{transform:scale(1.18);border-color:var(--accent)}
 
-    /* QR Result */
-    .qr-result {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding-top: 8px;
-    }
-    .qr-result.show { display: flex; animation: fadeUp 0.4s ease; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .qr-canvas-wrap {
-      padding: 20px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    .qr-label {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-      text-align: center;
-    }
+.dropzone{border:2px dashed var(--line-strong);border-radius:12px;padding:22px;text-align:center;cursor:pointer;transition:.25s;color:var(--muted);font-size:.85rem}
+.dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-soft);transform:scale(1.01)}
+.dropzone .dz-icon{font-size:1.7rem;display:block;margin-bottom:6px}
+.logo-box{display:none;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.logo-box img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:9px;border:1px solid var(--line)}
+.logo-box .lb-name{font-size:.8rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini-btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 11px;font-size:.74rem;font-weight:700;cursor:pointer;color:var(--ink);transition:.18s}
+.mini-btn:hover{border-color:var(--accent)}
+.mini-btn.danger:hover{border-color:var(--warn);color:var(--warn)}
+.slider-row{display:none;align-items:center;gap:11px;margin-top:13px}
+.slider-row label{margin:0;white-space:nowrap}
+input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer}
+.slider-val{font-family:'Changa';font-weight:700;font-size:.82rem;color:var(--accent);min-width:38px;text-align:center}
 
-    /* Action buttons */
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
-    .btn {
-      flex: 1 1 140px;
-      min-width: 130px;
-      padding: 12px 16px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: var(--surface2);
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 600;
-      font-family: 'Tajawal', sans-serif;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.08); }
-    .btn.btn-save:hover { border-color: var(--accent3); color: var(--accent3); background: rgba(67,233,123,0.08); }
-    .btn.btn-reset:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(255,101,132,0.08); }
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:11px;font-weight:700;font-size:.88rem;border:1px solid transparent;cursor:pointer;transition:.18s;user-select:none}
+.btn:active{transform:scale(.96)}
+.btn svg{width:17px;height:17px;flex-shrink:0}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 7px 18px rgba(31,94,255,.38)}
+.btn-primary:hover{background:var(--accent-strong);transform:translateY(-2px)}
+.btn-ghost{background:var(--panel);border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.btn-danger{background:transparent;color:var(--warn);border-color:var(--warn)}
+.btn-danger:hover{background:var(--warn-soft)}
+.generate-row{display:flex;gap:10px;margin-top:18px}
+.generate-row .btn-primary{flex:1;font-size:1rem;padding:14px}
+.btn.pulse{animation:pulse .4s}
+@keyframes pulse{50%{transform:scale(1.04)}}
 
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 24px;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text);
-      box-shadow: 0 8px 32px rgba(108,99,255,0.18);
-      z-index: 9999;
-      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.3s;
-      opacity: 0;
-      white-space: nowrap;
-    }
-    #toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-    #toast.success { border-color: var(--accent3); color: var(--accent3); }
-    #toast.error   { border-color: var(--accent2); color: var(--accent2); }
-    #toast.info    { border-color: var(--accent);  color: var(--accent);  }
+.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.pv-title{font-family:'Changa';font-weight:700;font-size:1.04rem;display:flex;align-items:center;gap:9px}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--ok);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{font-size:.7rem;font-weight:700;background:var(--panel-2);border:1px solid var(--line);border-radius:99px;padding:4px 11px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.chip.state-done{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.chip.state-loading{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.chip.state-warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
 
-    /* Saved QR */
-    .saved-section { margin-top: 8px; }
-    .saved-empty {
-      text-align: center;
-      color: var(--text-dim);
-      padding: 24px;
-      font-size: 14px;
-    }
-    .qr-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 10px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .qr-item:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(91,82,232,0.12); }
-    .qr-thumb {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
-      object-fit: contain;
-      background: #fff;
-      padding: 2px;
-      flex-shrink: 0;
-    }
-    .qr-item-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .qr-item-name {
-      font-weight: 700;
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .qr-item-date {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-    .qr-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
-    .btn-sm {
-      padding: 6px 12px;
-      border-radius: 7px;
-      font-size: 12px;
-      font-weight: 600;
-      font-family: 'Tajawal', sans-serif;
-      border: 1px solid var(--border);
-      background: transparent;
-      cursor: pointer;
-      color: var(--text-dim);
-      transition: all 0.2s;
-    }
-    .btn-sm:hover { color: var(--text); border-color: var(--accent); }
-    .btn-sm.del:hover { color: var(--accent2); border-color: var(--accent2); }
+.canvas-stage{
+  border:1px solid var(--line);border-radius:14px;padding:24px;min-height:290px;
+  display:grid;place-items:center;
+  background-image:radial-gradient(var(--gridc) 1.5px,transparent 1.5px);background-size:16px 16px;
+}
+#qrCanvas{max-width:100%;height:auto;border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.16)}
+#qrCanvas.pop{animation:pop .32s cubic-bezier(.34,1.5,.64,1)}
+@keyframes pop{from{transform:scale(.9);opacity:.35}to{transform:scale(1);opacity:1}}
+.empty-state{display:grid;place-items:center;text-align:center;border:2px dashed var(--line-strong);border-radius:13px;padding:38px 26px;color:var(--muted);width:100%}
+.empty-state .es-icon{font-size:2.6rem;margin-bottom:9px;filter:grayscale(.4)}
+.empty-state b{display:block;font-size:.92rem;margin-bottom:4px;color:var(--ink)}
+.empty-state span{font-size:.78rem}
+.meta-line{text-align:center;font-size:.76rem;color:var(--faint);margin-top:13px;font-weight:600}
 
-    /* Name input in settings */
-    .name-input-wrap { margin-top: 16px; }
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.actions .btn-primary{grid-column:span 2}
 
-    footer {
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 12px;
-      margin-top: 48px;
-    }
-    footer span { color: var(--accent); }
-  </style>
+.gallery-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.g-tools{display:flex;gap:8px;flex-wrap:wrap}
+.count-badge{font-family:'Changa';font-weight:700;background:var(--accent);color:#fff;border-radius:99px;min-width:24px;height:24px;display:inline-grid;place-items:center;padding:0 8px;font-size:.78rem}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px}
+.g-item{border:1px solid var(--line);border-radius:13px;padding:10px;background:var(--panel-2);text-align:center;cursor:pointer;position:relative;transition:.2s}
+.g-item:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:var(--shadow)}
+.g-item img{width:100%;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:8px;border:1px solid var(--line)}
+.g-name{font-size:.72rem;font-weight:700;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-date{font-size:.63rem;color:var(--faint);margin-top:2px}
+.g-actions{position:absolute;top:14px;inset-inline-start:14px;display:flex;gap:4px;opacity:0;transition:.2s}
+.g-item:hover .g-actions{opacity:1}
+.g-btn{width:27px;height:27px;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;cursor:pointer;font-size:.72rem;transition:.15s}
+.g-btn:hover{transform:scale(1.12);border-color:var(--accent)}
+.g-empty{text-align:center;color:var(--faint);font-size:.84rem;padding:26px 10px;border:2px dashed var(--line);border-radius:13px}
+
+#toastWrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:9px;align-items:center;pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-weight:700;font-size:.85rem;box-shadow:0 10px 26px rgba(0,0,0,.28);display:flex;align-items:center;gap:9px;animation:rise .32s cubic-bezier(.34,1.4,.64,1)}
+.toast.out{opacity:0;transform:translateY(12px);transition:.35s}
+.t-dot{width:9px;height:9px;border-radius:50%;background:var(--ok);flex-shrink:0}
+.toast.warn .t-dot{background:var(--warn)}
+@keyframes rise{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
+
+footer{border-top:1px solid var(--line);padding:22px;background:var(--panel)}
+.foot-in{max-width:1180px;margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+kbd{background:var(--panel-2);border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:6px;padding:2px 7px;font-size:.68rem;font-family:inherit}
+.privacy{display:flex;align-items:center;gap:6px;color:var(--ok);font-weight:700;font-size:.72rem}
+
+@media(max-width:560px){
+  .row2,.colors{grid-template-columns:1fr}
+  .seg button{font-size:.72rem}
+  .foot-in{justify-content:center;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
 </head>
 <body>
 
-<div class="page">
-  <header>
-    <div class="logo-icon">🔲</div>
-    <h1>مولد رمز <span>QR</span> الاحترافي</h1>
-    <p class="subtitle">أنشئ رموز QR مخصصة بسرعة واحترافية</p>
-  </header>
+<div class="finder f1"></div><div class="finder f2"></div><div class="finder f3"></div>
 
-  <!-- URL Input Card -->
-  <div class="card">
-    <div class="card-title">🔗 الرابط</div>
-    <div class="url-group">
-      <input type="text" id="fileLink" placeholder="https://example.com" autocomplete="off" />
-      <span class="url-icon">🌐</span>
-    </div>
-    <div class="url-status" id="urlStatus"></div>
-    <div class="name-input-wrap">
-      <label for="qrName">الاسم (يظهر أسفل الرمز)</label>
-      <input type="text" id="qrName" placeholder="مثال: موقعي الإلكتروني" />
-    </div>
-  </div>
-
-  <!-- Customization Card -->
-  <div class="card">
-    <div class="card-title">🎨 التخصيص</div>
-    <div class="settings-grid">
-      <div>
-        <label>الحجم</label>
-        <select id="size">
-          <option value="128">صغير — 128×128</option>
-          <option value="256" selected>متوسط — 256×256</option>
-          <option value="512">كبير — 512×512</option>
-        </select>
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z" fill="#fff"/></svg>
       </div>
       <div>
-        <label>الإطار الأبيض</label>
-        <select id="quietZone">
-          <option value="0">بدون إطار</option>
-          <option value="4" selected>4 بكسل</option>
-          <option value="8">8 بكسل</option>
-          <option value="16">16 بكسل</option>
-        </select>
+        <h1>QR Pro Tool <span class="ver-pill">v2.1</span></h1>
+        <small>مولد رموز QR الاحترافي — الإصدار المطوّر</small>
       </div>
     </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeToggle" title="تبديل المظهر" aria-label="تبديل المظهر">🌙</button>
+    </div>
+  </div>
+</header>
 
-    <div class="color-pair" style="margin-top: 16px;">
-      <div class="color-field">
-        <label>لون الرمز</label>
-        <div class="color-picker-wrap">
-          <input type="color" id="foregroundColor" value="#000000" />
-          <span class="color-hex" id="fgHex">#000000</span>
+<main class="app-wrap">
+
+  <!-- رسالة فشل تحميل المكتبة -->
+  <div class="lib-error" id="libError" style="display:none">
+    <b>⚠️ تعذّر تحميل مكتبة توليد QR</b>
+    <p>تحتاج الأداة اتصالاً بالإنترنت عند أول تشغيل لتحميل مكتبة التوليد.
+       تم تجريب جميع الخوادم الاحتياطية دون نجاح. تحقق من اتصالك أو من عدم حجب المواقع (jsdelivr / unpkg / cdnjs) ثم أعد المحاولة.</p>
+    <button class="btn btn-primary" id="retryLib">🔄 إعادة المحاولة</button>
+  </div>
+
+  <div class="app">
+    <section>
+      <!-- ١ المحتوى -->
+      <div class="card">
+        <div class="card-head">
+          <div class="step">١</div>
+          <div><div class="card-title">المحتوى</div><div class="card-sub">اختر نوع البيانات التي سيُشفّرها الرمز</div></div>
+        </div>
+        <div class="tabs" id="typeTabs">
+          <button class="tab active" data-type="url">🔗 رابط</button>
+          <button class="tab" data-type="text">📝 نص</button>
+          <button class="tab" data-type="wifi">📶 Wi-Fi</button>
+          <button class="tab" data-type="email">✉️ بريد</button>
+          <button class="tab" data-type="tel">📞 اتصال</button>
+          <button class="tab" data-type="sms">💬 رسالة</button>
+        </div>
+        <div class="pane show" data-pane="url">
+          <label for="f-url">الرابط</label>
+          <input type="text" id="f-url" placeholder="https://example.com" autocomplete="off">
+          <div class="hint">💡 ابدأ الرابط بـ https:// لضمان توافقه مع جميع الماسحات</div>
+        </div>
+        <div class="pane" data-pane="text">
+          <label for="f-text">النص</label>
+          <textarea id="f-text" placeholder="اكتب أي نص حر…"></textarea>
+        </div>
+        <div class="pane" data-pane="wifi">
+          <div class="row2">
+            <div><label for="f-ssid">اسم الشبكة (SSID)</label><input type="text" id="f-ssid" placeholder="MyNetwork"></div>
+            <div><label for="f-pass">كلمة المرور</label><input type="text" id="f-pass" placeholder="••••••••"></div>
+          </div>
+          <div class="field" style="margin-top:13px">
+            <label for="f-enc">نوع التشفير</label>
+            <select id="f-enc"><option value="WPA">WPA / WPA2</option><option value="WEP">WEP</option><option value="nopass">بدون كلمة مرور</option></select>
+          </div>
+        </div>
+        <div class="pane" data-pane="email">
+          <label for="f-email">البريد الإلكتروني</label>
+          <input type="email" id="f-email" placeholder="info@example.com" dir="ltr" style="text-align:left">
+          <div class="row2" style="margin-top:13px">
+            <div><label for="f-subject">الموضوع</label><input type="text" id="f-subject" placeholder="اختياري"></div>
+            <div><label for="f-body">نص الرسالة</label><input type="text" id="f-body" placeholder="اختياري"></div>
+          </div>
+        </div>
+        <div class="pane" data-pane="tel">
+          <label for="f-tel">رقم الهاتف</label>
+          <input type="tel" id="f-tel" placeholder="+964 770 000 0000" dir="ltr" style="text-align:left">
+        </div>
+        <div class="pane" data-pane="sms">
+          <label for="f-smsnum">رقم الهاتف</label>
+          <input type="tel" id="f-smsnum" placeholder="+964 770 000 0000" dir="ltr" style="text-align:left">
+          <div class="field" style="margin-top:13px"><label for="f-smsmsg">نص الرسالة</label><textarea id="f-smsmsg" placeholder="اختياري"></textarea></div>
         </div>
       </div>
-      <div class="color-field">
-        <label>لون الخلفية</label>
-        <div class="color-picker-wrap">
-          <input type="color" id="backgroundColor" value="#ffffff" />
-          <span class="color-hex" id="bgHex">#ffffff</span>
+
+      <!-- ٢ التخصيص -->
+      <div class="card">
+        <div class="card-head">
+          <div class="step">٢</div>
+          <div><div class="card-title">التخصيص</div><div class="card-sub">تحكم كامل بالحجم والألوان والشعار</div></div>
+        </div>
+        <div class="seg-row">
+          <label>الحجم</label>
+          <div class="seg" id="seg-size">
+            <button data-val="128">صغير<i>128px</i></button>
+            <button data-val="256" class="active">متوسط<i>256px</i></button>
+            <button data-val="512">كبير<i>512px</i></button>
+            <button data-val="1024">فائق<i>1024px</i></button>
+          </div>
+        </div>
+        <div class="seg-row">
+          <label>الإطار الأبيض (منطقة الأمان)</label>
+          <div class="seg" id="seg-frame">
+            <button data-val="0">بدون</button>
+            <button data-val="4">رفيع<i>4px</i></button>
+            <button data-val="8" class="active">متوسط<i>8px</i></button>
+            <button data-val="16">عريض<i>16px</i></button>
+          </div>
+        </div>
+        <div class="seg-row">
+          <label>مستوى تصحيح الأخطاء</label>
+          <div class="seg" id="seg-ec">
+            <button data-val="L">L<i>٧٪</i></button>
+            <button data-val="M" class="active">M<i>١٥٪</i></button>
+            <button data-val="Q">Q<i>٢٥٪</i></button>
+            <button data-val="H">H<i>٣٠٪</i></button>
+          </div>
+          <div class="ec-hint" id="ecHint"></div>
+        </div>
+        <div class="seg-row">
+          <label>الألوان</label>
+          <div class="colors">
+            <div class="color-field">
+              <input type="color" id="colorFg" value="#000000" aria-label="لون الرمز">
+              <input type="text" class="hex" id="colorFgHex" value="#000000" maxlength="7" aria-label="رمز لون الرمز">
+            </div>
+            <div class="color-field">
+              <input type="color" id="colorBg" value="#ffffff" aria-label="لون الخلفية">
+              <input type="text" class="hex" id="colorBgHex" value="#ffffff" maxlength="7" aria-label="رمز لون الخلفية">
+            </div>
+          </div>
+          <div class="presets" id="presetRow">
+            <span>قوالب جاهزة:</span>
+            <button class="preset" data-fg="#000000" data-bg="#ffffff" title="كلاسيكي" style="background:linear-gradient(135deg,#000 50%,#fff 50%)"></button>
+            <button class="preset" data-fg="#1F5EFF" data-bg="#ffffff" title="كحلي" style="background:linear-gradient(135deg,#1F5EFF 50%,#fff 50%)"></button>
+            <button class="preset" data-fg="#0B6E4F" data-bg="#ffffff" title="زمردي" style="background:linear-gradient(135deg,#0B6E4F 50%,#fff 50%)"></button>
+            <button class="preset" data-fg="#5B21B6" data-bg="#ffffff" title="بنفسجي" style="background:linear-gradient(135deg,#5B21B6 50%,#fff 50%)"></button>
+            <button class="preset" data-fg="#B42318" data-bg="#ffffff" title="قرمزي" style="background:linear-gradient(135deg,#B42318 50%,#fff 50%)"></button>
+            <button class="preset" data-fg="#ffffff" data-bg="#111111" title="معكوس" style="background:linear-gradient(135deg,#fff 50%,#111 50%)"></button>
+          </div>
+        </div>
+        <div class="seg-row" style="margin-bottom:0">
+          <label>شعار داخل الرمز (اختياري)</label>
+          <div class="dropzone" id="logoZone" role="button" tabindex="0" aria-label="رفع شعار">
+            <div id="logoEmpty"><span class="dz-icon">📎</span>اسحب صورة الشعار هنا أو <b style="color:var(--accent)">انقر للاختيار</b><div class="hint" style="margin-top:5px">PNG أو JPG — حتى 4MB</div></div>
+          </div>
+          <div class="logo-box" id="logoBox">
+            <img id="logoThumb" alt="الشعار">
+            <span class="lb-name" id="logoName">الشعار</span>
+            <button class="mini-btn" id="logoChange">تغيير</button>
+            <button class="mini-btn danger" id="logoRemove">إزالة ✕</button>
+          </div>
+          <div class="slider-row" id="logoSizeRow">
+            <label>حجم الشعار</label>
+            <input type="range" id="logoScale" min="12" max="30" value="20">
+            <span class="slider-val" id="logoScaleVal">20%</span>
+          </div>
+          <div class="hint" style="margin-top:9px">💡 يُنصح بمستوى تصحيح H عند استخدام شعار</div>
         </div>
       </div>
-    </div>
 
-    <div style="margin-top: 16px;">
-      <label>شعار داخل الرمز (اختياري)</label>
-      <div class="upload-area" id="uploadArea" onclick="document.getElementById('logoUpload').click()">
-        <input type="file" id="logoUpload" accept="image/*" />
-        <div class="upload-icon">📎</div>
-        <div class="upload-text">انقر لرفع صورة الشعار</div>
-        <div class="upload-name" id="uploadName"></div>
+      <!-- ٣ الاسم -->
+      <div class="card">
+        <div class="card-head">
+          <div class="step">٣</div>
+          <div><div class="card-title">الاسم أسفل الرمز</div><div class="card-sub">يُطبع الاسم داخل الصورة النهائية</div></div>
+        </div>
+        <input type="text" id="f-name" placeholder="مثال: موقع الجامعة — اتركه فارغاً لإخفائه">
+        <div class="generate-row">
+          <button class="btn btn-primary" id="generateBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 3v4M3 5h4M5 17v4M3 19h4M19 3v4M17 5h4M19 17v4M17 19h4M8 8h8v8H8z"/></svg>
+            توليد رمز QR
+          </button>
+          <button class="btn btn-ghost" id="resetBtn" title="إعادة الضبط">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            إعادة
+          </button>
+        </div>
+        <div class="hint" style="margin-top:11px">⌨️ اختصار: <kbd>Ctrl</kbd> + <kbd>Enter</kbd> للتوليد الفوري</div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Generate Button -->
-  <button class="btn-generate" id="generateBtn" onclick="generateQRCode()">
-    توليد رمز QR
-  </button>
-
-  <!-- QR Result -->
-  <div class="card" id="resultCard" style="margin-top: 20px; display: none;">
-    <div class="card-title">✅ الرمز الناتج</div>
-    <div class="qr-result show" id="qrResult">
-      <div class="qr-canvas-wrap" id="qrCanvasWrap"></div>
-      <div class="qr-label" id="qrResultLabel"></div>
-      <div class="action-buttons">
-        <button class="btn" onclick="downloadQRCode()">⬇️ تحميل PNG</button>
-        <button class="btn" onclick="copyQRCode()">📋 نسخ</button>
-        <button class="btn btn-save" onclick="saveQRCode()">💾 حفظ</button>
-        <button class="btn btn-reset" onclick="resetForm()">🔄 إعادة</button>
+    <aside class="preview-col">
+      <div class="card">
+        <div class="preview-head">
+          <div class="pv-title"><span class="live-dot"></span>المعاينة المباشرة</div>
+          <div class="chips">
+            <span class="chip" id="lenChip" style="display:none"></span>
+            <span class="chip" id="statusChip">جارٍ تحميل المكتبة…</span>
+          </div>
+        </div>
+        <div class="canvas-stage">
+          <div class="empty-state" id="emptyState">
+            <div><span class="es-icon">🔳</span><b>في انتظار المحتوى</b><span>ابدأ الكتابة في أي حقل وسيتولّد الرمز تلقائياً</span></div>
+          </div>
+          <canvas id="qrCanvas" style="display:none"></canvas>
+        </div>
+        <div class="meta-line" id="metaLine">—</div>
+        <div class="actions">
+          <button class="btn btn-primary" id="btnPng">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            تحميل PNG
+          </button>
+          <button class="btn btn-ghost" id="btnSvg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            تحميل SVG
+          </button>
+          <button class="btn btn-ghost" id="btnCopy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            نسخ الصورة
+          </button>
+          <button class="btn btn-ghost" id="btnSave" style="grid-column:span 2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+            حفظ في المعرض
+          </button>
+        </div>
       </div>
-    </div>
+
+      <div class="card">
+        <div class="gallery-head">
+          <div class="pv-title">📂 الرموز المحفوظة <span class="count-badge" id="galleryCount">0</span></div>
+          <div class="g-tools">
+            <button class="btn btn-ghost" id="exportWord" style="padding:8px 13px;font-size:.78rem">📄 تصدير Word</button>
+            <button class="btn btn-danger" id="clearAll" style="padding:8px 13px;font-size:.78rem">مسح الكل</button>
+          </div>
+        </div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="g-empty" id="galleryEmpty">لا توجد رموز محفوظة بعد — أنشئ رمزك الأول واحفظه هنا 💾</div>
+      </div>
+    </aside>
   </div>
+</main>
 
-  <!-- Saved QR Codes -->
-  <div class="card saved-section">
-    <div class="card-title" style="display:flex; align-items:center; justify-content:space-between;">
-      <span>📂 الرموز المحفوظة</span>
-      <button class="btn-sm" onclick="exportToWord()" style="padding: 5px 14px; font-size: 12px;">📄 تصدير Word</button>
-    </div>
-    <div id="qrList"><div class="saved-empty">لا توجد رموز محفوظة بعد</div></div>
+<footer>
+  <div class="foot-in">
+    <div>حقوق النشر © د.طلال الزهيري 2025 | <b>QR Pro Tool™</b></div>
+    <div class="privacy">🔒 تعمل الأداة محلياً داخل متصفحك — لا تُرسل بياناتك لأي خادم</div>
   </div>
+</footer>
 
-  <footer>
-    <p>حقوق النشر © <span>د.طلال الزهيري</span> 2025 | QR Pro Tool™</p>
-  </footer>
-</div>
-
-<div id="toast"></div>
+<div id="toastWrap" role="status" aria-live="polite"></div>
 
 <script>
-  let currentQRCodeCanvas = null;
-  const STORAGE_KEY = "savedQRCodesList_v2";
+const $ = id => document.getElementById(id);
+function toast(msg, type='ok'){
+  const t = document.createElement('div');
+  t.className = 'toast' + (type==='warn' ? ' warn' : '');
+  t.innerHTML = `<span class="t-dot"></span>${msg}`;
+  $('toastWrap').appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(), 380); }, 2600);
+}
 
-  // ── URL Validation ──────────────────────────────────────────
-  const fileLinkInput = document.getElementById("fileLink");
-  const urlStatus = document.getElementById("urlStatus");
+/* ===== الثيم (يعمل حتى قبل تحميل المكتبة) ===== */
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  $('themeToggle').textContent = t==='dark' ? '☀️' : '🌙';
+  localStorage.setItem('qrt_theme', t);
+}
+$('themeToggle').addEventListener('click', () =>
+  applyTheme(document.documentElement.dataset.theme==='dark' ? 'light' : 'dark'));
+applyTheme(localStorage.getItem('qrt_theme') || 'light');
 
-  fileLinkInput.addEventListener("input", debounce(validateURL, 400));
+/* ===== التطبيق الرئيسي — لا يبدأ إلا بعد جاهزية المكتبة ===== */
+let appInitialized = false;
+function initApp(){
+  if(appInitialized) return;
+  appInitialized = true;
+  $('libError').style.display = 'none';
+  console.info('[QR Pro] تشغيل التطبيق…');
 
-  function debounce(fn, delay) {
-    let t;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+  const state = { type:'url', size:256, frame:8, ec:'M', fg:'#000000', bg:'#ffffff', logo:null, logoScale:.20 };
+  const KEY = 'qrt_items_v2';
+  let items = []; try{ items = JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){}
+
+  const FIELD_IDS = ['f-url','f-text','f-ssid','f-pass','f-enc','f-email','f-subject','f-body','f-tel','f-smsnum','f-smsmsg'];
+  const PANE_FIELDS = { url:['f-url'], text:['f-text'], wifi:['f-ssid','f-pass','f-enc'], email:['f-email','f-subject','f-body'], tel:['f-tel'], sms:['f-smsnum','f-smsmsg'] };
+  const EC_HINTS = { L:'حماية اقتصادية — مناسبة للروابط القصيرة والرموز الصغيرة', M:'توازن جيد بين الحماية والحجم (الافتراضي)', Q:'حماية عالية — تتحمل التلف الجزئي', H:'أقصى حماية — الخيار المثالي عند وضع شعار داخل الرمز' };
+
+  const escHtml = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const sanitize = s => (s||'').replace(/[\\/:*?"<>|]/g,'-').slice(0,60).trim();
+  function dlBlob(blob, name){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function roundRectPath(ctx,x,y,w,h,r){
+    r = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
   }
 
-  function isValidURL(str) {
-    try { return Boolean(new URL(str)); } catch { return false; }
+  function payloadFromState(){
+    const v = id => $(id).value.trim();
+    switch(state.type){
+      case 'url':  return v('f-url');
+      case 'text': return v('f-text');
+      case 'wifi': {
+        const s = v('f-ssid'); if(!s) return '';
+        const p = v('f-pass'), e = $('f-enc').value;
+        const esc = x => x.replace(/([\\;,:"'])/g, '\\$1');
+        return `WIFI:T:${e};S:${esc(s)};P:${esc(p)};;`;
+      }
+      case 'email': {
+        const em = v('f-email'); if(!em) return '';
+        const q = new URLSearchParams();
+        if(v('f-subject')) q.set('subject', v('f-subject'));
+        if(v('f-body')) q.set('body', v('f-body'));
+        const qs = q.toString();
+        return 'mailto:' + em + (qs ? '?' + qs : '');
+      }
+      case 'tel': { const t = v('f-tel'); return t ? 'tel:' + t.replace(/\s+/g,'') : ''; }
+      case 'sms': { const n = v('f-smsnum'); if(!n) return ''; const m = v('f-smsmsg'); return 'smsto:' + n.replace(/\s+/g,'') + (m ? ':' + m : ''); }
+    }
+    return '';
   }
 
-  function validateURL() {
-    const val = fileLinkInput.value.trim();
-    fileLinkInput.classList.remove("valid", "invalid");
-    urlStatus.className = "url-status";
-    if (!val) { urlStatus.textContent = ""; return; }
-    if (isValidURL(val)) {
-      fileLinkInput.classList.add("valid");
-      urlStatus.classList.add("valid");
-      urlStatus.textContent = "✓ رابط صحيح";
-    } else {
-      fileLinkInput.classList.add("invalid");
-      urlStatus.classList.add("invalid");
-      urlStatus.textContent = "يرجى إدخال رابط صحيح يبدأ بـ https:// أو http://";
+  function composeQR(payload, s, nameText, done){
+    try{
+      const pad = Math.round(s.frame * s.size / 256);
+      QRCode.toDataURL(payload, { errorCorrectionLevel:s.ec, margin:0, width:s.size, color:{ dark:s.fg, light:s.bg } }, (err, url) => {
+        if(err) return done(null, err);
+        const img = new Image();
+        img.onload = () => {
+          const fs = Math.max(13, Math.round(s.size * 0.085));
+          const nameArea = nameText ? Math.round(fs * 2.4) : 0;
+          const W = s.size + pad*2, H = W + nameArea;
+          const c = document.createElement('canvas'); c.width = W; c.height = H;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+          ctx.drawImage(img, pad, pad, s.size, s.size);
+          const drawName = () => {
+            if(nameText){
+              ctx.fillStyle = '#111418';
+              ctx.font = `700 ${fs}px Changa, "IBM Plex Sans Arabic", Arial, sans-serif`;
+              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+              ctx.fillText(nameText, W/2, s.size + pad + nameArea/2, W - 16);
+            }
+            done(c);
+          };
+          if(s.logo){
+            const l = new Image();
+            l.onload = () => {
+              const plate = Math.round(s.size * (s.logoScale || .2));
+              const cx = pad + s.size/2, cy = pad + s.size/2;
+              roundRectPath(ctx, cx-plate/2, cy-plate/2, plate, plate, plate*.22);
+              ctx.fillStyle = '#ffffff'; ctx.fill();
+              const r = Math.min(plate*.8/l.width, plate*.8/l.height);
+              ctx.drawImage(l, cx-l.width*r/2, cy-l.height*r/2, l.width*r, l.height*r);
+              drawName();
+            };
+            l.onerror = drawName;
+            l.src = s.logo;
+          } else drawName();
+        };
+        img.onerror = () => done(null, new Error('render'));
+        img.src = url;
+      });
+    }catch(e){
+      console.error('[QR Pro] خطأ في التوليد:', e);
+      done(null, e);
     }
   }
 
-  // ── Color pickers ───────────────────────────────────────────
-  document.getElementById("foregroundColor").addEventListener("input", e => {
-    document.getElementById("fgHex").textContent = e.target.value;
-  });
-  document.getElementById("backgroundColor").addEventListener("input", e => {
-    document.getElementById("bgHex").textContent = e.target.value;
-  });
-
-  // ── Logo upload ─────────────────────────────────────────────
-  document.getElementById("logoUpload").addEventListener("change", function () {
-    const name = this.files[0]?.name;
-    const el = document.getElementById("uploadName");
-    if (name) { el.textContent = "✓ " + name; el.style.display = "block"; }
-    else { el.style.display = "none"; }
-  });
-
-  // ── Toast ───────────────────────────────────────────────────
-  let toastTimer;
-  function showToast(msg, type = "info") {
-    const t = document.getElementById("toast");
-    t.textContent = msg;
-    t.className = `show ${type}`;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.className = ""; }, 3000);
+  /* المعاينة الحية */
+  let renderTimer = null;
+  function setStatus(mode){
+    const chip = $('statusChip');
+    chip.className = 'chip';
+    if(mode==='loading'){ chip.textContent='جارٍ التوليد…'; chip.classList.add('state-loading'); }
+    else if(mode==='done'){ chip.textContent='تم التوليد ✓'; chip.classList.add('state-done'); }
+    else if(mode==='error'){ chip.textContent='تحقّق من المحتوى'; chip.classList.add('state-warn'); }
+    else chip.textContent='جاهز';
   }
+  function scheduleRender(){ setStatus('loading'); clearTimeout(renderTimer); renderTimer = setTimeout(doRender, 260); }
 
-  // ── Generate ────────────────────────────────────────────────
-  function generateQRCode(overrideLink = null, overrideName = null, dataURL = null) {
-    const fileLink = overrideLink || fileLinkInput.value.trim();
-    const qrName   = overrideName ?? document.getElementById("qrName").value.trim();
-
-    if (!fileLink) { showToast("يرجى إدخال الرابط أولاً", "error"); return; }
-
-    // If restoring from saved dataURL
-    if (dataURL) {
-      renderFromDataURL(dataURL, qrName);
-      return;
+  function doRender(){
+    const payload = payloadFromState();
+    const lc = $('lenChip');
+    if(payload){ lc.style.display=''; lc.textContent = payload.length + ' حرفاً'; } else lc.style.display='none';
+    if(!payload){
+      $('qrCanvas').style.display='none'; $('emptyState').style.display='grid';
+      $('metaLine').textContent='—'; setStatus('idle'); return;
     }
-
-    const size      = parseInt(document.getElementById("size").value);
-    const colorDark = document.getElementById("foregroundColor").value;
-    const colorLight= document.getElementById("backgroundColor").value;
-    const quietZone = parseInt(document.getElementById("quietZone").value);
-
-    const btn = document.getElementById("generateBtn");
-    btn.disabled = true;
-    btn.innerHTML = 'جارٍ التوليد <span class="spinner"></span>';
-
-    const tempDiv = document.createElement("div");
-    tempDiv.style.cssText = "position:absolute;left:-9999px;top:-9999px;";
-    document.body.appendChild(tempDiv);
-
-    new QRCode(tempDiv, { text: fileLink, width: size, height: size, colorDark, colorLight, correctLevel: QRCode.CorrectLevel.H });
-
-    setTimeout(() => {
-      const canvas = tempDiv.querySelector("canvas");
-      if (!canvas) {
-        btn.disabled = false; btn.textContent = "توليد رمز QR";
-        document.body.removeChild(tempDiv);
-        showToast("فشل في توليد الرمز", "error"); return;
-      }
-
-      const finalSize = size + quietZone * 2;
-      const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = finalSize;
-      finalCanvas.height = finalSize;
-      const ctx = finalCanvas.getContext("2d");
-      ctx.fillStyle = colorLight;
-      ctx.fillRect(0, 0, finalSize, finalSize);
-      ctx.drawImage(canvas, quietZone, quietZone);
-
-      document.body.removeChild(tempDiv);
-
-      const logoFile = document.getElementById("logoUpload").files[0];
-      if (logoFile) {
-        const reader = new FileReader();
-        reader.onload = e => drawLogo(finalCanvas, ctx, e.target.result, size, qrName, btn);
-        reader.readAsDataURL(logoFile);
-      } else {
-        showFinalQRCode(finalCanvas, qrName);
-        btn.disabled = false; btn.textContent = "توليد رمز QR";
-      }
-    }, 300);
-  }
-
-  function drawLogo(finalCanvas, ctx, src, size, qrName, btn) {
-    const img = new Image();
-    img.onload = () => {
-      const ls = size * 0.25;
-      const x = (finalCanvas.width - ls) / 2;
-      const y = (finalCanvas.height - ls) / 2;
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(x + ls/2, y + ls/2, ls/2, 0, Math.PI*2);
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(img, x, y, ls, ls);
-      ctx.restore();
-      showFinalQRCode(finalCanvas, qrName);
-      if (btn) { btn.disabled = false; btn.textContent = "توليد رمز QR"; }
-    };
-    img.onerror = () => {
-      showFinalQRCode(finalCanvas, qrName);
-      if (btn) { btn.disabled = false; btn.textContent = "توليد رمز QR"; }
-    };
-    img.src = src;
-  }
-
-  function showFinalQRCode(canvas, qrName) {
-    currentQRCodeCanvas = canvas;
-    const wrap = document.getElementById("qrCanvasWrap");
-    wrap.innerHTML = "";
-    wrap.appendChild(canvas);
-    const lbl = document.getElementById("qrResultLabel");
-    lbl.textContent = qrName || "";
-    document.getElementById("resultCard").style.display = "block";
-    document.getElementById("resultCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-
-  function renderFromDataURL(dataURL, qrName) {
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement("canvas");
-      c.width = img.naturalWidth; c.height = img.naturalHeight;
-      c.getContext("2d").drawImage(img, 0, 0);
-      showFinalQRCode(c, qrName);
-    };
-    img.src = dataURL;
-  }
-
-  // ── Download ─────────────────────────────────────────────────
-  function downloadQRCode() {
-    if (!currentQRCodeCanvas) { showToast("أنشئ رمز QR أولاً", "error"); return; }
-    const name = (document.getElementById("qrName").value.trim() || "QRCode").replace(/[^a-zA-Z0-9\u0600-\u06FF_-]/g, "_");
-    const a = document.createElement("a");
-    a.href = currentQRCodeCanvas.toDataURL("image/png");
-    a.download = name + ".png";
-    a.click();
-    showToast("✓ تم تحميل الرمز", "success");
-  }
-
-  // ── Copy ──────────────────────────────────────────────────────
-  function copyQRCode() {
-    if (!currentQRCodeCanvas) { showToast("أنشئ رمز QR أولاً", "error"); return; }
-    if (!window.ClipboardItem) { showToast("النسخ غير مدعوم في هذا المتصفح", "error"); return; }
-    currentQRCodeCanvas.toBlob(async blob => {
-      try {
-        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-        showToast("✓ تم نسخ الرمز إلى الحافظة", "success");
-      } catch {
-        showToast("تعذر النسخ — تأكد من HTTPS", "error");
-      }
+    setStatus('loading');
+    composeQR(payload, state, $('f-name').value.trim(), (canvas, err) => {
+      if(err){ console.error('[QR Pro]', err); setStatus('error'); toast('المحتوى طويل جداً أو غير قابل للتشفير', 'warn'); return; }
+      const v = $('qrCanvas');
+      v.width = canvas.width; v.height = canvas.height;
+      v.getContext('2d').drawImage(canvas, 0, 0);
+      v.style.display='block'; $('emptyState').style.display='none';
+      v.classList.remove('pop'); void v.offsetWidth; v.classList.add('pop');
+      $('metaLine').textContent = `${state.size}×${state.size} بكسل • تصحيح ${state.ec} • ${state.logo ? 'شعار مفعّل' : 'بدون شعار'} • ${state.frame ? 'إطار ' + state.frame + 'px' : 'بدون إطار'}`;
+      setStatus('done');
     });
   }
 
-  // ── Save ──────────────────────────────────────────────────────
-  function saveQRCode() {
-    if (!currentQRCodeCanvas) { showToast("أنشئ رمز QR أولاً", "error"); return; }
-    const qrName = document.getElementById("qrName").value.trim() || "رمز QR";
-    const dataURL = currentQRCodeCanvas.toDataURL();
-    const list = getSavedList();
-    list.push({ name: qrName, dataURL, date: new Date().toLocaleDateString("ar-SA") });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    showToast("✓ تم الحفظ بنجاح", "success");
-    loadSavedQRCodes();
+  /* التبويبات */
+  $('typeTabs').addEventListener('click', e => {
+    const b = e.target.closest('.tab'); if(!b) return;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t===b));
+    state.type = b.dataset.type;
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('show', p.dataset.pane === state.type));
+    scheduleRender();
+  });
+
+  function bindSeg(id, key, cast){
+    $(id).addEventListener('click', e => {
+      const b = e.target.closest('button'); if(!b) return;
+      $(id).querySelectorAll('button').forEach(x => x.classList.toggle('active', x===b));
+      state[key] = cast ? cast(b.dataset.val) : b.dataset.val;
+      if(key==='ec') $('ecHint').textContent = EC_HINTS[state.ec];
+      scheduleRender();
+    });
+  }
+  bindSeg('seg-size','size', Number);
+  bindSeg('seg-frame','frame', Number);
+  bindSeg('seg-ec','ec');
+  $('ecHint').textContent = EC_HINTS[state.ec];
+
+  function setColor(k, v){
+    state[k] = v;
+    $(k==='fg' ? 'colorFg' : 'colorBg').value = v;
+    $(k==='fg' ? 'colorFgHex' : 'colorBgHex').value = v;
+    scheduleRender();
+  }
+  $('colorFg').addEventListener('input', e => setColor('fg', e.target.value));
+  $('colorBg').addEventListener('input', e => setColor('bg', e.target.value));
+  ['Fg','Bg'].forEach(k => {
+    $('color'+k+'Hex').addEventListener('change', e => {
+      const v = e.target.value.trim();
+      if(/^#([0-9a-f]{6})$/i.test(v)) setColor(k.toLowerCase(), v);
+      else e.target.value = state[k.toLowerCase()];
+    });
+  });
+  $('presetRow').addEventListener('click', e => {
+    const b = e.target.closest('.preset'); if(!b) return;
+    setColor('fg', b.dataset.fg); setColor('bg', b.dataset.bg);
+    toast('تم تطبيق القالب 🎨');
+  });
+
+  /* الشعار */
+  function processImage(file){
+    return new Promise((res, rej) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        const max = 512, s = Math.min(1, max/Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url); res(c.toDataURL('image/png'));
+      };
+      img.onerror = rej; img.src = url;
+    });
+  }
+  function showLogoUI(name){
+    $('logoZone').style.display='none'; $('logoBox').style.display='flex';
+    $('logoSizeRow').style.display='flex';
+    $('logoThumb').src = state.logo;
+    $('logoName').textContent = name || 'الشعار';
+  }
+  function clearLogo(){
+    state.logo = null;
+    $('logoZone').style.display=''; $('logoBox').style.display='none';
+    $('logoSizeRow').style.display='none';
+    scheduleRender();
+  }
+  function handleFile(file){
+    if(!file || !file.type.startsWith('image/')) return toast('اختر ملف صورة صالح', 'warn');
+    if(file.size > 4*1024*1024) return toast('حجم الصورة كبير — الحد الأقصى 4MB', 'warn');
+    processImage(file).then(u => { state.logo = u; showLogoUI(file.name); scheduleRender(); toast('تم إضافة الشعار ✅'); });
+  }
+  const fileInput = document.createElement('input');
+  fileInput.type='file'; fileInput.accept='image/*';
+  fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+  $('logoZone').addEventListener('click', () => fileInput.click());
+  $('logoZone').addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fileInput.click(); }});
+  ['dragover','dragenter'].forEach(ev => $('logoZone').addEventListener(ev, e => { e.preventDefault(); $('logoZone').classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => $('logoZone').addEventListener(ev, e => { e.preventDefault(); $('logoZone').classList.remove('drag'); }));
+  $('logoZone').addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+  $('logoChange').addEventListener('click', () => fileInput.click());
+  $('logoRemove').addEventListener('click', clearLogo);
+  $('logoScale').addEventListener('input', e => {
+    state.logoScale = e.target.value/100;
+    $('logoScaleVal').textContent = e.target.value + '%';
+    scheduleRender();
+  });
+
+  /* التصدير */
+  function downloadCanvas(c, name){ c.toBlob(b => dlBlob(b, (sanitize(name)||'qr-code') + '.png'), 'image/png'); }
+  function copyCanvas(c){
+    c.toBlob(b => {
+      if(!b || !window.ClipboardItem) return toast('النسخ غير مدعوم في هذا المتصفح', 'warn');
+      navigator.clipboard.write([new ClipboardItem({'image/png': b})])
+        .then(() => toast('تم نسخ الصورة 📋'))
+        .catch(() => toast('تعذّر النسخ — جرّب التحميل', 'warn'));
+    }, 'image/png');
+  }
+  $('generateBtn').addEventListener('click', () => {
+    if(!payloadFromState()) return toast('أدخل المحتوى أولاً', 'warn');
+    doRender();
+    $('generateBtn').classList.remove('pulse'); void $('generateBtn').offsetWidth; $('generateBtn').classList.add('pulse');
+    if(window.innerWidth < 981) document.querySelector('.preview-col').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  $('btnPng').addEventListener('click', () => {
+    const p = payloadFromState(); if(!p) return toast('أدخل المحتوى أولاً', 'warn');
+    composeQR(p, state, $('f-name').value.trim(), c => { if(c){ downloadCanvas(c, $('f-name').value.trim()); toast('تم تحميل الصورة ⬇️'); }});
+  });
+  $('btnSvg').addEventListener('click', () => {
+    const p = payloadFromState(); if(!p) return toast('أدخل المحتوى أولاً', 'warn');
+    QRCode.toString(p, { type:'svg', margin:0, errorCorrectionLevel:state.ec, color:{dark:state.fg, light:state.bg} }, (err, str) => {
+      if(err) return toast('تعذّر إنشاء SVG', 'warn');
+      dlBlob(new Blob([str], {type:'image/svg+xml'}), 'qr-code.svg');
+      toast('تم تحميل SVG (بدون الاسم والشعار) ⬇️');
+    });
+  });
+  $('btnCopy').addEventListener('click', () => {
+    const p = payloadFromState(); if(!p) return toast('أدخل المحتوى أولاً', 'warn');
+    composeQR(p, state, $('f-name').value.trim(), c => c && copyCanvas(c));
+  });
+  $('resetBtn').addEventListener('click', () => {
+    Object.assign(state, { type:'url', size:256, frame:8, ec:'M', fg:'#000000', bg:'#ffffff', logo:null, logoScale:.20 });
+    FIELD_IDS.forEach(id => { const el = $(id); if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; });
+    $('f-name').value = '';
+    clearLogo(); syncControls(); doRender();
+    toast('تمت إعادة الضبط 🔄');
+  });
+
+  /* الحفظ والمعرض */
+  function fieldsSnapshot(){
+    const o = {};
+    PANE_FIELDS[state.type].forEach(id => o[id] = $(id).value);
+    return o;
+  }
+  function persist(){
+    try{ localStorage.setItem(KEY, JSON.stringify(items)); }
+    catch(e){ toast('مساحة التخزين ممتلئة — احذف بعض الرموز', 'warn'); }
+  }
+  $('btnSave').addEventListener('click', () => {
+    const p = payloadFromState(); if(!p) return toast('أدخل المحتوى أولاً', 'warn');
+    const caption = $('f-name').value.trim();
+    items.unshift({
+      id: Date.now(), name: caption || p.slice(0,42), caption, payload: p,
+      date: new Date().toLocaleDateString('ar', {day:'numeric', month:'short', year:'numeric'}),
+      settings: { type:state.type, size:state.size, frame:state.frame, ec:state.ec, fg:state.fg, bg:state.bg, logo:state.logo, logoScale:state.logoScale },
+      fields: fieldsSnapshot()
+    });
+    persist(); renderGallery(); toast('تم حفظ الرمز في المعرض 💾');
+  });
+
+  function renderGallery(){
+    $('galleryCount').textContent = items.length;
+    $('galleryEmpty').style.display = items.length ? 'none' : '';
+    const grid = $('galleryGrid'); grid.innerHTML = '';
+    items.forEach(it => {
+      const d = document.createElement('div');
+      d.className = 'g-item'; d.title = 'انقر لتحميله في المحرر';
+      d.innerHTML = `
+        <div class="g-actions">
+          <button class="g-btn" data-act="dl" title="تنزيل">⬇</button>
+          <button class="g-btn" data-act="cp" title="نسخ">📋</button>
+          <button class="g-btn" data-act="del" title="حذف">🗑</button>
+        </div>
+        <img alt="${escHtml(it.name)}"><div class="g-name"></div><div class="g-date">${it.date}</div>`;
+      d.querySelector('.g-name').textContent = it.name;
+      QRCode.toDataURL(it.payload, { width:160, margin:1, errorCorrectionLevel: it.settings.ec||'M', color:{ dark: it.settings.fg||'#000000', light: it.settings.bg||'#ffffff' } },
+        (e,u) => { if(!e) d.querySelector('img').src = u; });
+      d.addEventListener('click', e => {
+        const b = e.target.closest('[data-act]');
+        if(b){
+          e.stopPropagation();
+          const act = b.dataset.act;
+          if(act==='del'){ items = items.filter(x => x.id!==it.id); persist(); renderGallery(); toast('تم حذف الرمز'); }
+          if(act==='dl') composeQR(it.payload, it.settings, it.caption, c => c && downloadCanvas(c, it.name));
+          if(act==='cp') composeQR(it.payload, it.settings, it.caption, c => c && copyCanvas(c));
+          return;
+        }
+        restoreItem(it);
+      });
+      grid.appendChild(d);
+    });
+  }
+  function restoreItem(it){
+    Object.assign(state, { type:it.settings.type, size:it.settings.size, frame:it.settings.frame, ec:it.settings.ec, fg:it.settings.fg, bg:it.settings.bg, logo:it.settings.logo||null, logoScale:it.settings.logoScale||.2 });
+    FIELD_IDS.forEach(id => { const el = $(id); if(el.tagName==='SELECT') el.selectedIndex=0; else el.value=''; });
+    if(it.fields) for(const id in it.fields){ const el = $(id); if(el) el.value = it.fields[id]; }
+    $('f-name').value = it.caption || '';
+    if(state.logo){ showLogoUI(); } else { $('logoBox').style.display='none'; $('logoSizeRow').style.display='none'; $('logoZone').style.display=''; }
+    syncControls(); doRender();
+    toast('تم تحميل الرمز في المحرر ✏️');
+    if(window.innerWidth < 981) window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function syncControls(){
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.type===state.type));
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('show', p.dataset.pane===state.type));
+    [['seg-size','size'],['seg-frame','frame'],['seg-ec','ec']].forEach(([id,key]) => {
+      $(id).querySelectorAll('button').forEach(b => b.classList.toggle('active', String(b.dataset.val)===String(state[key])));
+    });
+    $('colorFg').value = state.fg; $('colorFgHex').value = state.fg;
+    $('colorBg').value = state.bg; $('colorBgHex').value = state.bg;
+    $('logoScale').value = Math.round(state.logoScale*100);
+    $('logoScaleVal').textContent = Math.round(state.logoScale*100) + '%';
+    $('ecHint').textContent = EC_HINTS[state.ec];
   }
 
-  function getSavedList() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
-  }
-
-  // ── Reset ─────────────────────────────────────────────────────
-  function resetForm() {
-    fileLinkInput.value = "";
-    document.getElementById("qrName").value = "";
-    document.getElementById("size").value = "256";
-    document.getElementById("foregroundColor").value = "#000000";
-    document.getElementById("backgroundColor").value = "#ffffff";
-    document.getElementById("quietZone").value = "4";
-    document.getElementById("logoUpload").value = "";
-    document.getElementById("uploadName").style.display = "none";
-    document.getElementById("fgHex").textContent = "#000000";
-    document.getElementById("bgHex").textContent = "#ffffff";
-    fileLinkInput.classList.remove("valid","invalid");
-    urlStatus.textContent = "";
-    document.getElementById("resultCard").style.display = "none";
-    currentQRCodeCanvas = null;
-    showToast("تمت إعادة التعيين", "info");
-  }
-
-  // ── Load Saved ────────────────────────────────────────────────
-  function loadSavedQRCodes() {
-    const list = getSavedList();
-    const qrListDiv = document.getElementById("qrList");
-    if (list.length === 0) {
-      qrListDiv.innerHTML = '<div class="saved-empty">لا توجد رموز محفوظة بعد</div>';
-      return;
+  $('exportWord').addEventListener('click', () => {
+    if(!items.length) return toast('لا توجد رموز محفوظة للتصدير', 'warn');
+    toast('جارٍ تجهيز ملف Word…');
+    const jobs = items.map(it => new Promise(res => {
+      const s = { ...it.settings, size:256, frame:8 };
+      composeQR(it.payload, s, it.caption, c => res({ it, data: c ? c.toDataURL('image/png') : '' }));
+    }));
+    Promise.all(jobs).then(res => {
+      const body = res.map(r =>
+        `<div style="display:inline-block;width:240px;margin:10px;text-align:center;vertical-align:top">
+           <img src="${r.data}" width="220"/><br/>
+           <b>${escHtml(r.it.name)}</b><br/>
+           <small style="color:#777">${r.it.date}</small>
+         </div>`).join('');
+      const html = `<html dir="rtl"><head><meta charset="utf-8"><title>رموز QR المحفوظة</title></head>
+        <body style="font-family:Arial,Tahoma;text-align:center;background:#fff;color:#111">
+        <h2 style="color:#1F5EFF">📂 رموز QR المحفوظة — QR Pro Tool</h2>
+        <p>تاريخ التصدير: ${new Date().toLocaleDateString('ar')} • عدد الرموز: ${res.length}</p>
+        <div>${body}</div><hr>
+        <p style="font-size:11px;color:#888">حقوق النشر © د.طلال الزهيري — QR Pro Tool™</p>
+        </body></html>`;
+      dlBlob(new Blob(['\ufeff', html], {type:'application/msword'}), 'QR-Pro-Codes.doc');
+      toast('تم تصدير ملف Word بنجاح 📄');
+    });
+  });
+  $('clearAll').addEventListener('click', () => {
+    if(!items.length) return toast('المعرض فارغ بالفعل', 'warn');
+    if(confirm('هل تريد حذف جميع الرموز المحفوظة؟')){
+      items = []; persist(); renderGallery(); toast('تم مسح المعرض');
     }
-    qrListDiv.innerHTML = list.map((item, i) => `
-      <div class="qr-item">
-        <img class="qr-thumb" src="${item.dataURL}" alt="${item.name}" />
-        <div class="qr-item-info">
-          <div class="qr-item-name">${escapeHTML(item.name)}</div>
-          <div class="qr-item-date">${item.date || ""}</div>
-        </div>
-        <div class="qr-item-actions">
-          <button class="btn-sm" onclick="restoreQR(${i})">عرض</button>
-          <button class="btn-sm" onclick="downloadSaved(${i})">↓</button>
-          <button class="btn-sm del" onclick="deleteQR(${i})">حذف</button>
-        </div>
-      </div>
-    `).join("");
-  }
+  });
 
-  function escapeHTML(str) {
-    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  }
+  /* الأحداث العامة */
+  [...FIELD_IDS, 'f-name'].forEach(id => {
+    const el = $(id);
+    el.addEventListener('input', scheduleRender);
+    el.addEventListener('change', scheduleRender);
+  });
+  $('f-url').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); doRender(); }});
+  document.addEventListener('keydown', e => {
+    if((e.ctrlKey || e.metaKey) && e.key==='Enter'){ e.preventDefault(); if(payloadFromState()) doRender(); }
+  });
 
-  function restoreQR(index) {
-    const list = getSavedList();
-    const item = list[index];
-    if (!item) return;
-    document.getElementById("qrName").value = item.name;
-    generateQRCode(null, item.name, item.dataURL);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  if(document.fonts) document.fonts.load('700 20px Changa');
+  renderGallery();
+  doRender();
+  console.info('[QR Pro] التطبيق جاهز ✓');
+}
 
-  function downloadSaved(index) {
-    const list = getSavedList();
-    const item = list[index];
-    if (!item) return;
-    const a = document.createElement("a");
-    a.href = item.dataURL;
-    a.download = (item.name || "QRCode").replace(/[^a-zA-Z0-9\u0600-\u06FF_-]/g,"_") + ".png";
-    a.click();
-  }
-
-  function deleteQR(index) {
-    const list = getSavedList();
-    const name = list[index]?.name || "هذا الرمز";
-    if (!confirm(`هل تريد حذف "${name}"?`)) return;
-    list.splice(index, 1);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    loadSavedQRCodes();
-    showToast("تم الحذف", "info");
-  }
-
-  // ── Export to Word ─────────────────────────────────────────────
-  function exportToWord() {
-    const list = getSavedList();
-    if (list.length === 0) { showToast("لا يوجد رموز محفوظة لتصديرها", "error"); return; }
-    const html = `
-      <html lang="ar" dir="rtl">
-        <head><meta charset="UTF-8"><title>رموز QR المحفوظة</title></head>
-        <body style="font-family: Arial, sans-serif; text-align: center; padding: 40px; direction: rtl;">
-          <h1 style="color: #6c63ff; border-bottom: 2px solid #6c63ff; padding-bottom: 10px;">الرموز المحفوظة</h1>
-          <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin-top: 30px;">
-            ${list.map(item => `
-              <div style="text-align: center; width: 220px; margin-bottom: 10px;">
-                <img src="${item.dataURL}" style="width: 180px; height: 180px;" />
-                <div style="font-weight: bold; color: #5b52e8; margin-top: 8px; font-size: 14px;">${escapeHTML(item.name)}</div>
-                ${item.date ? `<div style="font-size: 11px; color: #999; margin-top: 4px;">${item.date}</div>` : ""}
-              </div>`).join("")}
-          </div>
-        </body>
-      </html>`;
-    const blob = new Blob(["\ufeff", html], { type: "application/msword" });
-    saveAs(blob, "QR_Codes.doc");
-    showToast("✓ تم تصدير الملف", "success");
-  }
-
-  window.onload = loadSavedQRCodes;
+/* ===== الإقلاع: تحميل المكتبة ثم بدء التطبيق ===== */
+function onLibFail(){
+  $('libError').style.display = 'block';
+  const c = $('statusChip');
+  c.textContent = 'فشل تحميل المكتبة'; c.className = 'chip state-warn';
+  console.error('[QR Pro] فشلت جميع محاولات تحميل مكتبة QR');
+}
+loadQRLibrary(initApp, onLibFail);
+$('retryLib').addEventListener('click', () => {
+  $('libError').style.display = 'none';
+  $('statusChip').textContent = 'جارٍ إعادة المحاولة…';
+  loadQRLibrary(initApp, onLibFail);
+});
 </script>
 </body>
 </html>
